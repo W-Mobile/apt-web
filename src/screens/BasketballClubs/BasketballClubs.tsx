@@ -75,9 +75,6 @@ export const BasketballClubs = (): JSX.Element => {
               src="/endastlogga-1.png"
             />
           </Link>
-          <div className="font-['Sora',Helvetica] font-normal text-[#1e2321] text-3xl">
-            Basketball clubs
-          </div>
         </header>
 
         {/* Main Content */}
@@ -122,9 +119,8 @@ export const BasketballClubs = (): JSX.Element => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full bg-[#F24E1E] text-white font-['Sora',Helvetica] text-[32px] py-6 rounded-[20px] hover:bg-[#d93d0f] transition-colors ${
-                  isLoading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`w-full bg-[#F24E1E] text-white font-['Sora',Helvetica] text-[32px] py-6 rounded-[20px] hover:bg-[#d93d0f] transition-colors ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
               >
                 {isLoading ? "Submitting..." : "Submit"}
               </button>
@@ -159,7 +155,7 @@ export const BasketballClubs = (): JSX.Element => {
             <div className="flex justify-end">
               <div className="space-y-2">
                 <a
-                  href="#"
+                  href="/privacy-policy"
                   className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-lg underline block"
                 >
                   Privacy policy

@@ -15,9 +15,6 @@ export const PrivacyPolicy = (): JSX.Element => {
               src="/endastlogga-1.png"
             />
           </Link>
-          <Link to="/basketball-clubs" className="font-['Sora',Helvetica] font-normal text-[#1e2321] text-3xl hover:underline">
-            Basketball clubs
-          </Link>
         </header>
 
         {/* Main Content */}
