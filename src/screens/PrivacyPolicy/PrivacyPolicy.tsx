@@ -29,82 +29,75 @@ export const PrivacyPolicy = (): JSX.Element => {
 
             <div className="prose prose-lg max-w-none">
               <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
-                This Privacy Policy describes how Amir Performance Technology AB ("we," "us," or "our") collects, uses, and shares your personal information when you use our mobile application and related services (collectively, the "Services").
+                This privacy policy applies to the Amir Performance app (hereby referred to as "Application") for mobile devices that was created by Amir Performance (hereby referred to as "Service Provider") as a Free service. This service is intended for use "AS IS".
               </p>
 
               <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
-                Information We Collect
+                Information Collection and Use
               </h2>
               <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
-                We collect information that you provide directly to us, including:
+                The Application collects information when you download and use it. This information may include information such as - your device's Internet Protocol address (e.g. IP address), your device's Internet Protocol address (e.g. IP address), the pages of the application that you visit, the time and date of your visit, the time spent on those pages, the time spent on the Application, the operating system you use on your mobile device. The Application does not gather precise information about the location of your mobile device.
               </p>
-              <ul className="list-disc pl-8 mb-6 font-['Sora',Helvetica] text-[#1e2321] text-lg">
-                <li>Account information (name, email address, password)</li>
-                <li>Profile information (age, height, weight, position)</li>
-                <li>Training data and performance metrics</li>
-                <li>Communications with us</li>
-              </ul>
+              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
+                The Service Provider may use the information you provided to contact you from time to time to provide you with important information, required notices and marketing promotions. For a better experience, while using the Application, the Service Provider may require you to provide us with certain personally identifiable information, including but not limited to Email, Full name, user id. The information that the Service Provider request will be retained by them and used as described in this privacy policy.
+              </p>
 
               <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
-                How We Use Your Information
+                Third Party Access
               </h2>
               <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
-                We use the information we collect to:
+                Only aggregated, anonymized data is periodically transmitted to external services to aid the Service Provider in improving the Application and their service. The Service Provider may share your information with third parties in the ways that are described in this privacy statement. Please note that the Application utilizes third-party services that have their own Privacy Policy about handling data. Below are the links to the Privacy Policy of the third-party service providers used by the Application: Google Play Services Google Analytics for Firebase Firebase Crashlytics The Service Provider may disclose User Provided and Automatically Collected Information: as required by law, such as to comply with a subpoena, or similar legal process; when they believe in good faith that disclosure is necessary to protect their rights, protect your safety or the safety of others, investigate fraud, or respond to a government request; with their trusted services providers who work on their behalf, do not have an independent use of the information we disclose to them, and have agreed to adhere to the rules set forth in this privacy statement.
               </p>
-              <ul className="list-disc pl-8 mb-6 font-['Sora',Helvetica] text-[#1e2321] text-lg">
-                <li>Provide, maintain, and improve our Services</li>
-                <li>Process your transactions</li>
-                <li>Send you technical notices and support messages</li>
-                <li>Communicate with you about products, services, and events</li>
-                <li>Monitor and analyze trends and usage</li>
-                <li>Detect, investigate, and prevent fraudulent transactions and other illegal activities</li>
-                <li>Protect our rights and property</li>
-              </ul>
 
               <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
-                Information Sharing
+                Opt-Out Rights
               </h2>
               <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
-                We do not share your personal information with third parties except as described in this policy. We may share your information with:
+                You can stop all collection of information by the Application easily by uninstalling it. You may use the standard uninstall processes as may be available as part of your mobile device or via the mobile application marketplace or network.
               </p>
-              <ul className="list-disc pl-8 mb-6 font-['Sora',Helvetica] text-[#1e2321] text-lg">
-                <li>Service providers who assist in our operations</li>
-                <li>Professional advisors</li>
-                <li>Law enforcement or other authorities when required by law</li>
-              </ul>
 
               <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
-                Your Rights
+                Data Retention Policy
               </h2>
               <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
-                You have the right to:
+                The Service Provider will retain User Provided data for as long as you use the Application and for a reasonable time thereafter. If you'd like them to delete User Provided Data that you have provided via the Application, please contact them at info@amirperformance.com and they will respond in a reasonable time.
               </p>
-              <ul className="list-disc pl-8 mb-6 font-['Sora',Helvetica] text-[#1e2321] text-lg">
-                <li>Access your personal information</li>
-                <li>Correct inaccurate information</li>
-                <li>Request deletion of your information</li>
-                <li>Object to processing of your information</li>
-                <li>Request restrictions on processing</li>
-              </ul>
+
+              <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
+                Children
+              </h2>
+              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
+                The Service Provider does not use the Application to knowingly solicit data from or market to children under the age of 13. The Application does not address anyone under the age of 13. The Service Provider does not knowingly collect personally identifiable information from children under 13 years of age. In the case the Service Provider discover that a child under 13 has provided personal information, the Service Provider will immediately delete this from their servers. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact the Service Provider (info@amirperformance.com) so that they will be able to take the necessary actions.
+              </p>
+
+              <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
+                Security
+              </h2>
+              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
+                The Service Provider is concerned about safeguarding the confidentiality of your information. The Service Provider provides physical, electronic, and procedural safeguards to protect information the Service Provider processes and maintains.
+              </p>
+
+              <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
+                Changes
+              </h2>
+              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
+                This Privacy Policy may be updated from time to time for any reason. The Service Provider will notify you of any changes to the Privacy Policy by updating this page with the new Privacy Policy. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes. This privacy policy is effective as of 2025-03-05
+              </p>
+
+              <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
+                Your Consent
+              </h2>
+              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
+                By using the Application, you are consenting to the processing of your information as set forth in this Privacy Policy now and as amended by us.
+              </p>
 
               <h2 className="font-['Sora',Helvetica] font-semibold text-[32px] text-[#1e2321] mt-12 mb-6">
                 Contact Us
               </h2>
               <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
-                If you have any questions about this Privacy Policy, please contact us at:
+                If you have any questions regarding privacy while using the Application, or have questions about the practices, please contact the Service Provider via email at info@amirperformance.com.
               </p>
-              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-2">
-                Amir Performance Technology AB
-              </p>
-              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-2">
-                Kungsgatan 50
-              </p>
-              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-2">
-                41115, Göteborg
-              </p>
-              <p className="font-['Sora',Helvetica] text-[#1e2321] text-lg mb-6">
-                Email: info@amirperformance.com
-              </p>
+
             </div>
           </div>
         </main>
