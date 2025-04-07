@@ -16,19 +16,21 @@ export const BasketballClubs = (): JSX.Element => {
 
     try {
       const response = await fetch(
-        `https://l7t4tsuc0j.execute-api.eu-north-1.amazonaws.com/rest/redeemCode?email=${encodeURIComponent(
+        `https://api.amirperformance.se/rest/redeemCode?email=${encodeURIComponent(
           email
-        )}&code=${encodeURIComponent(code)}`
+        )}&code=${encodeURIComponent(code)}`,
+        {
+          method: 'GET',
+        }
       );
 
       if (response.ok) {
         setIsSuccess(true);
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || "An error occurred. Please try again.");
+        throw new Error("Failed to redeem code");
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      setError(err instanceof Error ? err.message : "An error occurred while processing your request. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -53,9 +55,9 @@ export const BasketballClubs = (): JSX.Element => {
 
           <main className="px-4 sm:px-6">
             <div className="max-w-[1440px] mx-auto">
-              <h1 className="font-['Sora',Helvetica] font-semibold text-4xl sm:text-[80px] leading-tight sm:leading-[1.1] text-[#1e2321] mb-6">
+              <p className="font-['Sora',Helvetica] text-xl sm:text-[32px] leading-tight sm:leading-[1.2] text-[#1e2321] mb-8 sm:mb-16 max-w-[1000px]">
                 All done, restart the app and you're good to go!
-              </h1>
+              </p>
             </div>
           </main>
         </div>
