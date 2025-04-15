@@ -16,7 +16,7 @@ export const BasketballClubs = (): JSX.Element => {
 
     try {
       const response = await fetch(
-        `https://api.amirperformance.se/rest/redeemCode?email=${encodeURIComponent(
+        `https://tzigof9xkc.execute-api.eu-north-1.amazonaws.com/rest/redeemCode?email=${encodeURIComponent(
           email
         )}&code=${encodeURIComponent(code)}`,
         {
