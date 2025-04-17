@@ -116,7 +116,7 @@ export const PrivacyPolicy = (): JSX.Element => {
               info@amirperformance.com
             </a>
             <p className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg mb-1">
-              Kungsgatan 50
+              Kungsgatan 57
             </p>
             <p className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg mb-3 sm:mb-4">
               41115, Göteborg

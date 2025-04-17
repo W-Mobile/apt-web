@@ -55,11 +55,62 @@ export const BasketballClubs = (): JSX.Element => {
 
           <main className="px-4 sm:px-6">
             <div className="max-w-[1440px] mx-auto">
-              <p className="font-['Sora',Helvetica] text-xl sm:text-[32px] leading-tight sm:leading-[1.2] text-[#1e2321] mb-8 sm:mb-16 max-w-[1000px]">
+              <h2 className="font-['Sora',Helvetica] text-2xl sm:text-3xl leading-tight text-[#1e2321] mb-4">
+                Success!
+              </h2>
+              <p className="font-['Sora',Helvetica] text-lg sm:text-xl leading-tight text-[#1e2321] mb-6">
                 All done, restart the app and you're good to go!
               </p>
+              <Link
+                to="/"
+                className="inline-block font-['Sora',Helvetica] text-lg bg-[#F24E1E] text-white px-6 py-3 rounded-[20px] hover:bg-[#d93d0f] transition-colors mb-8"
+              >
+                Back to Home
+              </Link>
             </div>
           </main>
+
+          <Card className="mt-8 sm:mt-16 w-full rounded-none bg-[#f2f2ec] bg-opacity-50 border-none">
+            <CardContent className="p-4 sm:p-6">
+              <h3 className="font-['Sora',Helvetica] font-semibold text-[#1e2321] text-xl sm:text-[22px] mb-3 sm:mb-4">
+                Contact
+              </h3>
+              <p className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg mb-3 sm:mb-4">
+                Amir Performance Technology AB
+              </p>
+              <a
+                className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg underline block mb-3 sm:mb-4"
+                href="mailto:info@amirperformance.com"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                info@amirperformance.com
+              </a>
+              <p className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg mb-1">
+                Kungsgatan 57
+              </p>
+              <p className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg mb-3 sm:mb-4">
+                41115, Göteborg
+              </p>
+
+              <div className="flex justify-end">
+                <div className="space-y-2">
+                  <Link
+                    to="/privacy-policy"
+                    className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg underline block"
+                  >
+                    Privacy policy
+                  </Link>
+                  <a
+                    href="#"
+                    className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg underline block"
+                  >
+                    Terms of use
+                  </a>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -148,7 +199,7 @@ export const BasketballClubs = (): JSX.Element => {
               info@amirperformance.com
             </a>
             <p className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg mb-1">
-              Kungsgatan 50
+              Kungsgatan 57
             </p>
             <p className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg mb-3 sm:mb-4">
               41115, Göteborg
