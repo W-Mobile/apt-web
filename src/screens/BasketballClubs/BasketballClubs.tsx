@@ -101,12 +101,6 @@ export const BasketballClubs = (): JSX.Element => {
                   >
                     Privacy policy
                   </Link>
-                  <a
-                    href="#"
-                    className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg underline block"
-                  >
-                    Terms of use
-                  </a>
                 </div>
               </div>
             </CardContent>
@@ -213,12 +207,6 @@ export const BasketballClubs = (): JSX.Element => {
                 >
                   Privacy policy
                 </Link>
-                <a
-                  href="#"
-                  className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg underline block"
-                >
-                  Terms of use
-                </a>
               </div>
             </div>
           </CardContent>

@@ -35,12 +35,15 @@ export const Startsida = (): JSX.Element => {
 
             {/* App Store Buttons */}
             <div className="flex gap-4 mb-8 sm:mb-12">
-              <img
-                className="w-[100px] sm:w-[120px] h-8 sm:h-10"
-                alt="Mobile app store"
-                src="/mobile-app-store-badges.svg"
-              />
-              <div className="w-[115px] sm:w-[135px] h-8 sm:h-10 bg-black rounded-[5px] overflow-hidden border border-solid border-white flex items-center justify-center relative">
+              <a href="https://apps.apple.com/us/app/amir-performance/id6469305611" target="_blank" rel="noopener noreferrer">
+                <img
+                  className="w-[100px] sm:w-[120px] h-8 sm:h-10"
+                  alt="Download on the App Store"
+                  src="/mobile-app-store-badges.svg"
+                />
+              </a>
+              <a href="https://play.google.com/store/apps/details?id=com.awayeinnovation.awayeapp" target="_blank" rel="noopener noreferrer" 
+                className="w-[115px] sm:w-[135px] h-8 sm:h-10 bg-black rounded-[5px] overflow-hidden border border-solid border-white flex items-center justify-center relative">
                 <img
                   className="absolute w-[75px] sm:w-[85px] h-[15px] sm:h-[17px] top-[14px] sm:top-[17px] left-[35px] sm:left-[41px]"
                   alt="Google play"
@@ -52,7 +55,7 @@ export const Startsida = (): JSX.Element => {
                   src="/get-it-on.svg"
                 />
                 <div className="absolute w-[20px] sm:w-[23px] h-[22px] sm:h-[26px] top-[6px] sm:top-[7px] left-2 sm:left-2.5 bg-[url(/subtract.svg)] bg-[100%_100%]" />
-              </div>
+              </a>
             </div>
           </div>
 
@@ -108,12 +111,6 @@ export const Startsida = (): JSX.Element => {
                 >
                   Privacy policy
                 </Link>
-                <a
-                  href="#"
-                  className="font-['Sora',Helvetica] font-medium text-[#1e2321] text-base sm:text-lg underline block"
-                >
-                  Terms of use
-                </a>
               </div>
             </div>
           </CardContent>
