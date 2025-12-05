@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.awayeinnovation.awayeapp",
+      "sha256_cert_fingerprints": [
+        "DA:40:6D:E9:07:60:EE:8F:70:E0:E8:60:36:0D:31:6B:1D:45:C4:AA:2A:0C:EE:66:64:13:AF:17:E7:08:FC:B6",
+        "E2:10:1F:C3:30:BD:86:34:2F:97:CB:D8:2C:DC:0A:C7:4F:A8:C6:0F:EE:56:25:AF:2C:74:E2:FD:45:A9:FB:14"
+      ]
+    }
+  }
+]
