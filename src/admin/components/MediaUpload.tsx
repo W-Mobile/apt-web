@@ -272,7 +272,7 @@ export function MediaUpload({
 
   return (
     <div>
-      <label className="block text-sm text-stone-300 mb-1.5">{label}</label>
+      <label className="block text-base font-medium text-stone-200 mb-1.5">{label}</label>
 
       <div
         role="button"

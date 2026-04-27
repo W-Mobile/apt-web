@@ -8,12 +8,23 @@ const columns = [
   { key: 'name' as const, header: 'Namn' },
   { key: 'equipment' as const, header: 'Utrustning' },
   { key: 'description' as const, header: 'Beskrivning' },
+  {
+    key: 'createdAt' as const,
+    header: 'Skapad',
+    sortable: true,
+    render: (value: string | null) => {
+      if (!value) return '';
+      const d = new Date(value);
+      return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
+    },
+  },
 ];
 
 export function ExerciseList() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,10 +33,15 @@ export function ExerciseList() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = exercises.filter((e) =>
-    e.name.toLowerCase().includes(search.toLowerCase()) ||
-    e.equipment.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = exercises
+    .filter((e) =>
+      e.name.toLowerCase().includes(search.toLowerCase()) ||
+      e.equipment.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return sortDirection === 'asc' ? diff : -diff;
+    });
 
   if (loading) return <p className="text-stone-400">Laddar exercises...</p>;
 
@@ -48,6 +64,9 @@ export function ExerciseList() {
         rows={filtered}
         onRowClick={(row) => navigate(`/admin/exercises/${row.id}`)}
         emptyMessage="Inga exercises hittades"
+        sortKey="createdAt"
+        sortDirection={sortDirection}
+        onSort={() => setSortDirection((d) => d === 'asc' ? 'desc' : 'asc')}
       />
     </div>
   );

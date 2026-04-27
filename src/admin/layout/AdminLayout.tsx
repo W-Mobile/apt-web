@@ -33,10 +33,18 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="p-4 border-t border-stone-800">
-          <p className="text-xs text-stone-500 mb-2">{user?.username}</p>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#F24E1E] to-[#FF7262] flex items-center justify-center text-sm font-bold uppercase tracking-wide shrink-0">
+              {user?.displayName?.charAt(0) ?? '?'}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-stone-200 truncate">{user?.displayName}</p>
+              <p className="text-xs text-stone-500 truncate">{user?.email}</p>
+            </div>
+          </div>
           <button
             onClick={logout}
-            className="text-sm text-stone-400 hover:text-white transition-colors"
+            className="w-full px-3 py-2 rounded-lg text-sm font-medium text-[#FF7262] bg-[#F24E1E]/10 hover:bg-[#F24E1E]/20 border border-[#F24E1E]/20 hover:border-[#F24E1E]/40 transition-all cursor-pointer"
           >
             Logga ut
           </button>

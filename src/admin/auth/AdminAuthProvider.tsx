@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { signIn as amplifySignIn, signOut as amplifySignOut, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
+import { signIn as amplifySignIn, signOut as amplifySignOut, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 
 interface AdminUser {
   username: string;
   userId: string;
+  displayName: string;
+  email: string;
 }
 
 interface AdminAuthContextType {
@@ -31,6 +33,22 @@ async function isUserInAdminsGroup(): Promise<boolean> {
   return groups.includes('ADMINS') || groups.includes('AMIR');
 }
 
+async function buildAdminUser(baseUser: { username: string; userId: string }): Promise<AdminUser> {
+  try {
+    const attrs = await fetchUserAttributes();
+    const givenName = attrs.given_name ?? '';
+    const familyName = attrs.family_name ?? '';
+    const displayName = [givenName, familyName].filter(Boolean).join(' ');
+    return {
+      ...baseUser,
+      displayName: displayName || baseUser.username,
+      email: attrs.email ?? baseUser.username,
+    };
+  } catch {
+    return { ...baseUser, displayName: baseUser.username, email: baseUser.username };
+  }
+}
+
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -43,7 +61,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         const currentUser = await getCurrentUser();
         const admin = await isUserInAdminsGroup();
         if (admin) {
-          setUser({ username: currentUser.username, userId: currentUser.userId });
+          setUser(await buildAdminUser(currentUser));
           setIsAdmin(true);
         } else {
           await amplifySignOut();
@@ -68,7 +86,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       const currentUser = await getCurrentUser();
-      setUser({ username: currentUser.username, userId: currentUser.userId });
+      setUser(await buildAdminUser(currentUser));
       setIsAdmin(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Inloggningen misslyckades.');

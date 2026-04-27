@@ -166,29 +166,31 @@ export function ProgramForm() {
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-xl font-bold mb-4">{isNew ? 'Nytt program' : 'Redigera program'}</h2>
+      <h2 className="text-2xl font-bold mb-1">{isNew ? 'Nytt program' : 'Redigera program'}</h2>
+      <div className="w-12 h-0.5 bg-[#F24E1E] mb-8 rounded-full" />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic info section */}
+        <div className="space-y-7">
           <div>
-            <label htmlFor="name" className="block text-sm text-stone-300 mb-1">Namn</label>
+            <label htmlFor="name" className="block text-base font-medium text-stone-200 mb-1.5">Namn</label>
             <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required
               className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm text-stone-300 mb-1">Beskrivning</label>
-            <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required rows={2}
-              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
+            <label htmlFor="description" className="block text-base font-medium text-stone-200 mb-1.5">Beskrivning</label>
+            <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required rows={8}
+              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors resize-y" />
           </div>
           <div>
-            <label htmlFor="equipment" className="block text-sm text-stone-300 mb-1">Utrustning</label>
+            <label htmlFor="equipment" className="block text-base font-medium text-stone-200 mb-1.5">Utrustning</label>
             <input id="equipment" type="text" value={equipment} onChange={(e) => setEquipment(e.target.value)} required
               className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
           </div>
           <div>
-            <label htmlFor="marketingText" className="block text-sm text-stone-300 mb-1">Marknadsföringstext</label>
-            <textarea id="marketingText" value={marketingText} onChange={(e) => setMarketingText(e.target.value)} required rows={2}
-              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
+            <label htmlFor="marketingText" className="block text-base font-medium text-stone-200 mb-1.5">Marknadsföringstext</label>
+            <textarea id="marketingText" value={marketingText} onChange={(e) => setMarketingText(e.target.value)} required rows={3}
+              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors resize-y" />
           </div>
 
           <MediaUpload
@@ -202,37 +204,43 @@ export function ProgramForm() {
 
         {/* Periods section */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-stone-300">Perioder</h3>
-            <button type="button" onClick={addPeriod}
-              className="text-sm text-[#F24E1E] hover:text-[#d93d0f] font-medium transition-colors">+ Lägg till period</button>
+          <div className="border-t border-stone-700/50 pt-6 mb-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-medium text-stone-200">Perioder</h3>
+              <button type="button" onClick={addPeriod}
+                className="text-sm text-[#F24E1E] hover:text-[#d93d0f] font-medium transition-colors">+ Lägg till period</button>
+            </div>
           </div>
           {periods.length === 0 && <p className="text-stone-500 text-sm">Inga perioder tillagda.</p>}
           <div className="space-y-4">
             {periods.map((period, pi) => (
-              <div key={pi} className="bg-stone-800 p-3 rounded-xl border border-stone-700">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-sm text-stone-300">Vecka</span>
-                  <input type="number" value={period.from} onChange={(e) => updatePeriod(pi, 'from', Number(e.target.value))}
-                    className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600" />
-                  <span className="text-sm text-stone-400">till</span>
-                  <input type="number" value={period.to} onChange={(e) => updatePeriod(pi, 'to', Number(e.target.value))}
-                    className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600" />
+              <div key={pi} className="bg-stone-800/40 rounded-xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-stone-200">Period {pi + 1}</span>
+                    <span className="text-stone-600 mx-1">&middot;</span>
+                    <span className="text-xs text-stone-400">v.</span>
+                    <input type="number" value={period.from} onChange={(e) => updatePeriod(pi, 'from', Number(e.target.value))}
+                      className="w-14 px-2 py-1 bg-stone-700/60 text-white text-sm rounded-md border-none focus:ring-1 focus:ring-[#F24E1E] focus:outline-none transition-all" />
+                    <span className="text-stone-500 text-xs">&ndash;</span>
+                    <input type="number" value={period.to} onChange={(e) => updatePeriod(pi, 'to', Number(e.target.value))}
+                      className="w-14 px-2 py-1 bg-stone-700/60 text-white text-sm rounded-md border-none focus:ring-1 focus:ring-[#F24E1E] focus:outline-none transition-all" />
+                  </div>
                   <button type="button" onClick={() => removePeriod(pi)}
-                    className="text-red-400 text-sm hover:text-red-300 ml-auto transition-colors">Ta bort period</button>
+                    className="text-stone-500 text-xs hover:text-red-400 transition-colors">Ta bort</button>
                 </div>
-                <div className="ml-4 space-y-1">
+                <div className="space-y-2">
                   {period.workouts.map((w, wi) => (
-                    <div key={wi} className="flex items-center gap-2 text-sm">
-                      <span className="text-stone-300">{wi + 1}. {w.workoutName}</span>
+                    <div key={wi} className="flex items-center gap-2 text-sm py-0.5 pl-1">
+                      <span className="text-stone-300">{w.workoutName}</span>
                       <button type="button" onClick={() => removeWorkoutFromPeriod(pi, wi)}
-                        className="text-red-400 hover:text-red-300 transition-colors">&#x2715;</button>
+                        className="text-stone-600 hover:text-red-400 transition-colors text-xs">&#x2715;</button>
                     </div>
                   ))}
                   <select
                     onChange={(e) => { addWorkoutToPeriod(pi, e.target.value); e.target.value = ''; }}
                     defaultValue=""
-                    className="mt-1 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600"
+                    className="mt-3 px-2 py-1.5 bg-transparent text-stone-500 text-sm rounded-md border border-dashed border-stone-700 hover:border-stone-500 transition-colors cursor-pointer"
                   >
                     <option value="" disabled>Lägg till workout...</option>
                     {availableWorkouts.map((w) => (
@@ -245,18 +253,18 @@ export function ProgramForm() {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-2 border-t border-stone-700/50">
           <button type="submit" disabled={saving}
-            className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors">
+            className="px-5 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors">
             {saving ? 'Sparar...' : 'Spara'}
           </button>
           <button type="button" onClick={() => navigate('/admin/programs')}
-            className="px-4 py-2.5 text-sm text-stone-300 hover:text-white rounded-xl transition-colors">
+            className="px-4 py-2.5 text-sm text-stone-400 hover:text-white rounded-xl transition-colors">
             Avbryt
           </button>
           {!isNew && (
             <button type="button" onClick={() => setShowDelete(true)}
-              className="px-4 py-2.5 text-sm text-red-400 hover:text-red-300 ml-auto transition-colors">
+              className="px-4 py-2.5 text-sm text-red-400/70 hover:text-red-300 ml-auto transition-colors">
               Ta bort
             </button>
           )}
