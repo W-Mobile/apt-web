@@ -27,16 +27,16 @@ export function MediaUpload({ label, accept, fileKeyPrefix, onUpload }: MediaUpl
 
   return (
     <div>
-      <label className="block text-sm text-gray-300 mb-1">{label}</label>
+      <label className="block text-sm text-stone-300 mb-1">{label}</label>
       <input
         ref={inputRef}
         type="file"
         accept={accept}
         aria-label={label}
         onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-        className="text-sm text-gray-400"
+        className="text-sm text-stone-400"
       />
-      {fileName && <p className="text-xs text-gray-500 mt-1">{uploading ? 'Laddar upp...' : fileName}</p>}
+      {fileName && <p className="text-xs text-stone-500 mt-1">{uploading ? 'Laddar upp...' : fileName}</p>}
     </div>
   );
 }

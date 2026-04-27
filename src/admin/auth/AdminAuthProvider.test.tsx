@@ -83,6 +83,38 @@ describe('AdminAuthProvider', () => {
     expect(signIn).toHaveBeenCalledWith({ username: 'admin@test.com', password: 'pass123' });
   });
 
+  it('login allows AMIR group users', async () => {
+    vi.mocked(getCurrentUser).mockRejectedValueOnce(new Error('not signed in'));
+    vi.mocked(signIn).mockResolvedValue({ isSignedIn: true, nextStep: { signInStep: 'DONE' } });
+    vi.mocked(fetchAuthSession).mockResolvedValue({
+      tokens: {
+        accessToken: {
+          payload: {
+            'cognito:groups': ['AMIR'],
+          },
+        },
+      },
+    });
+    vi.mocked(getCurrentUser).mockResolvedValue({ username: 'amir@test.com', userId: '456' });
+
+    render(
+      <AdminAuthProvider>
+        <TestConsumer />
+      </AdminAuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false');
+    });
+
+    await userEvent.click(screen.getByText('Login'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('is-admin')).toHaveTextContent('true');
+    });
+    expect(screen.getByTestId('user')).toHaveTextContent('amir@test.com');
+  });
+
   it('rejects non-ADMINS users after login', async () => {
     vi.mocked(getCurrentUser).mockRejectedValueOnce(new Error('not signed in'));
     vi.mocked(signIn).mockResolvedValue({ isSignedIn: true, nextStep: { signInStep: 'DONE' } });

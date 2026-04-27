@@ -64,3 +64,69 @@ export async function deleteExercise(id: string): Promise<void> {
   const { errors } = await client.models.Exercise.delete({ id });
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
 }
+
+// --- Media ---
+
+export interface Media {
+  id: string;
+  fileKey: string;
+  type: string;
+}
+
+export interface ExerciseMediaLink {
+  id: string;
+  exerciseID: string;
+  mediaID: string;
+}
+
+async function createMedia(fileKey: string, type: 'video' | 'image'): Promise<Media> {
+  const { data, errors } = await client.models.Media.create({ fileKey, type });
+  if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+  return data as unknown as Media;
+}
+
+export async function getExerciseVideoMedia(exerciseID: string): Promise<{ link: ExerciseMediaLink; media: Media } | null> {
+  const { data } = await client.models.ExerciseVideoMedia.list({
+    filter: { exerciseID: { eq: exerciseID } },
+  });
+  const links = data as unknown as ExerciseMediaLink[];
+  if (!links.length) return null;
+  const link = links[0];
+  const { data: mediaData } = await client.models.Media.get({ id: link.mediaID });
+  if (!mediaData) return null;
+  return { link, media: mediaData as unknown as Media };
+}
+
+export async function getExercisePosterMedia(exerciseID: string): Promise<{ link: ExerciseMediaLink; media: Media } | null> {
+  const { data } = await client.models.ExercisePosterMedia.list({
+    filter: { exerciseID: { eq: exerciseID } },
+  });
+  const links = data as unknown as ExerciseMediaLink[];
+  if (!links.length) return null;
+  const link = links[0];
+  const { data: mediaData } = await client.models.Media.get({ id: link.mediaID });
+  if (!mediaData) return null;
+  return { link, media: mediaData as unknown as Media };
+}
+
+export async function linkExerciseVideo(exerciseID: string, fileKey: string): Promise<void> {
+  const existing = await getExerciseVideoMedia(exerciseID);
+  if (existing) {
+    await client.models.ExerciseVideoMedia.delete({ id: existing.link.id });
+    await client.models.Media.delete({ id: existing.media.id });
+  }
+  const media = await createMedia(fileKey, 'video');
+  const { errors } = await client.models.ExerciseVideoMedia.create({ exerciseID, mediaID: media.id });
+  if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+}
+
+export async function linkExercisePoster(exerciseID: string, fileKey: string): Promise<void> {
+  const existing = await getExercisePosterMedia(exerciseID);
+  if (existing) {
+    await client.models.ExercisePosterMedia.delete({ id: existing.link.id });
+    await client.models.Media.delete({ id: existing.media.id });
+  }
+  const media = await createMedia(fileKey, 'image');
+  const { errors } = await client.models.ExercisePosterMedia.create({ exerciseID, mediaID: media.id });
+  if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+}

@@ -26,7 +26,7 @@ export function WorkoutList() {
     w.description.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) return <p className="text-gray-400">Laddar workouts...</p>;
+  if (loading) return <p className="text-stone-400">Laddar workouts...</p>;
 
   return (
     <div className="space-y-4">
@@ -34,7 +34,7 @@ export function WorkoutList() {
         <h2 className="text-xl font-bold">Workouts</h2>
         <button
           onClick={() => navigate('/admin/workouts/new')}
-          className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+          className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] transition-colors"
         >
           Ny workout
         </button>

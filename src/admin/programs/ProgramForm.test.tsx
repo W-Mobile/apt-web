@@ -14,6 +14,8 @@ const mockDeletePeriod = vi.fn();
 const mockGetPeriodWorkouts = vi.fn();
 const mockCreatePeriodWorkout = vi.fn();
 const mockDeletePeriodWorkout = vi.fn();
+const mockGetProgramPosterMedia = vi.fn();
+const mockLinkProgramPoster = vi.fn();
 const mockListWorkouts = vi.fn();
 const mockNavigate = vi.fn();
 
@@ -28,6 +30,17 @@ vi.mock('./program-api', () => ({
   getPeriodWorkouts: (...args: unknown[]) => mockGetPeriodWorkouts(...args),
   createPeriodWorkout: (...args: unknown[]) => mockCreatePeriodWorkout(...args),
   deletePeriodWorkout: (...args: unknown[]) => mockDeletePeriodWorkout(...args),
+  getProgramPosterMedia: (...args: unknown[]) => mockGetProgramPosterMedia(...args),
+  linkProgramPoster: (...args: unknown[]) => mockLinkProgramPoster(...args),
+}));
+
+vi.mock('../components/MediaUpload', () => ({
+  MediaUpload: ({ label, onUpload }: { label: string; onUpload: (key: string) => void }) => (
+    <div>
+      <span>{label}</span>
+      <button onClick={() => onUpload(`test_${label}_key`)} data-testid={`upload-${label}`}>Upload {label}</button>
+    </div>
+  ),
 }));
 
 vi.mock('../workouts/workout-api', () => ({
@@ -42,6 +55,7 @@ vi.mock('react-router-dom', async () => {
 describe('ProgramForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetProgramPosterMedia.mockResolvedValue(null);
     mockListWorkouts.mockResolvedValue([
       { id: 'w1', name: 'Upper Body A', description: 'Push' },
       { id: 'w2', name: 'Lower Body A', description: 'Squat' },

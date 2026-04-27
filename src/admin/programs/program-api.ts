@@ -118,3 +118,46 @@ export async function deletePeriodWorkout(id: string): Promise<void> {
   const { errors } = await client.models.PeriodWorkout.delete({ id });
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
 }
+
+// --- Media ---
+
+export interface Media {
+  id: string;
+  fileKey: string;
+  type: string;
+}
+
+export interface ProgramMediaLink {
+  id: string;
+  programID: string;
+  mediaID: string;
+}
+
+async function createMedia(fileKey: string, type: 'image'): Promise<Media> {
+  const { data, errors } = await client.models.Media.create({ fileKey, type });
+  if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+  return data as unknown as Media;
+}
+
+export async function getProgramPosterMedia(programID: string): Promise<{ link: ProgramMediaLink; media: Media } | null> {
+  const { data } = await client.models.ProgramMedia.list({
+    filter: { programID: { eq: programID } },
+  });
+  const links = data as unknown as ProgramMediaLink[];
+  if (!links.length) return null;
+  const link = links[0];
+  const { data: mediaData } = await client.models.Media.get({ id: link.mediaID });
+  if (!mediaData) return null;
+  return { link, media: mediaData as unknown as Media };
+}
+
+export async function linkProgramPoster(programID: string, fileKey: string): Promise<void> {
+  const existing = await getProgramPosterMedia(programID);
+  if (existing) {
+    await client.models.ProgramMedia.delete({ id: existing.link.id });
+    await client.models.Media.delete({ id: existing.media.id });
+  }
+  const media = await createMedia(fileKey, 'image');
+  const { errors } = await client.models.ProgramMedia.create({ programID, mediaID: media.id });
+  if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+}

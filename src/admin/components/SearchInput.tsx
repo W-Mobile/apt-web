@@ -11,7 +11,7 @@ export function SearchInput({ value, onChange, placeholder }: SearchInputProps) 
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder ?? 'Sök...'}
-      className="px-3 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none text-sm w-full max-w-xs"
+      className="px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none text-sm w-full max-w-xs transition-colors"
     />
   );
 }

@@ -12,10 +12,10 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAdminAuth();
 
   return (
-    <div className="min-h-screen flex bg-gray-950 text-white">
-      <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
-        <div className="p-4 border-b border-gray-800">
-          <h1 className="text-lg font-bold">APT Admin</h1>
+    <div className="min-h-screen flex bg-stone-950 text-white font-sans">
+      <aside className="w-64 bg-stone-900 border-r border-stone-800 flex flex-col">
+        <div className="p-5 border-b border-stone-800">
+          <h1 className="text-lg font-bold tracking-wide">APT Admin</h1>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -24,7 +24,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `block px-3 py-2 rounded text-sm ${isActive ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'}`
+                `block px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive ? 'bg-[#F24E1E] text-white' : 'text-stone-300 hover:bg-stone-800'}`
               }
             >
               {label}
@@ -32,11 +32,11 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-800">
-          <p className="text-xs text-gray-500 mb-2">{user?.username}</p>
+        <div className="p-4 border-t border-stone-800">
+          <p className="text-xs text-stone-500 mb-2">{user?.username}</p>
           <button
             onClick={logout}
-            className="text-sm text-gray-400 hover:text-white"
+            className="text-sm text-stone-400 hover:text-white transition-colors"
           >
             Logga ut
           </button>

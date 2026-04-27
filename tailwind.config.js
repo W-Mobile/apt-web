@@ -48,6 +48,8 @@ module.exports = {
       },
       fontFamily: {
         sans: [
+          "Sora",
+          "Helvetica",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",

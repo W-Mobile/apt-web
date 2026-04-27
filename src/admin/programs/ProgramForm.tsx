@@ -4,10 +4,12 @@ import {
   getProgram, createProgram, updateProgram, deleteProgram,
   getPeriods, createPeriod, deletePeriod,
   getPeriodWorkouts, createPeriodWorkout, deletePeriodWorkout,
+  getProgramPosterMedia, linkProgramPoster,
   Period, PeriodWorkout,
 } from './program-api';
 import { listWorkouts } from '../workouts/workout-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { MediaUpload } from '../components/MediaUpload';
 
 interface WorkoutOption {
   id: string;
@@ -42,6 +44,8 @@ export function ProgramForm() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [posterFileKey, setPosterFileKey] = useState<string | null>(null);
+  const [existingPosterKey, setExistingPosterKey] = useState<string | null>(null);
 
   useEffect(() => {
     listWorkouts().then((ws) => setAvailableWorkouts(ws.map((w) => ({ id: w.id, name: w.name }))));
@@ -49,6 +53,9 @@ export function ProgramForm() {
 
   useEffect(() => {
     if (!isNew && id) {
+      getProgramPosterMedia(id).then((result) => {
+        if (result) setExistingPosterKey(result.media.fileKey);
+      });
       Promise.all([getProgram(id), getPeriods(id)]).then(async ([program, programPeriods]) => {
         if (program) {
           setName(program.name);
@@ -56,7 +63,6 @@ export function ProgramForm() {
           setEquipment(program.equipment);
           setMarketingText(program.marketingText);
         }
-        // Load workouts for each period
         const periodRows: PeriodRow[] = await Promise.all(
           programPeriods.map(async (p) => {
             const pws = await getPeriodWorkouts(p.id);
@@ -122,7 +128,6 @@ export function ProgramForm() {
         programID = created.id;
       } else {
         await updateProgram({ id: programID, name, description, equipment, marketingText });
-        // Delete existing periods and their workouts
         const existingPeriods = await getPeriods(programID);
         for (const p of existingPeriods) {
           const pws = await getPeriodWorkouts(p.id);
@@ -130,7 +135,6 @@ export function ProgramForm() {
           await deletePeriod(p.id);
         }
       }
-      // Create periods and period workouts
       for (const periodRow of periods) {
         const created = await createPeriod({ programID, from: periodRow.from, to: periodRow.to });
         await Promise.all(
@@ -139,6 +143,7 @@ export function ProgramForm() {
           )
         );
       }
+      if (posterFileKey) await linkProgramPoster(programID, posterFileKey);
       navigate('/admin/programs');
     } finally {
       setSaving(false);
@@ -157,7 +162,7 @@ export function ProgramForm() {
     navigate('/admin/programs');
   }
 
-  if (loading) return <p className="text-gray-400">Laddar...</p>;
+  if (loading) return <p className="text-stone-400">Laddar...</p>;
 
   return (
     <div className="max-w-2xl">
@@ -166,61 +171,68 @@ export function ProgramForm() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm text-gray-300 mb-1">Namn</label>
+            <label htmlFor="name" className="block text-sm text-stone-300 mb-1">Namn</label>
             <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required
-              className="w-full px-3 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none" />
+              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm text-gray-300 mb-1">Beskrivning</label>
+            <label htmlFor="description" className="block text-sm text-stone-300 mb-1">Beskrivning</label>
             <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required rows={2}
-              className="w-full px-3 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none" />
+              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
           </div>
           <div>
-            <label htmlFor="equipment" className="block text-sm text-gray-300 mb-1">Utrustning</label>
+            <label htmlFor="equipment" className="block text-sm text-stone-300 mb-1">Utrustning</label>
             <input id="equipment" type="text" value={equipment} onChange={(e) => setEquipment(e.target.value)} required
-              className="w-full px-3 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none" />
+              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
           </div>
           <div>
-            <label htmlFor="marketingText" className="block text-sm text-gray-300 mb-1">Marknadsföringstext</label>
+            <label htmlFor="marketingText" className="block text-sm text-stone-300 mb-1">Marknadsföringstext</label>
             <textarea id="marketingText" value={marketingText} onChange={(e) => setMarketingText(e.target.value)} required rows={2}
-              className="w-full px-3 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none" />
+              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
           </div>
+
+          <MediaUpload
+            label="Poster-bild"
+            accept="image/*"
+            fileKeyPrefix="program_poster/"
+            onUpload={(key) => setPosterFileKey(key)}
+            existingFileKey={!posterFileKey ? existingPosterKey : null}
+          />
         </div>
 
         {/* Periods section */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-300">Perioder</h3>
+            <h3 className="text-sm font-medium text-stone-300">Perioder</h3>
             <button type="button" onClick={addPeriod}
-              className="text-sm text-blue-400 hover:text-blue-300">+ Lägg till period</button>
+              className="text-sm text-[#F24E1E] hover:text-[#d93d0f] font-medium transition-colors">+ Lägg till period</button>
           </div>
-          {periods.length === 0 && <p className="text-gray-500 text-sm">Inga perioder tillagda.</p>}
+          {periods.length === 0 && <p className="text-stone-500 text-sm">Inga perioder tillagda.</p>}
           <div className="space-y-4">
             {periods.map((period, pi) => (
-              <div key={pi} className="bg-gray-800 p-3 rounded border border-gray-700">
+              <div key={pi} className="bg-stone-800 p-3 rounded-xl border border-stone-700">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="text-sm text-gray-300">Vecka</span>
+                  <span className="text-sm text-stone-300">Vecka</span>
                   <input type="number" value={period.from} onChange={(e) => updatePeriod(pi, 'from', Number(e.target.value))}
-                    className="w-16 px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600" />
-                  <span className="text-sm text-gray-400">till</span>
+                    className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600" />
+                  <span className="text-sm text-stone-400">till</span>
                   <input type="number" value={period.to} onChange={(e) => updatePeriod(pi, 'to', Number(e.target.value))}
-                    className="w-16 px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600" />
+                    className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600" />
                   <button type="button" onClick={() => removePeriod(pi)}
-                    className="text-red-400 text-sm hover:text-red-300 ml-auto">Ta bort period</button>
+                    className="text-red-400 text-sm hover:text-red-300 ml-auto transition-colors">Ta bort period</button>
                 </div>
-                {/* Workouts in period */}
                 <div className="ml-4 space-y-1">
                   {period.workouts.map((w, wi) => (
                     <div key={wi} className="flex items-center gap-2 text-sm">
-                      <span className="text-gray-300">{wi + 1}. {w.workoutName}</span>
+                      <span className="text-stone-300">{wi + 1}. {w.workoutName}</span>
                       <button type="button" onClick={() => removeWorkoutFromPeriod(pi, wi)}
-                        className="text-red-400 hover:text-red-300">&#x2715;</button>
+                        className="text-red-400 hover:text-red-300 transition-colors">&#x2715;</button>
                     </div>
                   ))}
                   <select
                     onChange={(e) => { addWorkoutToPeriod(pi, e.target.value); e.target.value = ''; }}
                     defaultValue=""
-                    className="mt-1 px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600"
+                    className="mt-1 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600"
                   >
                     <option value="" disabled>Lägg till workout...</option>
                     {availableWorkouts.map((w) => (
@@ -235,16 +247,16 @@ export function ProgramForm() {
 
         <div className="flex gap-3">
           <button type="submit" disabled={saving}
-            className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50">
+            className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors">
             {saving ? 'Sparar...' : 'Spara'}
           </button>
           <button type="button" onClick={() => navigate('/admin/programs')}
-            className="px-4 py-2 text-sm text-gray-300 hover:text-white">
+            className="px-4 py-2.5 text-sm text-stone-300 hover:text-white rounded-xl transition-colors">
             Avbryt
           </button>
           {!isNew && (
             <button type="button" onClick={() => setShowDelete(true)}
-              className="px-4 py-2 text-sm text-red-400 hover:text-red-300 ml-auto">
+              className="px-4 py-2.5 text-sm text-red-400 hover:text-red-300 ml-auto transition-colors">
               Ta bort
             </button>
           )}

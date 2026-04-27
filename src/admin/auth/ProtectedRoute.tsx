@@ -6,7 +6,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isLoading, isAdmin } = useAdminAuth();
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white">Laddar...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-stone-950 text-white font-sans">Laddar...</div>;
   }
 
   if (!isAdmin) {

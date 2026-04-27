@@ -28,7 +28,7 @@ export function useAdminAuth(): AdminAuthContextType {
 async function isUserInAdminsGroup(): Promise<boolean> {
   const session = await fetchAuthSession();
   const groups = (session.tokens?.accessToken?.payload?.['cognito:groups'] as string[] | undefined) ?? [];
-  return groups.includes('ADMINS');
+  return groups.includes('ADMINS') || groups.includes('AMIR');
 }
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {

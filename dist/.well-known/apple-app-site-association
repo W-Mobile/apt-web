@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "PMD5ZL35LG.com.awayeinnovation.awayeapp",
+        "paths": [
+          "/share/*"
+        ]
+      }
+    ]
+  }
+}

@@ -10,11 +10,29 @@ const mockGet = vi.fn();
 const mockDelete = vi.fn();
 const mockNavigate = vi.fn();
 
+const mockLinkVideo = vi.fn();
+const mockLinkPoster = vi.fn();
+const mockGetVideoMedia = vi.fn();
+const mockGetPosterMedia = vi.fn();
+
 vi.mock('./exercise-api', () => ({
   createExercise: (...args: unknown[]) => mockCreate(...args),
   updateExercise: (...args: unknown[]) => mockUpdate(...args),
   getExercise: (...args: unknown[]) => mockGet(...args),
   deleteExercise: (...args: unknown[]) => mockDelete(...args),
+  linkExerciseVideo: (...args: unknown[]) => mockLinkVideo(...args),
+  linkExercisePoster: (...args: unknown[]) => mockLinkPoster(...args),
+  getExerciseVideoMedia: (...args: unknown[]) => mockGetVideoMedia(...args),
+  getExercisePosterMedia: (...args: unknown[]) => mockGetPosterMedia(...args),
+}));
+
+vi.mock('../components/MediaUpload', () => ({
+  MediaUpload: ({ label, onUpload }: { label: string; onUpload: (key: string) => void }) => (
+    <div>
+      <span>{label}</span>
+      <button onClick={() => onUpload(`test_${label}_key`)} data-testid={`upload-${label}`}>Upload {label}</button>
+    </div>
+  ),
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -25,6 +43,8 @@ vi.mock('react-router-dom', async () => {
 describe('ExerciseForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetVideoMedia.mockResolvedValue(null);
+    mockGetPosterMedia.mockResolvedValue(null);
   });
 
   it('renders empty form for creating a new exercise', () => {
@@ -84,6 +104,31 @@ describe('ExerciseForm', () => {
     });
     expect(screen.getByLabelText(/utrustning/i)).toHaveValue('Barbell');
     expect(screen.getByLabelText(/beskrivning/i)).toHaveValue('Deep squat');
+  });
+
+  it('links media when uploading video and poster on new exercise', async () => {
+    mockCreate.mockResolvedValue({ id: 'new-id', name: 'Squat', equipment: 'Barbell' });
+    mockLinkVideo.mockResolvedValue(undefined);
+    mockLinkPoster.mockResolvedValue(undefined);
+
+    render(
+      <MemoryRouter initialEntries={['/admin/exercises/new']}>
+        <Routes>
+          <Route path="/admin/exercises/new" element={<ExerciseForm />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByLabelText(/namn/i), 'Squat');
+    await userEvent.type(screen.getByLabelText(/utrustning/i), 'Barbell');
+    await userEvent.click(screen.getByTestId('upload-Video (.mp4)'));
+    await userEvent.click(screen.getByTestId('upload-Poster-bild'));
+    await userEvent.click(screen.getByRole('button', { name: /spara/i }));
+
+    await waitFor(() => {
+      expect(mockLinkVideo).toHaveBeenCalledWith('new-id', 'test_Video (.mp4)_key');
+    });
+    expect(mockLinkPoster).toHaveBeenCalledWith('new-id', 'test_Poster-bild_key');
   });
 
   it('updates existing exercise on submit', async () => {
