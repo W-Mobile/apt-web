@@ -140,7 +140,7 @@ export function MediaUpload({
       try {
         const fileKey = `${fileKeyPrefix}${file.name}`;
         await uploadData({
-          key: fileKey,
+          path: fileKey,
           data: file,
           options: {
             onProgress: ({ transferredBytes, totalBytes }) => {

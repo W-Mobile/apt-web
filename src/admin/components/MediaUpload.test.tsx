@@ -9,7 +9,7 @@ vi.mock('aws-amplify/storage', () => ({
       options.onProgress({ transferredBytes: 50, totalBytes: 100 });
       options.onProgress({ transferredBytes: 100, totalBytes: 100 });
     }
-    return { result: Promise.resolve({ key: 'test-key' }) };
+    return { result: Promise.resolve({ path: 'test-key' }) };
   }),
 }));
 
