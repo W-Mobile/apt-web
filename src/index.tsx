@@ -8,11 +8,12 @@ import { AdminAuthProvider } from "./admin/auth/AdminAuthProvider";
 import { AdminLogin } from "./admin/auth/AdminLogin";
 import { ProtectedRoute } from "./admin/auth/ProtectedRoute";
 import { AdminLayout } from "./admin/layout/AdminLayout";
-
-// Lazy placeholders — will be replaced with real components in later tasks
-function ExercisesPlaceholder() { return <p>Exercises — kommer snart</p>; }
-function WorkoutsPlaceholder() { return <p>Workouts — kommer snart</p>; }
-function ProgramsPlaceholder() { return <p>Program — kommer snart</p>; }
+import { ExerciseList } from "./admin/exercises/ExerciseList";
+import { ExerciseForm } from "./admin/exercises/ExerciseForm";
+import { WorkoutList } from "./admin/workouts/WorkoutList";
+import { WorkoutForm } from "./admin/workouts/WorkoutForm";
+import { ProgramList } from "./admin/programs/ProgramList";
+import { ProgramForm } from "./admin/programs/ProgramForm";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -34,10 +35,13 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <ProtectedRoute>
               <AdminLayout>
                 <Routes>
-                  <Route path="exercises/*" element={<ExercisesPlaceholder />} />
-                  <Route path="workouts/*" element={<WorkoutsPlaceholder />} />
-                  <Route path="programs/*" element={<ProgramsPlaceholder />} />
-                  <Route index element={<ExercisesPlaceholder />} />
+                  <Route path="exercises" element={<ExerciseList />} />
+                  <Route path="exercises/:id" element={<ExerciseForm />} />
+                  <Route path="workouts" element={<WorkoutList />} />
+                  <Route path="workouts/:id" element={<WorkoutForm />} />
+                  <Route path="programs" element={<ProgramList />} />
+                  <Route path="programs/:id" element={<ProgramForm />} />
+                  <Route index element={<ExerciseList />} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>
