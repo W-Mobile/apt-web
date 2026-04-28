@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Startsida } from "./screens/Startsida";
 import { BasketballClubs } from "./screens/BasketballClubs";
 import { PrivacyPolicy } from "./screens/PrivacyPolicy";
@@ -41,7 +41,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
                   <Route path="workouts/:id" element={<WorkoutForm />} />
                   <Route path="programs" element={<ProgramList />} />
                   <Route path="programs/:id" element={<ProgramForm />} />
-                  <Route index element={<ExerciseList />} />
+                  <Route index element={<Navigate to="/admin/exercises" replace />} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>

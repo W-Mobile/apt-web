@@ -11,6 +11,7 @@ vi.mock('aws-amplify/storage', () => ({
     }
     return { result: Promise.resolve({ path: 'test-key' }) };
   }),
+  getUrl: vi.fn(() => Promise.resolve({ url: new URL('https://s3.example.com/preview.jpg') })),
 }));
 
 beforeEach(() => {
@@ -165,14 +166,145 @@ describe('MediaUpload', () => {
     });
   });
 
-  it('shows video icon for video files', async () => {
-    render(
+  it('shows video preview for existing video file', async () => {
+    const { container } = render(
       <MediaUpload {...defaultProps} existingFileKey="exercise_video/squat.mp4" />,
     );
 
-    // Should not show an img element for video files
-    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    await waitFor(() => {
+      const video = container.querySelector('video');
+      expect(video).toBeInTheDocument();
+      expect(video).toHaveAttribute('src', 'https://s3.example.com/preview.jpg');
+    });
     expect(screen.getByText('squat.mp4')).toBeInTheDocument();
+  });
+
+  it('shows image preview for existing image file', async () => {
+    const { getUrl } = await import('aws-amplify/storage');
+    (getUrl as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      url: new URL('https://s3.example.com/poster.webp'),
+    });
+
+    render(
+      <MediaUpload
+        label="Poster-bild"
+        accept="image/*"
+        fileKeyPrefix="poster/"
+        onUpload={vi.fn()}
+        existingFileKey="exercise_poster/photo.webp"
+      />,
+    );
+
+    await waitFor(() => {
+      const img = screen.getByAltText('photo.webp');
+      expect(img).toBeInTheDocument();
+      expect(img).toHaveAttribute('src', 'https://s3.example.com/poster.webp');
+    });
+  });
+
+  it('falls back to icon if getUrl fails', async () => {
+    const { getUrl } = await import('aws-amplify/storage');
+    (getUrl as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Access denied'));
+
+    const { container } = render(
+      <MediaUpload {...defaultProps} existingFileKey="exercise_video/squat.mp4" />,
+    );
+
+    // Should still show filename and not crash
+    expect(screen.getByText('squat.mp4')).toBeInTheDocument();
+
+    // After the rejected promise, no video element should appear
+    await waitFor(() => {
+      expect(container.querySelector('video')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('media expand', () => {
+    it('expands image on click', async () => {
+      const { container } = render(
+        <MediaUpload
+          label="Poster-bild"
+          accept="image/*"
+          fileKeyPrefix="poster/"
+          onUpload={vi.fn()}
+          existingFileKey="exercise_poster/photo.webp"
+        />,
+      );
+
+      // Wait for preview to load
+      await waitFor(() => {
+        expect(screen.getByAltText('photo.webp')).toBeInTheDocument();
+      });
+
+      // Only the thumbnail image before expand
+      expect(container.querySelectorAll('img')).toHaveLength(1);
+
+      // Click expand button
+      await userEvent.click(screen.getByLabelText('Förstora bild'));
+
+      // Now there should be two images: thumbnail + expanded
+      expect(container.querySelectorAll('img')).toHaveLength(2);
+    });
+
+    it('expands video player on click', async () => {
+      const { container } = render(
+        <MediaUpload {...defaultProps} existingFileKey="exercise_video/squat.mp4" />,
+      );
+
+      await waitFor(() => {
+        expect(container.querySelector('video')).toBeInTheDocument();
+      });
+
+      // Only the thumbnail video before expand
+      const videosBefore = container.querySelectorAll('video');
+      expect(videosBefore).toHaveLength(1);
+      expect(videosBefore[0]).not.toHaveAttribute('controls');
+
+      // Click play button
+      await userEvent.click(screen.getByLabelText('Spela video'));
+
+      // Now there should be two videos: thumbnail + expanded with controls
+      const videosAfter = container.querySelectorAll('video');
+      expect(videosAfter).toHaveLength(2);
+      expect(videosAfter[1]).toHaveAttribute('controls');
+    });
+
+    it('closes expanded view when file is cleared', async () => {
+      const { container } = render(
+        <MediaUpload {...defaultProps} onUpload={vi.fn()} existingFileKey="exercise_video/squat.mp4" />,
+      );
+
+      await waitFor(() => {
+        expect(container.querySelector('video')).toBeInTheDocument();
+      });
+
+      // Expand
+      await userEvent.click(screen.getByLabelText('Spela video'));
+      expect(container.querySelectorAll('video')).toHaveLength(2);
+
+      // Clear file
+      await userEvent.click(screen.getByLabelText('Ta bort fil'));
+
+      // Expanded view should be gone
+      expect(container.querySelector('video')).not.toBeInTheDocument();
+    });
+
+    it('shows preview for newly uploaded video', async () => {
+      const file = new File(['video-data'], 'squat.mp4', { type: 'video/mp4' });
+      const { container } = render(<MediaUpload {...defaultProps} />);
+
+      const input = screen.getByLabelText(/video/i) as HTMLInputElement;
+      await userEvent.upload(input, file);
+
+      await waitFor(() => {
+        expect(screen.getByText('squat.mp4')).toBeInTheDocument();
+      });
+
+      expect(globalThis.URL.createObjectURL).toHaveBeenCalled();
+      const video = container.querySelector('video');
+      expect(video).toBeInTheDocument();
+      expect(video).toHaveAttribute('src', 'blob:mock-preview-url');
+    });
   });
 
   describe('undo bar', () => {
