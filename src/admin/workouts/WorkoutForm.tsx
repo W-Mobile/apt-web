@@ -147,6 +147,15 @@ export function WorkoutForm() {
         <div>
           <h3 className="text-sm font-medium text-stone-300 mb-2">Exercises i denna workout</h3>
           {exercises.length === 0 && <p className="text-stone-500 text-sm">Inga exercises tillagda ännu.</p>}
+          {exercises.length > 0 && (
+            <div className="flex items-center gap-2 px-2.5 mb-1">
+              <span className="text-xs text-stone-500 flex-1"></span>
+              <span className="w-16 text-xs text-stone-500 text-center">Sets</span>
+              <span className="w-16 text-xs text-stone-500 text-center">Reps</span>
+              <span className="w-20 text-xs text-stone-500 text-center">Typ</span>
+              <span className="text-sm opacity-0">&#x2715;</span>
+            </div>
+          )}
           <div className="space-y-2">
             {exercises.map((ex, i) => {
               const exName = ex.exerciseName || availableExercises.find((a) => a.id === ex.exerciseID)?.name || ex.exerciseID;
@@ -154,11 +163,11 @@ export function WorkoutForm() {
                 <div key={i} className="flex items-center gap-2 bg-stone-800 p-2.5 rounded-xl">
                   <span className="text-sm text-white flex-1">{i + 1}. {exName}</span>
                   <input value={ex.sets} onChange={(e) => updateExerciseRow(i, 'sets', e.target.value)}
-                    placeholder="Sets" className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600" />
+                    placeholder="Sets" className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm text-center rounded-lg border border-stone-600" />
                   <input value={ex.reps} onChange={(e) => updateExerciseRow(i, 'reps', e.target.value)}
-                    placeholder="Reps" className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600" />
+                    placeholder="Reps" className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm text-center rounded-lg border border-stone-600" />
                   <input value={ex.superset} onChange={(e) => updateExerciseRow(i, 'superset', e.target.value)}
-                    placeholder="Superset" className="w-20 px-2 py-1.5 bg-stone-700 text-white text-sm rounded-lg border border-stone-600" />
+                    placeholder="Superset" className="w-20 px-2 py-1.5 bg-stone-700 text-white text-sm text-center rounded-lg border border-stone-600" />
                   <button type="button" onClick={() => removeExercise(i)}
                     className="text-red-400 text-sm hover:text-red-300 transition-colors">&#x2715;</button>
                 </div>

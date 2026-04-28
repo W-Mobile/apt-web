@@ -7,13 +7,30 @@ import { SearchInput } from '../components/SearchInput';
 const columns = [
   { key: 'name' as const, header: 'Namn' },
   { key: 'equipment' as const, header: 'Utrustning' },
-  { key: 'description' as const, header: 'Beskrivning' },
+  {
+    key: 'description' as const,
+    header: 'Beskrivning',
+    render: (value: string) => (
+      <div className="max-w-xs line-clamp-4">{value}</div>
+    ),
+  },
+  {
+    key: 'createdAt' as const,
+    header: 'Skapad',
+    sortable: true,
+    render: (value: string | null) => {
+      if (!value) return '';
+      const d = new Date(value);
+      return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
+    },
+  },
 ];
 
 export function ProgramList() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,10 +39,15 @@ export function ProgramList() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = programs.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.equipment.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = programs
+    .filter((p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.equipment.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return sortDirection === 'asc' ? diff : -diff;
+    });
 
   if (loading) return <p className="text-stone-400">Laddar program...</p>;
 
@@ -46,6 +68,9 @@ export function ProgramList() {
         rows={filtered}
         onRowClick={(row) => navigate(`/admin/programs/${row.id}`)}
         emptyMessage="Inga program hittades"
+        sortKey="createdAt"
+        sortDirection={sortDirection}
+        onSort={() => setSortDirection((d) => d === 'asc' ? 'desc' : 'asc')}
       />
     </div>
   );
