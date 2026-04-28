@@ -12,7 +12,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAdminAuth();
 
   return (
-    <div className="min-h-screen flex bg-stone-950 text-white font-sans">
+    <div className="h-screen flex bg-stone-950 text-white font-sans overflow-hidden">
       <aside className="w-64 bg-stone-900 border-r border-stone-800 flex flex-col">
         <div className="p-5 border-b border-stone-800">
           <h1 className="text-lg font-bold tracking-wide">APT Admin</h1>
