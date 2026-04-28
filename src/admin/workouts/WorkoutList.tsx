@@ -1,0 +1,70 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { listWorkouts, Workout } from './workout-api';
+import { DataTable } from '../components/DataTable';
+import { SearchInput } from '../components/SearchInput';
+
+const columns = [
+  { key: 'name' as const, header: 'Namn' },
+  { key: 'description' as const, header: 'Beskrivning' },
+  {
+    key: 'createdAt' as const,
+    header: 'Skapad',
+    sortable: true,
+    render: (value: string | null) => {
+      if (!value) return '';
+      const d = new Date(value);
+      return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
+    },
+  },
+];
+
+export function WorkoutList() {
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    listWorkouts()
+      .then(setWorkouts)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = workouts
+    .filter((w) =>
+      w.name.toLowerCase().includes(search.toLowerCase()) ||
+      w.description.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return sortDirection === 'asc' ? diff : -diff;
+    });
+
+  if (loading) return <p className="text-stone-400">Laddar workouts...</p>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold">Workouts</h2>
+        <button
+          onClick={() => navigate('/admin/workouts/new')}
+          className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] transition-colors"
+        >
+          Ny workout
+        </button>
+      </div>
+      <SearchInput value={search} onChange={setSearch} placeholder="Sök workouts..." />
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        onRowClick={(row) => navigate(`/admin/workouts/${row.id}`)}
+        emptyMessage="Inga workouts hittades"
+        sortKey="createdAt"
+        sortDirection={sortDirection}
+        onSort={() => setSortDirection((d) => d === 'asc' ? 'desc' : 'asc')}
+      />
+    </div>
+  );
+}
