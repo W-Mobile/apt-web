@@ -1,0 +1,6333 @@
+{
+  "auth": {
+    "user_pool_id": "eu-north-1_vzRDTjSH8",
+    "aws_region": "eu-north-1",
+    "user_pool_client_id": "bth6ndodq7ddlt617gcn5r5on",
+    "identity_pool_id": "eu-north-1:78ab7d1f-24b3-4676-b2f1-83fd2e1b1b57",
+    "mfa_methods": [],
+    "standard_required_attributes": [
+      "email",
+      "given_name",
+      "family_name"
+    ],
+    "username_attributes": [
+      "email"
+    ],
+    "user_verification_types": [
+      "email"
+    ],
+    "groups": [
+      {
+        "ADMINS": {
+          "precedence": 0
+        }
+      },
+      {
+        "SUBSCRIBERS": {
+          "precedence": 1
+        }
+      },
+      {
+        "AMIR": {
+          "precedence": 2
+        }
+      }
+    ],
+    "mfa_configuration": "NONE",
+    "password_policy": {
+      "min_length": 8,
+      "require_lowercase": true,
+      "require_numbers": true,
+      "require_symbols": true,
+      "require_uppercase": true
+    },
+    "unauthenticated_identities_enabled": true
+  },
+  "data": {
+    "url": "https://7aktegs5fndohkhlty2ejhp6oe.appsync-api.eu-north-1.amazonaws.com/graphql",
+    "aws_region": "eu-north-1",
+    "default_authorization_type": "AMAZON_COGNITO_USER_POOLS",
+    "authorization_types": [
+      "AWS_IAM"
+    ],
+    "model_introspection": {
+      "version": 1,
+      "models": {
+        "Program": {
+          "name": "Program",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "equipment": {
+              "name": "equipment",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "marketingText": {
+              "name": "marketingText",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "periods": {
+              "name": "periods",
+              "isArray": true,
+              "type": {
+                "model": "Period"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "programID"
+                ]
+              }
+            },
+            "poster": {
+              "name": "poster",
+              "isArray": false,
+              "type": {
+                "model": "ProgramMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "HAS_ONE",
+                "associatedWith": [
+                  "programID"
+                ],
+                "targetNames": []
+              }
+            },
+            "activeWorkouts": {
+              "name": "activeWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "ActiveWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "programID"
+                ]
+              }
+            },
+            "completedWorkouts": {
+              "name": "completedWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "CompletedWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "programID"
+                ]
+              }
+            },
+            "myPrograms": {
+              "name": "myPrograms",
+              "isArray": true,
+              "type": {
+                "model": "MyProgram"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "programID"
+                ]
+              }
+            },
+            "warmupWorkoutID": {
+              "name": "warmupWorkoutID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "warmupWorkout": {
+              "name": "warmupWorkout",
+              "isArray": false,
+              "type": {
+                "model": "Workout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "warmupWorkoutID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Programs",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "MyProgram": {
+          "name": "MyProgram",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "programID": {
+              "name": "programID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "program": {
+              "name": "program",
+              "isArray": false,
+              "type": {
+                "model": "Program"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "programID"
+                ]
+              }
+            },
+            "workouts": {
+              "name": "workouts",
+              "isArray": true,
+              "type": {
+                "model": "MyProgramWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "myProgramID"
+                ]
+              }
+            },
+            "completed": {
+              "name": "completed",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "MyPrograms",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "myProgramsByUserID",
+                "queryField": "listMyProgramByUserID",
+                "fields": [
+                  "userID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "CustomWorkout": {
+          "name": "CustomWorkout",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "exercises": {
+              "name": "exercises",
+              "isArray": true,
+              "type": {
+                "model": "CustomWorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "sessions": {
+              "name": "sessions",
+              "isArray": true,
+              "type": {
+                "model": "MyCustomWorkoutSession"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "progress": {
+              "name": "progress",
+              "isArray": true,
+              "type": {
+                "model": "CustomWorkoutProgress"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "shares": {
+              "name": "shares",
+              "isArray": true,
+              "type": {
+                "model": "WorkoutShare"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "subscriptions": {
+              "name": "subscriptions",
+              "isArray": true,
+              "type": {
+                "model": "WorkoutSubscription"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          },
+          "syncable": true,
+          "pluralName": "CustomWorkouts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "customWorkoutsByUserID",
+                "queryField": "listCustomWorkoutByUserID",
+                "fields": [
+                  "userID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "MyProgramWorkout": {
+          "name": "MyProgramWorkout",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "myProgramID": {
+              "name": "myProgramID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "myProgram": {
+              "name": "myProgram",
+              "isArray": false,
+              "type": {
+                "model": "MyProgram"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "myProgramID"
+                ]
+              }
+            },
+            "periodID": {
+              "name": "periodID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "period": {
+              "name": "period",
+              "isArray": false,
+              "type": {
+                "model": "Period"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "periodID"
+                ]
+              }
+            },
+            "workoutID": {
+              "name": "workoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workout": {
+              "name": "workout",
+              "isArray": false,
+              "type": {
+                "model": "Workout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "workoutID"
+                ]
+              }
+            },
+            "periodWeek": {
+              "name": "periodWeek",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "completedExercises": {
+              "name": "completedExercises",
+              "isArray": true,
+              "type": {
+                "model": "MyCompletedExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "myProgramWorkoutID"
+                ]
+              }
+            },
+            "completed": {
+              "name": "completed",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "MyProgramWorkouts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "MyCompletedExercise": {
+          "name": "MyCompletedExercise",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "weight": {
+              "name": "weight",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "myProgramWorkoutID": {
+              "name": "myProgramWorkoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "myProgramWorkout": {
+              "name": "myProgramWorkout",
+              "isArray": false,
+              "type": {
+                "model": "MyProgramWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "myProgramWorkoutID"
+                ]
+              }
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "MyCompletedExercises",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "CustomWorkoutExercise": {
+          "name": "CustomWorkoutExercise",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkoutID": {
+              "name": "customWorkoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkout": {
+              "name": "customWorkout",
+              "isArray": false,
+              "type": {
+                "model": "CustomWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "sortOrder": {
+              "name": "sortOrder",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "sets": {
+              "name": "sets",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "reps": {
+              "name": "reps",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "notes": {
+              "name": "notes",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completedExercises": {
+              "name": "completedExercises",
+              "isArray": true,
+              "type": {
+                "model": "MyCustomWorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "customWorkoutExerciseID"
+                ]
+              }
+            },
+            "progress": {
+              "name": "progress",
+              "isArray": true,
+              "type": {
+                "model": "CustomWorkoutProgress"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "customWorkoutExerciseID"
+                ]
+              }
+            },
+            "overrides": {
+              "name": "overrides",
+              "isArray": true,
+              "type": {
+                "model": "CustomWorkoutExerciseOverride"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "customWorkoutExerciseID"
+                ]
+              }
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "CustomWorkoutExercises",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "CustomWorkoutExerciseOverride": {
+          "name": "CustomWorkoutExerciseOverride",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkoutID": {
+              "name": "customWorkoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkoutExerciseID": {
+              "name": "customWorkoutExerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkoutExercise": {
+              "name": "customWorkoutExercise",
+              "isArray": false,
+              "type": {
+                "model": "CustomWorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "customWorkoutExerciseID"
+                ]
+              }
+            },
+            "sets": {
+              "name": "sets",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "reps": {
+              "name": "reps",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "weight": {
+              "name": "weight",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "CustomWorkoutExerciseOverrides",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "customWorkoutExerciseOverridesByUserIDAndCustomWorkoutID",
+                "queryField": "listCustomWorkoutExerciseOverrideByUserIDAndCustomWorkoutID",
+                "fields": [
+                  "userID",
+                  "customWorkoutID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "SavedExercise": {
+          "name": "SavedExercise",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "sortOrder": {
+              "name": "sortOrder",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "savedAt": {
+              "name": "savedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "SavedExercises",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "savedExercisesByUserID",
+                "queryField": "listSavedExerciseByUserID",
+                "fields": [
+                  "userID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "WorkoutShare": {
+          "name": "WorkoutShare",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkoutID": {
+              "name": "customWorkoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkout": {
+              "name": "customWorkout",
+              "isArray": false,
+              "type": {
+                "model": "CustomWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "sharedByUserID": {
+              "name": "sharedByUserID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "sharedBy": {
+              "name": "sharedBy",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "sharedByUserID"
+                ]
+              }
+            },
+            "shareCode": {
+              "name": "shareCode",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workoutName": {
+              "name": "workoutName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workoutDescription": {
+              "name": "workoutDescription",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "exerciseCount": {
+              "name": "exerciseCount",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "sharedByName": {
+              "name": "sharedByName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "isActive": {
+              "name": "isActive",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "sharedAt": {
+              "name": "sharedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "expiresAt": {
+              "name": "expiresAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "subscriptionCount": {
+              "name": "subscriptionCount",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "subscriptions": {
+              "name": "subscriptions",
+              "isArray": true,
+              "type": {
+                "model": "WorkoutSubscription"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "workoutShareID"
+                ]
+              }
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "WorkoutShares",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "workoutSharesByCustomWorkoutID",
+                "queryField": "listWorkoutShareByCustomWorkoutID",
+                "fields": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "workoutSharesByShareCode",
+                "queryField": "listWorkoutShareByShareCode",
+                "fields": [
+                  "shareCode"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "WorkoutSubscription": {
+          "name": "WorkoutSubscription",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "subscriberUserID": {
+              "name": "subscriberUserID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "subscriber": {
+              "name": "subscriber",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "subscriberUserID"
+                ]
+              }
+            },
+            "customWorkoutID": {
+              "name": "customWorkoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkout": {
+              "name": "customWorkout",
+              "isArray": false,
+              "type": {
+                "model": "CustomWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "workoutShareID": {
+              "name": "workoutShareID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workoutShare": {
+              "name": "workoutShare",
+              "isArray": false,
+              "type": {
+                "model": "WorkoutShare"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "workoutShareID"
+                ]
+              }
+            },
+            "subscribedAt": {
+              "name": "subscribedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "lastViewedAt": {
+              "name": "lastViewedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "WorkoutSubscriptions",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "workoutSubscriptionsBySubscriberUserID",
+                "queryField": "listWorkoutSubscriptionBySubscriberUserID",
+                "fields": [
+                  "subscriberUserID"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "workoutSubscriptionsBySubscriberUserIDAndCustomWorkoutID",
+                "queryField": "listWorkoutSubscriptionBySubscriberUserIDAndCustomWorkoutID",
+                "fields": [
+                  "subscriberUserID",
+                  "customWorkoutID"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "workoutSubscriptionsByWorkoutShareID",
+                "queryField": "listWorkoutSubscriptionByWorkoutShareID",
+                "fields": [
+                  "workoutShareID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "read",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "MyCustomWorkoutSession": {
+          "name": "MyCustomWorkoutSession",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "customWorkoutID": {
+              "name": "customWorkoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkout": {
+              "name": "customWorkout",
+              "isArray": false,
+              "type": {
+                "model": "CustomWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "completedExercises": {
+              "name": "completedExercises",
+              "isArray": true,
+              "type": {
+                "model": "MyCustomWorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "sessionID"
+                ]
+              }
+            },
+            "startedAt": {
+              "name": "startedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "completedAt": {
+              "name": "completedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completed": {
+              "name": "completed",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "MyCustomWorkoutSessions",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "myCustomWorkoutSessionsByUserID",
+                "queryField": "listMyCustomWorkoutSessionByUserID",
+                "fields": [
+                  "userID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "MyCustomWorkoutExercise": {
+          "name": "MyCustomWorkoutExercise",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "sessionID": {
+              "name": "sessionID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "session": {
+              "name": "session",
+              "isArray": false,
+              "type": {
+                "model": "MyCustomWorkoutSession"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "sessionID"
+                ]
+              }
+            },
+            "customWorkoutExerciseID": {
+              "name": "customWorkoutExerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkoutExercise": {
+              "name": "customWorkoutExercise",
+              "isArray": false,
+              "type": {
+                "model": "CustomWorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "customWorkoutExerciseID"
+                ]
+              }
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "weight": {
+              "name": "weight",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completedAt": {
+              "name": "completedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "MyCustomWorkoutExercises",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Period": {
+          "name": "Period",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "programID": {
+              "name": "programID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "from": {
+              "name": "from",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "to": {
+              "name": "to",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "program": {
+              "name": "program",
+              "isArray": false,
+              "type": {
+                "model": "Program"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "programID"
+                ]
+              }
+            },
+            "workouts": {
+              "name": "workouts",
+              "isArray": true,
+              "type": {
+                "model": "PeriodWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "periodID"
+                ]
+              }
+            },
+            "myProgramWorkouts": {
+              "name": "myProgramWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "MyProgramWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "periodID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Periods",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Workout": {
+          "name": "Workout",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "periods": {
+              "name": "periods",
+              "isArray": true,
+              "type": {
+                "model": "PeriodWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "workoutID"
+                ]
+              }
+            },
+            "exercises": {
+              "name": "exercises",
+              "isArray": true,
+              "type": {
+                "model": "WorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "workoutID"
+                ]
+              }
+            },
+            "userProgresses": {
+              "name": "userProgresses",
+              "isArray": true,
+              "type": {
+                "model": "UserProgress"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "workoutID"
+                ]
+              }
+            },
+            "activeWorkouts": {
+              "name": "activeWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "ActiveWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "workoutID"
+                ]
+              }
+            },
+            "completedWorkouts": {
+              "name": "completedWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "CompletedWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "workoutID"
+                ]
+              }
+            },
+            "completedProgramWorkouts": {
+              "name": "completedProgramWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "MyProgramWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "workoutID"
+                ]
+              }
+            },
+            "warmupPrograms": {
+              "name": "warmupPrograms",
+              "isArray": true,
+              "type": {
+                "model": "Program"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "warmupWorkoutID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Workouts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Exercise": {
+          "name": "Exercise",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "workouts": {
+              "name": "workouts",
+              "isArray": true,
+              "type": {
+                "model": "WorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "video": {
+              "name": "video",
+              "isArray": false,
+              "type": {
+                "model": "ExerciseVideoMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "HAS_ONE",
+                "associatedWith": [
+                  "exerciseID"
+                ],
+                "targetNames": []
+              }
+            },
+            "poster": {
+              "name": "poster",
+              "isArray": false,
+              "type": {
+                "model": "ExercisePosterMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "HAS_ONE",
+                "associatedWith": [
+                  "exerciseID"
+                ],
+                "targetNames": []
+              }
+            },
+            "equipment": {
+              "name": "equipment",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "activeWorkouts": {
+              "name": "activeWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "ActiveWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "completedExercises": {
+              "name": "completedExercises",
+              "isArray": true,
+              "type": {
+                "model": "MyCompletedExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "tags": {
+              "name": "tags",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "isVisibleInDiscover": {
+              "name": "isVisibleInDiscover",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "customWorkoutExercises": {
+              "name": "customWorkoutExercises",
+              "isArray": true,
+              "type": {
+                "model": "CustomWorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "savedExercises": {
+              "name": "savedExercises",
+              "isArray": true,
+              "type": {
+                "model": "SavedExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "myCustomWorkoutExercises": {
+              "name": "myCustomWorkoutExercises",
+              "isArray": true,
+              "type": {
+                "model": "MyCustomWorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "videoDraft": {
+              "name": "videoDraft",
+              "isArray": false,
+              "type": {
+                "model": "ExerciseVideoMediaDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "HAS_ONE",
+                "associatedWith": [
+                  "exerciseID"
+                ],
+                "targetNames": []
+              }
+            },
+            "posterDraft": {
+              "name": "posterDraft",
+              "isArray": false,
+              "type": {
+                "model": "ExercisePosterMediaDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "HAS_ONE",
+                "associatedWith": [
+                  "exerciseID"
+                ],
+                "targetNames": []
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Exercises",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "WorkoutExercise": {
+          "name": "WorkoutExercise",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workoutID": {
+              "name": "workoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workout": {
+              "name": "workout",
+              "isArray": false,
+              "type": {
+                "model": "Workout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "workoutID"
+                ]
+              }
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "sortOrder": {
+              "name": "sortOrder",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "superset": {
+              "name": "superset",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "sets": {
+              "name": "sets",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "reps": {
+              "name": "reps",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userProgresses": {
+              "name": "userProgresses",
+              "isArray": true,
+              "type": {
+                "model": "UserProgress"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "workoutExerciseID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "WorkoutExercises",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "PeriodWorkout": {
+          "name": "PeriodWorkout",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "periodID": {
+              "name": "periodID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workoutID": {
+              "name": "workoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workoutName": {
+              "name": "workoutName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "period": {
+              "name": "period",
+              "isArray": false,
+              "type": {
+                "model": "Period"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "periodID"
+                ]
+              }
+            },
+            "workout": {
+              "name": "workout",
+              "isArray": false,
+              "type": {
+                "model": "Workout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "workoutID"
+                ]
+              }
+            },
+            "sortOrder": {
+              "name": "sortOrder",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "PeriodWorkouts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "User": {
+          "name": "User",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "firstName": {
+              "name": "firstName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "lastName": {
+              "name": "lastName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "isActive": {
+              "name": "isActive",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "subscriberUntil": {
+              "name": "subscriberUntil",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "activeWorkouts": {
+              "name": "activeWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "ActiveWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "completedWorkouts": {
+              "name": "completedWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "CompletedWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "myPrograms": {
+              "name": "myPrograms",
+              "isArray": true,
+              "type": {
+                "model": "MyProgram"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "userProgresses": {
+              "name": "userProgresses",
+              "isArray": true,
+              "type": {
+                "model": "UserProgress"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "purchases": {
+              "name": "purchases",
+              "isArray": true,
+              "type": {
+                "model": "Purchase"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "androidSubscriptions": {
+              "name": "androidSubscriptions",
+              "isArray": true,
+              "type": {
+                "model": "AndroidSubscription"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "customWorkouts": {
+              "name": "customWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "CustomWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "savedExercises": {
+              "name": "savedExercises",
+              "isArray": true,
+              "type": {
+                "model": "SavedExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "customWorkoutSessions": {
+              "name": "customWorkoutSessions",
+              "isArray": true,
+              "type": {
+                "model": "MyCustomWorkoutSession"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "customWorkoutProgress": {
+              "name": "customWorkoutProgress",
+              "isArray": true,
+              "type": {
+                "model": "CustomWorkoutProgress"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userID"
+                ]
+              }
+            },
+            "sharedWorkouts": {
+              "name": "sharedWorkouts",
+              "isArray": true,
+              "type": {
+                "model": "WorkoutShare"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "sharedByUserID"
+                ]
+              }
+            },
+            "workoutSubscriptions": {
+              "name": "workoutSubscriptions",
+              "isArray": true,
+              "type": {
+                "model": "WorkoutSubscription"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "subscriberUserID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Users",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "usersByEmail",
+                "queryField": "listUserByEmail",
+                "fields": [
+                  "email"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "usersByOwner",
+                "queryField": "listUserByOwner",
+                "fields": [
+                  "owner"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "operations": [
+                      "read"
+                    ],
+                    "identityClaim": "cognito:username"
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Purchase": {
+          "name": "Purchase",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "transactionId": {
+              "name": "transactionId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Purchases",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "purchasesByTransactionId",
+                "queryField": "listPurchaseByTransactionId",
+                "fields": [
+                  "transactionId"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "AndroidSubscription": {
+          "name": "AndroidSubscription",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "purchaseToken": {
+              "name": "purchaseToken",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "AndroidSubscriptions",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "androidSubscriptionsByPurchaseToken",
+                "queryField": "listAndroidSubscriptionByPurchaseToken",
+                "fields": [
+                  "purchaseToken"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ClubCodeUsage": {
+          "name": "ClubCodeUsage",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "code": {
+              "name": "code",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "club": {
+              "name": "club",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "currentUsage": {
+              "name": "currentUsage",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "usageLimit": {
+              "name": "usageLimit",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "subscriptionDurationInDays": {
+              "name": "subscriptionDurationInDays",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "redemptions": {
+              "name": "redemptions",
+              "isArray": true,
+              "type": {
+                "model": "ClubCodeRedemption"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "clubCodeUsageId"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ClubCodeUsages",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubCodeUsagesByCode",
+                "queryField": "listClubCodeUsageByCode",
+                "fields": [
+                  "code"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update"
+                    ],
+                    "groups": [
+                      "ADMINS"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ClubCodeRedemption": {
+          "name": "ClubCodeRedemption",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "code": {
+              "name": "code",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userEmail": {
+              "name": "userEmail",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "clubCodeUsageId": {
+              "name": "clubCodeUsageId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "clubCodeUsage": {
+              "name": "clubCodeUsage",
+              "isArray": false,
+              "type": {
+                "model": "ClubCodeUsage"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "clubCodeUsageId"
+                ]
+              }
+            },
+            "redeemedAt": {
+              "name": "redeemedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": {
+                "enum": "ClubCodeRedemptionStatus"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ClubCodeRedemptions",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubCodeRedemptionsByCodeAndUserEmail",
+                "queryField": "listClubCodeRedemptionByCodeAndUserEmail",
+                "fields": [
+                  "code",
+                  "userEmail"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubCodeRedemptionsByUserEmail",
+                "queryField": "listClubCodeRedemptionByUserEmail",
+                "fields": [
+                  "userEmail"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubCodeRedemptionsByUserEmailAndStatus",
+                "queryField": "listClubCodeRedemptionByUserEmailAndStatus",
+                "fields": [
+                  "userEmail",
+                  "status"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubCodeRedemptionsByStatus",
+                "queryField": "listClubCodeRedemptionByStatus",
+                "fields": [
+                  "status"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update"
+                    ],
+                    "groups": [
+                      "ADMINS"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ActiveWorkout": {
+          "name": "ActiveWorkout",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "programID": {
+              "name": "programID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "program": {
+              "name": "program",
+              "isArray": false,
+              "type": {
+                "model": "Program"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "programID"
+                ]
+              }
+            },
+            "workoutID": {
+              "name": "workoutID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workout": {
+              "name": "workout",
+              "isArray": false,
+              "type": {
+                "model": "Workout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "workoutID"
+                ]
+              }
+            },
+            "periodWeek": {
+              "name": "periodWeek",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ActiveWorkouts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "activeWorkoutsByUserID",
+                "queryField": "listActiveWorkoutByUserID",
+                "fields": [
+                  "userID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "identityClaim": "cognito:username",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "CompletedWorkout": {
+          "name": "CompletedWorkout",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "programID": {
+              "name": "programID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "program": {
+              "name": "program",
+              "isArray": false,
+              "type": {
+                "model": "Program"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "programID"
+                ]
+              }
+            },
+            "workoutID": {
+              "name": "workoutID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workout": {
+              "name": "workout",
+              "isArray": false,
+              "type": {
+                "model": "Workout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "workoutID"
+                ]
+              }
+            },
+            "periodWeek": {
+              "name": "periodWeek",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "CompletedWorkouts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "completedWorkoutsByUserID",
+                "queryField": "listCompletedWorkoutByUserID",
+                "fields": [
+                  "userID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "identityClaim": "cognito:username",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "UserProgress": {
+          "name": "UserProgress",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workoutID": {
+              "name": "workoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "workoutExerciseID": {
+              "name": "workoutExerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "weight": {
+              "name": "weight",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "performedAt": {
+              "name": "performedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "workout": {
+              "name": "workout",
+              "isArray": false,
+              "type": {
+                "model": "Workout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "workoutID"
+                ]
+              }
+            },
+            "workoutExercise": {
+              "name": "workoutExercise",
+              "isArray": false,
+              "type": {
+                "model": "WorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "workoutExerciseID"
+                ]
+              }
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "UserProgresses",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "userProgressesByUserIDAndWorkoutIDAndWorkoutExerciseID",
+                "queryField": "listUserProgressByUserIDAndWorkoutIDAndWorkoutExerciseID",
+                "fields": [
+                  "userID",
+                  "workoutID",
+                  "workoutExerciseID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "identityClaim": "cognito:username",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "CustomWorkoutProgress": {
+          "name": "CustomWorkoutProgress",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userID"
+                ]
+              }
+            },
+            "customWorkoutID": {
+              "name": "customWorkoutID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkout": {
+              "name": "customWorkout",
+              "isArray": false,
+              "type": {
+                "model": "CustomWorkout"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "customWorkoutID"
+                ]
+              }
+            },
+            "customWorkoutExerciseID": {
+              "name": "customWorkoutExerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "customWorkoutExercise": {
+              "name": "customWorkoutExercise",
+              "isArray": false,
+              "type": {
+                "model": "CustomWorkoutExercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "customWorkoutExerciseID"
+                ]
+              }
+            },
+            "weight": {
+              "name": "weight",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "performedAt": {
+              "name": "performedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "owner": {
+              "name": "owner",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "CustomWorkoutProgresses",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "customWorkoutProgressesByUserIDAndCustomWorkoutIDAndCustomWorkoutExerciseID",
+                "queryField": "listCustomWorkoutProgressByUserIDAndCustomWorkoutIDAndCustomWorkoutExerciseID",
+                "fields": [
+                  "userID",
+                  "customWorkoutID",
+                  "customWorkoutExerciseID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "provider": "userPools",
+                    "ownerField": "owner",
+                    "allow": "owner",
+                    "identityClaim": "cognito:username",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Post": {
+          "name": "Post",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "content": {
+              "name": "content",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "media": {
+              "name": "media",
+              "isArray": true,
+              "type": {
+                "model": "PostMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "postID"
+                ]
+              }
+            },
+            "publishedAt": {
+              "name": "publishedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "isPublished": {
+              "name": "isPublished",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Posts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS",
+                      "AMIR"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "PostDraft": {
+          "name": "PostDraft",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "content": {
+              "name": "content",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "media": {
+              "name": "media",
+              "isArray": true,
+              "type": {
+                "model": "PostDraftMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "postDraftID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "PostDrafts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS",
+                      "AMIR"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "PostMedia": {
+          "name": "PostMedia",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "postID": {
+              "name": "postID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "post": {
+              "name": "post",
+              "isArray": false,
+              "type": {
+                "model": "Post"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "postID"
+                ]
+              }
+            },
+            "videoMediaID": {
+              "name": "videoMediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "posterMediaID": {
+              "name": "posterMediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "sortOrder": {
+              "name": "sortOrder",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "videoMedia": {
+              "name": "videoMedia",
+              "isArray": false,
+              "type": {
+                "model": "Media"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "videoMediaID"
+                ]
+              }
+            },
+            "posterMedia": {
+              "name": "posterMedia",
+              "isArray": false,
+              "type": {
+                "model": "Media"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "posterMediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "PostMedias",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS",
+                      "AMIR"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "PostDraftMedia": {
+          "name": "PostDraftMedia",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "postDraftID": {
+              "name": "postDraftID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "post": {
+              "name": "post",
+              "isArray": false,
+              "type": {
+                "model": "PostDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "postDraftID"
+                ]
+              }
+            },
+            "videoMediaID": {
+              "name": "videoMediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "posterMediaID": {
+              "name": "posterMediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "sortOrder": {
+              "name": "sortOrder",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "videoMedia": {
+              "name": "videoMedia",
+              "isArray": false,
+              "type": {
+                "model": "MediaDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "videoMediaID"
+                ]
+              }
+            },
+            "posterMedia": {
+              "name": "posterMedia",
+              "isArray": false,
+              "type": {
+                "model": "MediaDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "posterMediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "PostDraftMedias",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS",
+                      "AMIR"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ExerciseVideoMedia": {
+          "name": "ExerciseVideoMedia",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "mediaID": {
+              "name": "mediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "media": {
+              "name": "media",
+              "isArray": false,
+              "type": {
+                "model": "Media"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "mediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ExerciseVideoMedias",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ExercisePosterMedia": {
+          "name": "ExercisePosterMedia",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "mediaID": {
+              "name": "mediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "media": {
+              "name": "media",
+              "isArray": false,
+              "type": {
+                "model": "Media"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "mediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ExercisePosterMedias",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ProgramMedia": {
+          "name": "ProgramMedia",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "programID": {
+              "name": "programID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "mediaID": {
+              "name": "mediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "program": {
+              "name": "program",
+              "isArray": false,
+              "type": {
+                "model": "Program"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "programID"
+                ]
+              }
+            },
+            "media": {
+              "name": "media",
+              "isArray": false,
+              "type": {
+                "model": "Media"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "mediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ProgramMedias",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "update",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Media": {
+          "name": "Media",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "fileKey": {
+              "name": "fileKey",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "type": {
+              "name": "type",
+              "isArray": false,
+              "type": {
+                "enum": "MediaType"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "postVideoMedia": {
+              "name": "postVideoMedia",
+              "isArray": true,
+              "type": {
+                "model": "PostMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "videoMediaID"
+                ]
+              }
+            },
+            "postPosterMedia": {
+              "name": "postPosterMedia",
+              "isArray": true,
+              "type": {
+                "model": "PostMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "posterMediaID"
+                ]
+              }
+            },
+            "programMedia": {
+              "name": "programMedia",
+              "isArray": true,
+              "type": {
+                "model": "ProgramMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "mediaID"
+                ]
+              }
+            },
+            "exerciseVideoMedia": {
+              "name": "exerciseVideoMedia",
+              "isArray": true,
+              "type": {
+                "model": "ExerciseVideoMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "mediaID"
+                ]
+              }
+            },
+            "exercisePosterMedia": {
+              "name": "exercisePosterMedia",
+              "isArray": true,
+              "type": {
+                "model": "ExercisePosterMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "mediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Media",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS",
+                      "AMIR"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "MediaDraft": {
+          "name": "MediaDraft",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "fileKey": {
+              "name": "fileKey",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "type": {
+              "name": "type",
+              "isArray": false,
+              "type": {
+                "enum": "MediaDraftType"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "isEncoding": {
+              "name": "isEncoding",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true,
+              "attributes": []
+            },
+            "postDraftVideoMedia": {
+              "name": "postDraftVideoMedia",
+              "isArray": true,
+              "type": {
+                "model": "PostDraftMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "videoMediaID"
+                ]
+              }
+            },
+            "postDraftPosterMedia": {
+              "name": "postDraftPosterMedia",
+              "isArray": true,
+              "type": {
+                "model": "PostDraftMedia"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "posterMediaID"
+                ]
+              }
+            },
+            "exerciseVideoDraft": {
+              "name": "exerciseVideoDraft",
+              "isArray": true,
+              "type": {
+                "model": "ExerciseVideoMediaDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "mediaID"
+                ]
+              }
+            },
+            "exercisePosterDraft": {
+              "name": "exercisePosterDraft",
+              "isArray": true,
+              "type": {
+                "model": "ExercisePosterMediaDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "mediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "MediaDrafts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "mediaDraftsByFileKey",
+                "queryField": "listMediaDraftByFileKey",
+                "fields": [
+                  "fileKey"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS",
+                      "AMIR"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ExerciseVideoMediaDraft": {
+          "name": "ExerciseVideoMediaDraft",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "mediaID": {
+              "name": "mediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "media": {
+              "name": "media",
+              "isArray": false,
+              "type": {
+                "model": "MediaDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "mediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ExerciseVideoMediaDrafts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ExercisePosterMediaDraft": {
+          "name": "ExercisePosterMediaDraft",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exerciseID": {
+              "name": "exerciseID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "mediaID": {
+              "name": "mediaID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "exercise": {
+              "name": "exercise",
+              "isArray": false,
+              "type": {
+                "model": "Exercise"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "exerciseID"
+                ]
+              }
+            },
+            "media": {
+              "name": "media",
+              "isArray": false,
+              "type": {
+                "model": "MediaDraft"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "mediaID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ExercisePosterMediaDrafts",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read"
+                    ],
+                    "groups": [
+                      "SUBSCRIBERS"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "operations": [
+                      "read",
+                      "create",
+                      "delete"
+                    ],
+                    "groups": [
+                      "AMIR"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        }
+      },
+      "enums": {
+        "ClubCodeRedemptionStatus": {
+          "name": "ClubCodeRedemptionStatus",
+          "values": [
+            "pending",
+            "completed"
+          ]
+        },
+        "MediaType": {
+          "name": "MediaType",
+          "values": [
+            "image",
+            "video",
+            "none"
+          ]
+        },
+        "MediaDraftType": {
+          "name": "MediaDraftType",
+          "values": [
+            "image",
+            "video",
+            "none"
+          ]
+        }
+      },
+      "nonModels": {}
+    }
+  },
+  "storage": {
+    "aws_region": "eu-north-1",
+    "bucket_name": "amplify-d3j39xk6jrf6nn-pr-amirstoragebucket724e4d0-saalimrnzxow",
+    "buckets": [
+      {
+        "name": "amir-storage",
+        "bucket_name": "amplify-d3j39xk6jrf6nn-pr-amirstoragebucket724e4d0-saalimrnzxow",
+        "aws_region": "eu-north-1",
+        "paths": {
+          "program_poster/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
+          "workout_poster/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
+          "exercise_poster/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
+          "exercise_video/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
+          "fallback/exercise_video/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
+          "post_poster/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
+          "post_media/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
+          "fallback/post_media/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
+          "post_uploads/*": {
+            "groupsAMIR": [
+              "write"
+            ]
+          },
+          "exercise_uploads/*": {
+            "groupsAMIR": [
+              "write"
+            ],
+            "groupsADMINS": [
+              "write"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "version": "1.4",
+  "custom": {
+    "rest_api": {
+      "rest-api": {
+        "url": "https://tzigof9xkc.execute-api.eu-north-1.amazonaws.com/rest/",
+        "aws_region": "eu-north-1",
+        "authorization_type": "AWS_IAM"
+      }
+    }
+  }
+}
