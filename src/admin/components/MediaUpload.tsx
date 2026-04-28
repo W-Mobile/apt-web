@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { uploadData } from 'aws-amplify/storage';
-import { Upload, Film, X, ImageIcon, Undo2 } from 'lucide-react';
+import { uploadData, getUrl } from 'aws-amplify/storage';
+import { Upload, Film, X, ImageIcon, Undo2, Play, Maximize2, Download } from 'lucide-react';
 
 interface UndoSnapshot {
   fileName: string | null;
@@ -68,9 +68,12 @@ export function MediaUpload({
   const [uploadedKey, setUploadedKey] = useState<string | null>(null);
   const [cleared, setCleared] = useState(false);
   const [undoSnapshot, setUndoSnapshot] = useState<UndoSnapshot | null>(null);
+  const [existingPreviewUrl, setExistingPreviewUrl] = useState<string | null>(null);
+  const [mediaExpanded, setMediaExpanded] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const dragCounter = useRef(0);
+  const suppressFilePickerRef = useRef(false);
 
   // Determine what to show
   const hasUploadedFile = uploadedKey !== null && fileName !== null;
@@ -84,10 +87,18 @@ export function MediaUpload({
       : null;
 
   const isImage = hasUploadedFile
-    ? previewUrl !== null
+    ? previewUrl !== null && !/\.(mp4|mov|webm|avi)$/i.test(fileName!)
     : hasExisting
       ? /\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(existingFileKey!)
       : false;
+
+  const isVideo = hasUploadedFile
+    ? previewUrl !== null && /\.(mp4|mov|webm|avi)$/i.test(fileName!)
+    : hasExisting
+      ? /\.(mp4|mov|webm|avi)$/i.test(existingFileKey!)
+      : false;
+
+  const videoSrc = hasUploadedFile ? previewUrl : existingPreviewUrl;
 
   // Cleanup preview URL and undo timer on unmount
   useEffect(() => {
@@ -95,6 +106,28 @@ export function MediaUpload({
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  // Fetch signed URL for existing files
+  useEffect(() => {
+    if (!hasExisting || hasUploadedFile) {
+      setExistingPreviewUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    getUrl({ path: existingFileKey! })
+      .then(({ url }) => {
+        if (!cancelled) setExistingPreviewUrl(url.toString());
+      })
+      .catch(() => {
+        if (!cancelled) setExistingPreviewUrl(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [existingFileKey, hasExisting, hasUploadedFile]);
 
 
   const handleFile = useCallback(
@@ -120,8 +153,8 @@ export function MediaUpload({
       if (undoSnapshot?.previewUrl) URL.revokeObjectURL(undoSnapshot.previewUrl);
       setUndoSnapshot(null);
 
-      // Image preview
-      if (file.type.startsWith('image/')) {
+      // Image or video preview
+      if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
         const url = URL.createObjectURL(file);
         setPreviewUrl((prev) => {
           if (prev) URL.revokeObjectURL(prev);
@@ -133,6 +166,8 @@ export function MediaUpload({
           return null;
         });
       }
+
+      setMediaExpanded(false);
 
       setUploading(true);
       setProgress(0);
@@ -185,6 +220,7 @@ export function MediaUpload({
     setError(null);
     setProgress(0);
     setCleared(true);
+    setMediaExpanded(false);
     // Don't revoke previewUrl — keep it alive in the snapshot for undo
     setPreviewUrl(null);
     if (inputRef.current) inputRef.current.value = '';
@@ -241,7 +277,12 @@ export function MediaUpload({
   }
 
   function handleClick() {
-    if (!uploading) inputRef.current?.click();
+    if (uploading) return;
+    if (suppressFilePickerRef.current) {
+      suppressFilePickerRef.current = false;
+      return;
+    }
+    inputRef.current?.click();
   }
 
   // Accept hint text
@@ -329,37 +370,119 @@ export function MediaUpload({
 
         {/* File preview (existing or uploaded) */}
         {hasFile && !uploading && !isDragging && (
-          <div className="flex items-center gap-3 p-3">
-            <div className="w-12 h-12 rounded-lg bg-stone-800 border border-stone-700 flex-shrink-0 overflow-hidden flex items-center justify-center">
-              {isImage && previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt={displayName ?? ''}
-                  className="w-full h-full object-cover"
-                />
-              ) : isImage ? (
-                <ImageIcon className="w-5 h-5 text-stone-500" />
-              ) : (
-                <Film className="w-5 h-5 text-stone-500" />
-              )}
+          <div>
+            <div className="flex items-center gap-3 p-3">
+              <div className="relative w-20 h-20 rounded-lg bg-stone-800 border border-stone-700 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                {isImage && (previewUrl || existingPreviewUrl) ? (
+                  <>
+                    <img
+                      src={previewUrl ?? existingPreviewUrl!}
+                      alt={displayName ?? ''}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        suppressFilePickerRef.current = true;
+                        setMediaExpanded(!mediaExpanded);
+                      }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors"
+                      aria-label="Förstora bild"
+                    >
+                      <Maximize2 className="w-4 h-4 text-white" />
+                    </button>
+                  </>
+                ) : isVideo && videoSrc ? (
+                  <>
+                    <video
+                      src={videoSrc}
+                      className="w-full h-full object-cover"
+                      muted
+                      preload="metadata"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        suppressFilePickerRef.current = true;
+                        setMediaExpanded(!mediaExpanded);
+                      }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors"
+                      aria-label="Spela video"
+                    >
+                      <Play className="w-5 h-5 text-white" fill="white" />
+                    </button>
+                  </>
+                ) : isImage ? (
+                  <ImageIcon className="w-5 h-5 text-stone-500" />
+                ) : (
+                  <Film className="w-5 h-5 text-stone-500" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-stone-200 truncate">{displayName}</p>
+                {fileSize != null && (
+                  <p className="text-xs text-stone-500">{formatFileSize(fileSize)}</p>
+                )}
+                {hasExisting && !hasUploadedFile && (
+                  <p className="text-xs text-stone-600">Befintlig fil</p>
+                )}
+              </div>
+              <div className="flex items-center gap-0.5">
+                {(previewUrl || existingPreviewUrl || videoSrc) && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      suppressFilePickerRef.current = true;
+                      const url = previewUrl ?? existingPreviewUrl ?? videoSrc;
+                      if (url) {
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = displayName ?? 'download';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                      }
+                    }}
+                    className="p-1.5 rounded-lg text-stone-500 hover:text-stone-300 hover:bg-stone-800 transition-colors"
+                    aria-label="Ladda ner fil"
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="p-1.5 rounded-lg text-stone-500 hover:text-stone-300 hover:bg-stone-800 transition-colors"
+                  aria-label="Ta bort fil"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-stone-200 truncate">{displayName}</p>
-              {fileSize != null && (
-                <p className="text-xs text-stone-500">{formatFileSize(fileSize)}</p>
-              )}
-              {hasExisting && !hasUploadedFile && (
-                <p className="text-xs text-stone-600">Befintlig fil</p>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={handleClear}
-              className="p-1.5 rounded-lg text-stone-500 hover:text-stone-300 hover:bg-stone-800 transition-colors"
-              aria-label="Ta bort fil"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            {mediaExpanded && (
+              <div
+                className="px-3 pb-3"
+                onClick={() => { suppressFilePickerRef.current = true; }}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
+                {isVideo && videoSrc ? (
+                  <video
+                    src={videoSrc}
+                    controls
+                    className="w-full rounded-lg bg-black"
+                    style={{ maxHeight: '300px' }}
+                  />
+                ) : isImage && (previewUrl || existingPreviewUrl) ? (
+                  <img
+                    src={previewUrl ?? existingPreviewUrl!}
+                    alt={displayName ?? ''}
+                    className="w-full rounded-lg object-contain bg-stone-950"
+                    style={{ maxHeight: '300px' }}
+                  />
+                ) : null}
+              </div>
+            )}
           </div>
         )}
 
