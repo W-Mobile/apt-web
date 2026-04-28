@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Undo2 } from 'lucide-react';
 import {
   getWorkout, createWorkout, updateWorkout, deleteWorkout,
   getWorkoutExercises, createWorkoutExercise, deleteWorkoutExercise,
@@ -7,6 +8,8 @@ import {
 } from './workout-api';
 import { listExercises } from '../exercises/exercise-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { useNavigationGuard } from '../contexts/NavigationGuardContext';
+import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 
 interface ExerciseOption {
   id: string;
@@ -22,11 +25,13 @@ interface WorkoutExerciseRow {
   sets: string;
   reps: string;
   superset: string;
+  pendingDelete?: boolean;
 }
 
 export function WorkoutForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { navigate: guardedNavigate, setDirty } = useNavigationGuard();
   const isNew = id === 'new' || !id;
 
   const [name, setName] = useState('');
@@ -36,6 +41,15 @@ export function WorkoutForm() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', exercises: [] } : null);
+  const trackableExercises = exercises.map(({ exerciseName, ...rest }) => rest);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, exercises: trackableExercises });
+
+  useEffect(() => {
+    setDirty(isDirty);
+    return () => setDirty(false);
+  }, [isDirty, setDirty]);
 
   useEffect(() => {
     listExercises().then((exs) =>
@@ -50,17 +64,21 @@ export function WorkoutForm() {
           setName(workout.name);
           setDescription(workout.description);
         }
-        setExercises(
-          wExercises.map((we) => ({
-            id: we.id,
-            exerciseID: we.exerciseID,
-            exerciseName: '',
-            sortOrder: we.sortOrder,
-            sets: we.sets,
-            reps: we.reps,
-            superset: we.superset ?? '',
-          }))
-        );
+        const loadedExercises = wExercises.map((we) => ({
+          id: we.id,
+          exerciseID: we.exerciseID,
+          exerciseName: '',
+          sortOrder: we.sortOrder,
+          sets: we.sets,
+          reps: we.reps,
+          superset: we.superset ?? '',
+        }));
+        setExercises(loadedExercises);
+        setInitialValues({
+          name: workout?.name ?? '',
+          description: workout?.description ?? '',
+          exercises: loadedExercises.map(({ exerciseName, ...rest }) => rest),
+        });
         setLoading(false);
       });
     }
@@ -76,7 +94,15 @@ export function WorkoutForm() {
   }
 
   function removeExercise(index: number) {
-    setExercises((prev) => prev.filter((_, i) => i !== index));
+    setExercises((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, pendingDelete: true } : row))
+    );
+  }
+
+  function undoRemoveExercise(index: number) {
+    setExercises((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, pendingDelete: false } : row))
+    );
   }
 
   function updateExerciseRow(index: number, field: keyof WorkoutExerciseRow, value: string) {
@@ -98,8 +124,9 @@ export function WorkoutForm() {
         const existing = await getWorkoutExercises(workoutID);
         await Promise.all(existing.map((we) => deleteWorkoutExercise(we.id)));
       }
+      const activeExercises = exercises.filter((ex) => !ex.pendingDelete);
       await Promise.all(
-        exercises.map((ex, i) =>
+        activeExercises.map((ex, i) =>
           createWorkoutExercise({
             workoutID,
             exerciseID: ex.exerciseID,
@@ -110,6 +137,7 @@ export function WorkoutForm() {
           })
         )
       );
+      setDirty(false);
       navigate('/admin/workouts');
     } finally {
       setSaving(false);
@@ -159,9 +187,22 @@ export function WorkoutForm() {
           <div className="space-y-2">
             {exercises.map((ex, i) => {
               const exName = ex.exerciseName || availableExercises.find((a) => a.id === ex.exerciseID)?.name || ex.exerciseID;
+              if (ex.pendingDelete) {
+                return (
+                  <div key={i} className="flex items-center justify-between bg-stone-800/50 border border-dashed border-amber-600/40 p-2.5 rounded-xl animate-fade-in">
+                    <span className="text-sm text-amber-500">Borttagen — sparas vid nästa spara</span>
+                    <button type="button" onClick={() => undoRemoveExercise(i)}
+                      className="flex items-center gap-1.5 text-[#F24E1E] font-medium text-sm hover:text-[#d93d0f] transition-colors">
+                      <Undo2 className="w-3.5 h-3.5" />
+                      Ångra
+                    </button>
+                  </div>
+                );
+              }
+              const activeIndex = exercises.slice(0, i).filter((e) => !e.pendingDelete).length + 1;
               return (
                 <div key={i} className="flex items-center gap-2 bg-stone-800 p-2.5 rounded-xl">
-                  <span className="text-sm text-white flex-1">{i + 1}. {exName}</span>
+                  <span className="text-sm text-white flex-1">{activeIndex}. {exName}</span>
                   <input value={ex.sets} onChange={(e) => updateExerciseRow(i, 'sets', e.target.value)}
                     placeholder="Sets" className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm text-center rounded-lg border border-stone-600" />
                   <input value={ex.reps} onChange={(e) => updateExerciseRow(i, 'reps', e.target.value)}
@@ -194,7 +235,7 @@ export function WorkoutForm() {
             className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors">
             {saving ? 'Sparar...' : 'Spara'}
           </button>
-          <button type="button" onClick={() => navigate('/admin/workouts')}
+          <button type="button" onClick={() => guardedNavigate('/admin/workouts')}
             className="px-4 py-2.5 text-sm text-stone-300 hover:text-white rounded-xl transition-colors">
             Avbryt
           </button>

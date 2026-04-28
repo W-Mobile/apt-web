@@ -10,6 +10,8 @@ import {
 import { listWorkouts } from '../workouts/workout-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
+import { useNavigationGuard } from '../contexts/NavigationGuardContext';
+import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 
 interface WorkoutOption {
   id: string;
@@ -33,6 +35,7 @@ interface PeriodWorkoutRow {
 export function ProgramForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { navigate: guardedNavigate, setDirty } = useNavigationGuard();
   const isNew = id === 'new' || !id;
 
   const [name, setName] = useState('');
@@ -46,6 +49,14 @@ export function ProgramForm() {
   const [showDelete, setShowDelete] = useState(false);
   const [posterFileKey, setPosterFileKey] = useState<string | null>(null);
   const [existingPosterKey, setExistingPosterKey] = useState<string | null>(null);
+
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', marketingText: '', posterFileKey: null, periods: [] } : null);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, marketingText, posterFileKey, periods });
+
+  useEffect(() => {
+    setDirty(isDirty);
+    return () => setDirty(false);
+  }, [isDirty, setDirty]);
 
   useEffect(() => {
     listWorkouts().then((ws) => setAvailableWorkouts(ws.map((w) => ({ id: w.id, name: w.name }))));
@@ -80,6 +91,14 @@ export function ProgramForm() {
           })
         );
         setPeriods(periodRows);
+        setInitialValues({
+          name: program?.name ?? '',
+          description: program?.description ?? '',
+          equipment: program?.equipment ?? '',
+          marketingText: program?.marketingText ?? '',
+          posterFileKey: null,
+          periods: periodRows,
+        });
         setLoading(false);
       });
     }
@@ -144,6 +163,7 @@ export function ProgramForm() {
         );
       }
       if (posterFileKey) await linkProgramPoster(programID, posterFileKey);
+      setDirty(false);
       navigate('/admin/programs');
     } finally {
       setSaving(false);
@@ -258,7 +278,7 @@ export function ProgramForm() {
             className="px-5 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors">
             {saving ? 'Sparar...' : 'Spara'}
           </button>
-          <button type="button" onClick={() => navigate('/admin/programs')}
+          <button type="button" onClick={() => guardedNavigate('/admin/programs')}
             className="px-4 py-2.5 text-sm text-stone-400 hover:text-white rounded-xl transition-colors">
             Avbryt
           </button>

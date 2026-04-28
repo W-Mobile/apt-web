@@ -7,10 +7,13 @@ import {
 } from './exercise-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
+import { useNavigationGuard } from '../contexts/NavigationGuardContext';
+import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 
 export function ExerciseForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { navigate: guardedNavigate, setDirty } = useNavigationGuard();
   const isNew = id === 'new' || !id;
 
   const [name, setName] = useState('');
@@ -24,6 +27,14 @@ export function ExerciseForm() {
   const [existingVideoKey, setExistingVideoKey] = useState<string | null>(null);
   const [existingPosterKey, setExistingPosterKey] = useState<string | null>(null);
 
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', videoFileKey: null, posterFileKey: null } : null);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, videoFileKey, posterFileKey });
+
+  useEffect(() => {
+    setDirty(isDirty);
+    return () => setDirty(false);
+  }, [isDirty, setDirty]);
+
   useEffect(() => {
     if (!isNew && id) {
       getExercise(id).then((exercise) => {
@@ -31,6 +42,7 @@ export function ExerciseForm() {
           setName(exercise.name);
           setDescription(exercise.description ?? '');
           setEquipment(exercise.equipment);
+          setInitialValues({ name: exercise.name, description: exercise.description ?? '', equipment: exercise.equipment, videoFileKey: null, posterFileKey: null });
         }
         setLoading(false);
       });
@@ -56,6 +68,7 @@ export function ExerciseForm() {
       }
       if (videoFileKey) await linkExerciseVideo(exerciseID, videoFileKey);
       if (posterFileKey) await linkExercisePoster(exerciseID, posterFileKey);
+      setDirty(false);
       navigate('/admin/exercises');
     } finally {
       setSaving(false);
@@ -116,7 +129,7 @@ export function ExerciseForm() {
             className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors">
             {saving ? 'Sparar...' : 'Spara'}
           </button>
-          <button type="button" onClick={() => navigate('/admin/exercises')}
+          <button type="button" onClick={() => guardedNavigate('/admin/exercises')}
             className="px-4 py-2.5 text-sm text-stone-300 hover:text-white rounded-xl transition-colors">
             Avbryt
           </button>
