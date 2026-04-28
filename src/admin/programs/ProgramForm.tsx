@@ -251,10 +251,10 @@ export function ProgramForm() {
                 </div>
                 <div className="space-y-2">
                   {period.workouts.map((w, wi) => (
-                    <div key={wi} className="flex items-center gap-2 text-sm py-0.5 pl-1">
+                    <div key={wi} className="flex items-center justify-between gap-2 text-sm py-0.5 pl-1">
                       <span className="text-stone-300">{w.workoutName}</span>
                       <button type="button" onClick={() => removeWorkoutFromPeriod(pi, wi)}
-                        className="text-stone-600 hover:text-red-400 transition-colors text-xs">&#x2715;</button>
+                        className="p-1.5 rounded-lg text-stone-600 hover:text-red-400 hover:bg-stone-800 transition-colors text-xs">&#x2715;</button>
                     </div>
                   ))}
                   <select
