@@ -36,6 +36,7 @@ export function AdminLogin() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setResetSuccess(null);
     if (rememberMe) {
       localStorage.setItem('admin_remember_me', 'true');
       localStorage.setItem('admin_remembered_email', email);
