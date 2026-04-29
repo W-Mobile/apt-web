@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { signIn as amplifySignIn, signOut as amplifySignOut, fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { cognitoUserPoolsTokenProvider } from 'aws-amplify/auth/cognito';
+import { defaultStorage, sessionStorage } from 'aws-amplify/utils';
 
 interface AdminUser {
   username: string;
@@ -13,7 +15,7 @@ interface AdminAuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -75,9 +77,10 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     checkExistingSession();
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, rememberMe = false) => {
     setError(null);
     try {
+      cognitoUserPoolsTokenProvider.setKeyValueStorage(rememberMe ? defaultStorage : sessionStorage);
       await amplifySignIn({ username: email, password });
       const admin = await isUserInAdminsGroup();
       if (!admin) {

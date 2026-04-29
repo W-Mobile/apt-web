@@ -23,16 +23,16 @@ describe('AdminLogin', () => {
   it('renders email and password fields with submit button', () => {
     render(<AdminLogin />);
     expect(screen.getByLabelText(/e-post/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/lösenord/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Lösenord')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /logga in/i })).toBeInTheDocument();
   });
 
   it('calls login with email and password on submit', async () => {
     render(<AdminLogin />);
     await userEvent.type(screen.getByLabelText(/e-post/i), 'admin@test.com');
-    await userEvent.type(screen.getByLabelText(/lösenord/i), 'secret123');
+    await userEvent.type(screen.getByLabelText('Lösenord'), 'secret123');
     await userEvent.click(screen.getByRole('button', { name: /logga in/i }));
 
-    expect(mockLogin).toHaveBeenCalledWith('admin@test.com', 'secret123');
+    expect(mockLogin).toHaveBeenCalledWith('admin@test.com', 'secret123', false);
   });
 });
