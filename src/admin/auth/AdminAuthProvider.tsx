@@ -60,6 +60,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function checkExistingSession() {
       try {
+        const remembered = localStorage.getItem('admin_remember_me') === 'true';
+        cognitoUserPoolsTokenProvider.setKeyValueStorage(remembered ? defaultStorage : sessionStorage);
         const currentUser = await getCurrentUser();
         const admin = await isUserInAdminsGroup();
         if (admin) {
