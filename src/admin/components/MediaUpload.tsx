@@ -16,6 +16,7 @@ interface MediaUploadProps {
   fileKeyPrefix: string;
   onUpload: (fileKey: string, file?: File) => void;
   existingFileKey?: string | null;
+  initialPreviewUrl?: string | null;
   maxSizeMB?: number;
 }
 
@@ -82,6 +83,7 @@ export function MediaUpload({
   fileKeyPrefix,
   onUpload,
   existingFileKey,
+  initialPreviewUrl,
   maxSizeMB,
 }: MediaUploadProps) {
   const isImageAccept = accept.startsWith('image');
@@ -97,7 +99,7 @@ export function MediaUpload({
   const [uploadedKey, setUploadedKey] = useState<string | null>(null);
   const [cleared, setCleared] = useState(false);
   const [undoSnapshot, setUndoSnapshot] = useState<UndoSnapshot | null>(null);
-  const [existingPreviewUrl, setExistingPreviewUrl] = useState<string | null>(null);
+  const [existingPreviewUrl, setExistingPreviewUrl] = useState<string | null>(initialPreviewUrl ?? null);
   const [mediaExpanded, setMediaExpanded] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -143,6 +145,12 @@ export function MediaUpload({
       return;
     }
 
+    // Use local preview URL immediately if available
+    if (initialPreviewUrl) {
+      setExistingPreviewUrl(initialPreviewUrl);
+      return;
+    }
+
     let cancelled = false;
 
     getUrl({ path: existingFileKey! })
@@ -156,7 +164,7 @@ export function MediaUpload({
     return () => {
       cancelled = true;
     };
-  }, [existingFileKey, hasExisting, hasUploadedFile]);
+  }, [existingFileKey, hasExisting, hasUploadedFile, initialPreviewUrl]);
 
 
   const handleFile = useCallback(

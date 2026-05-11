@@ -29,6 +29,7 @@ export function ExerciseForm() {
   const [existingVideoKey, setExistingVideoKey] = useState<string | null>(null);
   const [existingPosterKey, setExistingPosterKey] = useState<string | null>(null);
   const [autoPosterKey, setAutoPosterKey] = useState<string | null>(null);
+  const [autoPosterPreviewUrl, setAutoPosterPreviewUrl] = useState<string | null>(null);
   const [generatingPoster, setGeneratingPoster] = useState(false);
 
   const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', videoFileKey: null, posterFileKey: null } : null);
@@ -96,10 +97,9 @@ export function ExerciseForm() {
         const posterBlob = await extractVideoFrame(file);
         const posterFileName = file.name.replace(/\.[^.]+$/, '_poster.jpg');
         const posterKey = `exercise_poster/${posterFileName}`;
-        await uploadData({
-          path: posterKey,
-          data: posterBlob,
-        });
+        // Show local preview immediately
+        setAutoPosterPreviewUrl(URL.createObjectURL(posterBlob));
+        uploadData({ path: posterKey, data: posterBlob });
         // Only set if user hasn't manually uploaded a poster during the async gap
         setAutoPosterKey(posterKey);
       } catch {
@@ -150,6 +150,7 @@ export function ExerciseForm() {
             fileKeyPrefix="exercise_poster/"
             onUpload={(key) => setPosterFileKey(key)}
             existingFileKey={!posterFileKey ? (existingPosterKey ?? autoPosterKey) : null}
+            initialPreviewUrl={autoPosterPreviewUrl}
           />
           {generatingPoster && (
             <p className="text-xs text-stone-400 mt-1">Genererar poster-bild från video...</p>
