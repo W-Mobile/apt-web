@@ -30,7 +30,7 @@ export interface CreateProgramInput {
   name: string;
   description: string;
   equipment: string;
-  marketingText: string;
+  marketingText?: string;
   warmupWorkoutID?: string;
 }
 
