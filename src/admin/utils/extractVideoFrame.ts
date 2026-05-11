@@ -2,12 +2,39 @@
  * Extraherar en frame från en videofil som en JPEG Blob.
  * Seekar till 0.1s för att undvika en potentiellt svart första frame.
  */
+const EXTRACT_TIMEOUT_MS = 15_000;
+
 export function extractVideoFrame(videoFile: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
     const url = URL.createObjectURL(videoFile);
     video.src = url;
     video.currentTime = 0.1;
+
+    let settled = false;
+
+    const cleanup = () => {
+      clearTimeout(timeoutId);
+      URL.revokeObjectURL(url);
+    };
+
+    const safeResolve = (blob: Blob) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(blob);
+    };
+
+    const safeReject = (err: Error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(err);
+    };
+
+    const timeoutId = setTimeout(() => {
+      safeReject(new Error('extractVideoFrame: timed out after 15 seconds'));
+    }, EXTRACT_TIMEOUT_MS);
 
     video.addEventListener('seeked', function onSeeked() {
       video.removeEventListener('seeked', onSeeked);
@@ -18,20 +45,18 @@ export function extractVideoFrame(videoFile: File): Promise<Blob> {
 
       const ctx = canvas.getContext('2d');
       if (!ctx) {
-        URL.revokeObjectURL(url);
-        reject(new Error('Kunde inte skapa canvas context'));
+        safeReject(new Error('Kunde inte skapa canvas context'));
         return;
       }
 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
 
       canvas.toBlob(
         (blob) => {
           if (blob) {
-            resolve(blob);
+            safeResolve(blob);
           } else {
-            reject(new Error('Kunde inte generera bild från video'));
+            safeReject(new Error('Kunde inte generera bild från video'));
           }
         },
         'image/jpeg',
@@ -40,8 +65,7 @@ export function extractVideoFrame(videoFile: File): Promise<Blob> {
     });
 
     video.addEventListener('error', () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Kunde inte ladda videon'));
+      safeReject(new Error('Kunde inte ladda videon'));
     });
 
     video.load();
