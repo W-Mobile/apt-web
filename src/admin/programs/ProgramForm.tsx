@@ -210,7 +210,7 @@ export function ProgramForm() {
           </div>
           <div>
             <label htmlFor="marketingText" className="block text-base font-medium text-stone-200 mb-1.5">Marknadsföringstext</label>
-            <textarea id="marketingText" value={marketingText} onChange={(e) => setMarketingText(e.target.value)} required rows={3}
+            <textarea id="marketingText" value={marketingText} onChange={(e) => setMarketingText(e.target.value)} rows={3}
               className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors resize-y" />
           </div>
 
