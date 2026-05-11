@@ -17,6 +17,7 @@ interface MediaSlot {
   videoFileKey: string;
   posterFileKey: string;
   autoPosterKey: string | null;
+  autoPosterPreviewUrl: string | null;
   generatingPoster: boolean;
   existingVideoKey: string | null;
   existingPosterKey: string | null;
@@ -25,7 +26,7 @@ interface MediaSlot {
 }
 
 function emptySlot(): MediaSlot {
-  return { videoFileKey: '', posterFileKey: '', autoPosterKey: null, generatingPoster: false, existingVideoKey: null, existingPosterKey: null };
+  return { videoFileKey: '', posterFileKey: '', autoPosterKey: null, autoPosterPreviewUrl: null, generatingPoster: false, existingVideoKey: null, existingPosterKey: null };
 }
 
 export function PostForm() {
@@ -103,9 +104,10 @@ export function PostForm() {
           const posterBlob = await extractVideoFrame(file);
           const posterFileName = file.name.replace(/\.[^.]+$/, '_poster.jpg');
           const posterKey = `post_poster/${posterFileName}`;
-          await uploadData({ path: posterKey, data: posterBlob });
+          const previewUrl = URL.createObjectURL(posterBlob);
+          uploadData({ path: posterKey, data: posterBlob });
           setMediaSlots((prev) => prev.map((s, i) =>
-            i === index && !s.posterFileKey ? { ...s, autoPosterKey: posterKey, generatingPoster: false } : i === index ? { ...s, generatingPoster: false } : s,
+            i === index && !s.posterFileKey ? { ...s, autoPosterKey: posterKey, autoPosterPreviewUrl: previewUrl, generatingPoster: false } : i === index ? { ...s, generatingPoster: false } : s,
           ));
         } catch {
           console.warn('Kunde inte auto-generera poster-bild');
@@ -277,6 +279,7 @@ export function PostForm() {
                       fileKeyPrefix="post_poster/"
                       onUpload={(key) => updateSlotPoster(i, key)}
                       existingFileKey={!slot.posterFileKey ? (slot.existingPosterKey ?? slot.autoPosterKey) : null}
+                      initialPreviewUrl={slot.autoPosterPreviewUrl}
                     />
                     {slot.generatingPoster && (
                       <p className="text-xs text-stone-400 mt-1">Genererar poster-bild från video...</p>
