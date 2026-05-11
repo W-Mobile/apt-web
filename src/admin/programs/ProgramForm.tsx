@@ -10,6 +10,7 @@ import {
 import { listWorkouts } from '../workouts/workout-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
+import { SearchableSelect } from '../components/SearchableSelect';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 
@@ -257,16 +258,16 @@ export function ProgramForm() {
                         className="p-1.5 rounded-lg text-stone-600 hover:text-red-400 hover:bg-stone-800 transition-colors text-xs">&#x2715;</button>
                     </div>
                   ))}
-                  <select
-                    onChange={(e) => { addWorkoutToPeriod(pi, e.target.value); e.target.value = ''; }}
-                    defaultValue=""
-                    className="mt-3 px-2 py-1.5 bg-transparent text-stone-500 text-sm rounded-md border border-dashed border-stone-700 hover:border-stone-500 transition-colors cursor-pointer"
-                  >
-                    <option value="" disabled>Lägg till workout...</option>
-                    {availableWorkouts.map((w) => (
-                      <option key={w.id} value={w.id}>{w.name}</option>
-                    ))}
-                  </select>
+                  <div className="mt-3">
+                    <SearchableSelect
+                      options={availableWorkouts}
+                      selectedIds={new Set(period.workouts.map((w) => w.workoutID))}
+                      onSelect={(id) => addWorkoutToPeriod(pi, id)}
+                      getId={(w) => w.id}
+                      getLabel={(w) => w.name}
+                      placeholder="Sök och lägg till workout..."
+                    />
+                  </div>
                 </div>
               </div>
             ))}
