@@ -90,7 +90,7 @@ export function ExerciseForm() {
     setVideoFileKey(key);
 
     // Auto-generate poster if no manual poster exists
-    if (file && !posterFileKey && !existingPosterKey && !autoPosterKey) {
+    if (file && !posterFileKey && !existingPosterKey) {
       setGeneratingPoster(true);
       try {
         const posterBlob = await extractVideoFrame(file);
@@ -101,7 +101,7 @@ export function ExerciseForm() {
           data: posterBlob,
         });
         // Only set if user hasn't manually uploaded a poster during the async gap
-        setAutoPosterKey((current) => current ? current : posterKey);
+        setAutoPosterKey(posterKey);
       } catch {
         console.warn('Kunde inte auto-generera poster-bild');
       } finally {

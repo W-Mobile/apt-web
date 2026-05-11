@@ -73,7 +73,6 @@ describe('ProgramForm', () => {
     expect(screen.getByLabelText(/namn/i)).toHaveValue('');
     expect(screen.getByLabelText(/beskrivning/i)).toHaveValue('');
     expect(screen.getByLabelText(/utrustning/i)).toHaveValue('');
-    expect(screen.getByLabelText(/marknadsföringstext/i)).toHaveValue('');
     expect(screen.getByRole('button', { name: /spara/i })).toBeInTheDocument();
   });
 
@@ -91,7 +90,6 @@ describe('ProgramForm', () => {
     await userEvent.type(screen.getByLabelText(/namn/i), 'Strength 101');
     await userEvent.type(screen.getByLabelText(/beskrivning/i), 'A beginner program');
     await userEvent.type(screen.getByLabelText(/utrustning/i), 'Barbell');
-    await userEvent.type(screen.getByLabelText(/marknadsföringstext/i), 'Get strong fast');
     await userEvent.click(screen.getByRole('button', { name: /spara/i }));
 
     await waitFor(() => {
@@ -99,7 +97,6 @@ describe('ProgramForm', () => {
         name: 'Strength 101',
         description: 'A beginner program',
         equipment: 'Barbell',
-        marketingText: 'Get strong fast',
       }));
     });
     expect(mockNavigate).toHaveBeenCalledWith('/admin/programs');
