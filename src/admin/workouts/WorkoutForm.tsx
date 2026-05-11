@@ -8,6 +8,7 @@ import {
 } from './workout-api';
 import { listExercises } from '../exercises/exercise-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { SearchableSelect } from '../components/SearchableSelect';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 
@@ -217,16 +218,14 @@ export function WorkoutForm() {
           </div>
 
           <div className="mt-3">
-            <select
-              onChange={(e) => { addExercise(e.target.value); e.target.value = ''; }}
-              defaultValue=""
-              className="px-3 py-2 bg-stone-800 text-white text-sm rounded-xl border border-stone-700"
-            >
-              <option value="" disabled>Lägg till exercise...</option>
-              {availableExercises.map((ex) => (
-                <option key={ex.id} value={ex.id}>{ex.name} ({ex.equipment})</option>
-              ))}
-            </select>
+            <SearchableSelect
+              options={availableExercises}
+              selectedIds={new Set(exercises.filter((e) => !e.pendingDelete).map((e) => e.exerciseID))}
+              onSelect={addExercise}
+              getId={(ex) => ex.id}
+              getLabel={(ex) => `${ex.name} (${ex.equipment})`}
+              placeholder="Sök och lägg till exercise..."
+            />
           </div>
         </div>
 
