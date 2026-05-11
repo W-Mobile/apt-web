@@ -98,7 +98,8 @@ export function ExerciseForm() {
           path: posterKey,
           data: posterBlob,
         });
-        setPosterFileKey(posterKey);
+        // Only set if user hasn't manually uploaded a poster during the async gap
+        setPosterFileKey((current) => current ? current : posterKey);
       } catch {
         console.warn('Kunde inte auto-generera poster-bild');
       } finally {
