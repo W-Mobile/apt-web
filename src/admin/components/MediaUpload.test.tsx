@@ -93,7 +93,7 @@ describe('MediaUpload', () => {
     });
 
     await waitFor(() => {
-      expect(onUpload).toHaveBeenCalledWith('exercise_video/bench.mp4');
+      expect(onUpload).toHaveBeenCalledWith('exercise_video/bench.mp4', expect.any(File));
     });
   });
 
@@ -122,7 +122,7 @@ describe('MediaUpload', () => {
     });
 
     await waitFor(() => {
-      expect(onUpload).toHaveBeenCalledWith('exercise_video/squat.mp4');
+      expect(onUpload).toHaveBeenCalledWith('exercise_video/squat.mp4', expect.any(File));
     });
   });
 
@@ -157,7 +157,7 @@ describe('MediaUpload', () => {
     });
 
     await waitFor(() => {
-      expect(onUpload).toHaveBeenCalledWith('exercise_video/workout.mov');
+      expect(onUpload).toHaveBeenCalledWith('exercise_video/workout.mov', expect.any(File));
     });
     expect(screen.queryByText(/ogiltig filtyp/i)).not.toBeInTheDocument();
   });
@@ -181,7 +181,7 @@ describe('MediaUpload', () => {
     });
 
     await waitFor(() => {
-      expect(onUpload).toHaveBeenCalledWith('exercise_video/clip.webm');
+      expect(onUpload).toHaveBeenCalledWith('exercise_video/clip.webm', expect.any(File));
     });
     expect(screen.queryByText(/ogiltig filtyp/i)).not.toBeInTheDocument();
   });
