@@ -138,6 +138,54 @@ describe('MediaUpload', () => {
     expect(screen.getByText(/ogiltig filtyp/i)).toBeInTheDocument();
   });
 
+  it('accepts MOV files when accept includes video/quicktime', async () => {
+    const onUpload = vi.fn();
+    const file = new File(['video-data'], 'workout.mov', { type: 'video/quicktime' });
+
+    render(
+      <MediaUpload
+        label="Video (.mp4, .mov, .webm)"
+        accept="video/mp4,video/quicktime,video/webm"
+        fileKeyPrefix="exercise_video/"
+        onUpload={onUpload}
+      />,
+    );
+
+    const dropZone = screen.getByRole('button');
+    fireEvent.drop(dropZone, {
+      dataTransfer: { files: [file] },
+    });
+
+    await waitFor(() => {
+      expect(onUpload).toHaveBeenCalledWith('exercise_video/workout.mov');
+    });
+    expect(screen.queryByText(/ogiltig filtyp/i)).not.toBeInTheDocument();
+  });
+
+  it('accepts WebM files when accept includes video/webm', async () => {
+    const onUpload = vi.fn();
+    const file = new File(['video-data'], 'clip.webm', { type: 'video/webm' });
+
+    render(
+      <MediaUpload
+        label="Video (.mp4, .mov, .webm)"
+        accept="video/mp4,video/quicktime,video/webm"
+        fileKeyPrefix="exercise_video/"
+        onUpload={onUpload}
+      />,
+    );
+
+    const dropZone = screen.getByRole('button');
+    fireEvent.drop(dropZone, {
+      dataTransfer: { files: [file] },
+    });
+
+    await waitFor(() => {
+      expect(onUpload).toHaveBeenCalledWith('exercise_video/clip.webm');
+    });
+    expect(screen.queryByText(/ogiltig filtyp/i)).not.toBeInTheDocument();
+  });
+
   it('shows error for oversized file', async () => {
     const bigContent = new ArrayBuffer(11 * 1024 * 1024);
     const file = new File([bigContent], 'huge.png', { type: 'image/png' });
@@ -203,7 +251,7 @@ describe('MediaUpload', () => {
     await waitFor(() => {
       const video = container.querySelector('video');
       expect(video).toBeInTheDocument();
-      expect(video).toHaveAttribute('src', 'https://s3.example.com/preview.jpg');
+      expect(video).toHaveAttribute('src', 'https://s3.example.com/preview.jpg#t=0.001');
     });
     expect(screen.getByText('squat.mp4')).toBeInTheDocument();
   });
@@ -332,7 +380,7 @@ describe('MediaUpload', () => {
       expect(globalThis.URL.createObjectURL).toHaveBeenCalled();
       const video = container.querySelector('video');
       expect(video).toBeInTheDocument();
-      expect(video).toHaveAttribute('src', 'blob:mock-preview-url');
+      expect(video).toHaveAttribute('src', 'blob:mock-preview-url#t=0.001');
     });
   });
 

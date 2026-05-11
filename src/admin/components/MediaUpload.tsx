@@ -323,6 +323,8 @@ export function MediaUpload({
       if (trimmed === 'image/*') return 'Bilder';
       if (trimmed === 'video/*') return 'Video';
       if (trimmed === 'video/mp4') return 'MP4';
+      if (trimmed === 'video/quicktime') return 'MOV';
+      if (trimmed === 'video/webm') return 'WebM';
       return trimmed.replace(/^.*\//, '.').toUpperCase();
     })
     .join(', ');
@@ -425,7 +427,7 @@ export function MediaUpload({
                 ) : isVideo && videoSrc ? (
                   <>
                     <video
-                      src={videoSrc}
+                      src={`${videoSrc}#t=0.001`}
                       className="w-full h-full object-cover"
                       muted
                       preload="metadata"
@@ -498,7 +500,7 @@ export function MediaUpload({
               >
                 {isVideo && videoSrc ? (
                   <video
-                    src={videoSrc}
+                    src={`${videoSrc}#t=0.001`}
                     controls
                     className="w-full rounded-lg bg-black"
                     style={{ maxHeight: '300px' }}
