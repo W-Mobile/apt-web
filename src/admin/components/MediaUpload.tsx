@@ -28,10 +28,39 @@ function formatFileSize(bytes: number): string {
 function fileMatchesAccept(file: File, accept: string): boolean {
   const types = accept.split(',').map((t) => t.trim());
   for (const type of types) {
-    if (type.endsWith('/*')) {
+    if (type.startsWith('.')) {
+      if (file.name.toLowerCase().endsWith(type.toLowerCase())) return true;
+    } else if (type.endsWith('/*')) {
       const category = type.slice(0, type.indexOf('/'));
       if (file.type.startsWith(category + '/')) return true;
     } else if (file.type === type) {
+      return true;
+    }
+  }
+  // Fallback: match by file extension when browser omits MIME type (common in drag-and-drop)
+  if (!file.type) {
+    const ext = file.name.toLowerCase().split('.').pop();
+    for (const type of types) {
+      if (type === 'video/mp4' && ext === 'mp4') return true;
+      if (type === 'video/*' && ['mp4', 'mov', 'webm', 'avi'].includes(ext ?? '')) return true;
+      if (type === 'image/*' && ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext ?? '')) return true;
+      if (type.startsWith('image/') && ext === type.split('/')[1]) return true;
+    }
+  }
+  return false;
+}
+
+function dragHasMatchingFile(e: React.DragEvent, accept: string): boolean {
+  const items = e.dataTransfer.items;
+  if (!items || items.length === 0) return true;
+  const mime = items[0].type;
+  if (!mime) return true; // unknown type — show overlay as fallback
+  const types = accept.split(',').map((t) => t.trim());
+  for (const type of types) {
+    if (type.endsWith('/*')) {
+      const category = type.slice(0, type.indexOf('/'));
+      if (mime.startsWith(category + '/')) return true;
+    } else if (mime === type) {
       return true;
     }
   }
@@ -250,6 +279,7 @@ export function MediaUpload({
   function handleDragEnter(e: React.DragEvent) {
     e.preventDefault();
     e.stopPropagation();
+    if (!dragHasMatchingFile(e, accept)) return;
     dragCounter.current += 1;
     if (dragCounter.current === 1) setIsDragging(true);
   }
@@ -344,9 +374,9 @@ export function MediaUpload({
           }}
         />
 
-        {/* Drag overlay */}
+        {/* Drag state */}
         {isDragging && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-[#F24E1E]/5">
+          <div className="flex items-center justify-center py-6 pointer-events-none">
             <Upload className="w-6 h-6 text-[#F24E1E] mr-2" strokeWidth={2.5} />
             <span className="text-sm font-medium text-[#F24E1E]">Släpp filen här</span>
           </div>

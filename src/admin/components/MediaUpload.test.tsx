@@ -59,13 +59,26 @@ describe('MediaUpload', () => {
     expect(screen.getByText('Befintlig fil')).toBeInTheDocument();
   });
 
-  it('shows drag visual feedback on dragEnter', () => {
+  it('shows drag visual feedback on dragEnter for matching type', () => {
     render(<MediaUpload {...defaultProps} />);
     const dropZone = screen.getByRole('button');
 
-    fireEvent.dragEnter(dropZone, { dataTransfer: { files: [] } });
+    fireEvent.dragEnter(dropZone, {
+      dataTransfer: { files: [], items: [{ type: 'video/mp4' }] },
+    });
 
     expect(screen.getByText(/släpp filen här/i)).toBeInTheDocument();
+  });
+
+  it('does not show drag overlay for non-matching type', () => {
+    render(<MediaUpload {...defaultProps} />);
+    const dropZone = screen.getByRole('button');
+
+    fireEvent.dragEnter(dropZone, {
+      dataTransfer: { files: [], items: [{ type: 'image/png' }] },
+    });
+
+    expect(screen.queryByText(/släpp filen här/i)).not.toBeInTheDocument();
   });
 
   it('handles file drop', async () => {
@@ -94,6 +107,22 @@ describe('MediaUpload', () => {
     // After upload completes, file name should be shown
     await waitFor(() => {
       expect(screen.getByText('squat.mp4')).toBeInTheDocument();
+    });
+  });
+
+  it('uploads file with empty MIME type when extension matches (drag-and-drop fallback)', async () => {
+    const onUpload = vi.fn();
+    const file = new File(['video-data'], 'squat.mp4', { type: '' });
+
+    render(<MediaUpload {...defaultProps} onUpload={onUpload} />);
+    const dropZone = screen.getByRole('button');
+
+    fireEvent.drop(dropZone, {
+      dataTransfer: { files: [file] },
+    });
+
+    await waitFor(() => {
+      expect(onUpload).toHaveBeenCalledWith('exercise_video/squat.mp4');
     });
   });
 
