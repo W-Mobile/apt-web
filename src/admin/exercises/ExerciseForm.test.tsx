@@ -31,7 +31,7 @@ vi.mock('../components/MediaUpload', () => ({
     <div>
       <span>{label}</span>
       <button onClick={() => {
-        if (label === 'Video (.mp4)') {
+        if (label.startsWith('Video')) {
           onUpload(`test_${label}_key`, new File(['video'], 'test.mp4', { type: 'video/mp4' }));
         } else {
           onUpload(`test_${label}_key`);
@@ -147,12 +147,12 @@ describe('ExerciseForm', () => {
 
     await userEvent.type(screen.getByLabelText(/namn/i), 'Squat');
     await userEvent.type(screen.getByLabelText(/utrustning/i), 'Barbell');
-    await userEvent.click(screen.getByTestId('upload-Video (.mp4)'));
+    await userEvent.click(screen.getByTestId('upload-Video (.mp4, .mov, .webm)'));
     await userEvent.click(screen.getByTestId('upload-Poster-bild'));
     await userEvent.click(screen.getByRole('button', { name: /spara/i }));
 
     await waitFor(() => {
-      expect(mockLinkVideo).toHaveBeenCalledWith('new-id', 'test_Video (.mp4)_key');
+      expect(mockLinkVideo).toHaveBeenCalledWith('new-id', 'test_Video (.mp4, .mov, .webm)_key');
     });
     expect(mockLinkPoster).toHaveBeenCalledWith('new-id', 'test_Poster-bild_key');
   });
@@ -207,7 +207,7 @@ describe('ExerciseForm', () => {
 
     await userEvent.type(screen.getByLabelText(/namn/i), 'Squat');
     await userEvent.type(screen.getByLabelText(/utrustning/i), 'Barbell');
-    await userEvent.click(screen.getByTestId('upload-Video (.mp4)'));
+    await userEvent.click(screen.getByTestId('upload-Video (.mp4, .mov, .webm)'));
 
     await waitFor(() => {
       expect(extractVideoFrame).toHaveBeenCalled();
@@ -240,7 +240,7 @@ describe('ExerciseForm', () => {
     // Upload poster FIRST
     await userEvent.click(screen.getByTestId('upload-Poster-bild'));
     // Then upload video
-    await userEvent.click(screen.getByTestId('upload-Video (.mp4)'));
+    await userEvent.click(screen.getByTestId('upload-Video (.mp4, .mov, .webm)'));
 
     expect(extractVideoFrame).not.toHaveBeenCalled();
   });
