@@ -108,8 +108,8 @@ export function ExerciseForm() {
 
         <div className="space-y-4">
           <MediaUpload
-            label="Video (.mp4)"
-            accept="video/mp4"
+            label="Video (.mp4, .mov, .webm)"
+            accept="video/mp4,video/quicktime,video/webm"
             fileKeyPrefix="exercise_video/"
             onUpload={(key) => setVideoFileKey(key)}
             existingFileKey={!videoFileKey ? existingVideoKey : null}
