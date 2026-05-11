@@ -28,10 +28,11 @@ export function ExerciseForm() {
   const [posterFileKey, setPosterFileKey] = useState<string | null>(null);
   const [existingVideoKey, setExistingVideoKey] = useState<string | null>(null);
   const [existingPosterKey, setExistingPosterKey] = useState<string | null>(null);
+  const [autoPosterKey, setAutoPosterKey] = useState<string | null>(null);
   const [generatingPoster, setGeneratingPoster] = useState(false);
 
   const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', videoFileKey: null, posterFileKey: null } : null);
-  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, videoFileKey, posterFileKey });
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, videoFileKey, posterFileKey: posterFileKey || autoPosterKey });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -70,7 +71,8 @@ export function ExerciseForm() {
         await updateExercise({ id: exerciseID, name, description, equipment });
       }
       if (videoFileKey) await linkExerciseVideo(exerciseID, videoFileKey);
-      if (posterFileKey) await linkExercisePoster(exerciseID, posterFileKey);
+      const effectivePosterKey = posterFileKey || autoPosterKey;
+      if (effectivePosterKey) await linkExercisePoster(exerciseID, effectivePosterKey);
       setDirty(false);
       navigate('/admin/exercises');
     } finally {
@@ -88,7 +90,7 @@ export function ExerciseForm() {
     setVideoFileKey(key);
 
     // Auto-generate poster if no manual poster exists
-    if (file && !posterFileKey && !existingPosterKey) {
+    if (file && !posterFileKey && !existingPosterKey && !autoPosterKey) {
       setGeneratingPoster(true);
       try {
         const posterBlob = await extractVideoFrame(file);
@@ -99,7 +101,7 @@ export function ExerciseForm() {
           data: posterBlob,
         });
         // Only set if user hasn't manually uploaded a poster during the async gap
-        setPosterFileKey((current) => current ? current : posterKey);
+        setAutoPosterKey((current) => current ? current : posterKey);
       } catch {
         console.warn('Kunde inte auto-generera poster-bild');
       } finally {
@@ -147,7 +149,7 @@ export function ExerciseForm() {
             accept="image/*"
             fileKeyPrefix="exercise_poster/"
             onUpload={(key) => setPosterFileKey(key)}
-            existingFileKey={!posterFileKey ? existingPosterKey : null}
+            existingFileKey={!posterFileKey ? (existingPosterKey ?? autoPosterKey) : null}
           />
           {generatingPoster && (
             <p className="text-xs text-stone-400 mt-1">Genererar poster-bild från video...</p>
