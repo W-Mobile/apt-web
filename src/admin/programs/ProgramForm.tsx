@@ -248,14 +248,19 @@ export function ProgramForm() {
                       className="w-14 px-2 py-1 bg-stone-700/60 text-white text-sm rounded-md border-none focus:ring-1 focus:ring-[#F24E1E] focus:outline-none transition-all" />
                   </div>
                   <button type="button" onClick={() => removePeriod(pi)}
-                    className="text-stone-500 text-xs hover:text-red-400 transition-colors">Ta bort</button>
+                    className="text-stone-500 text-sm hover:text-red-400 transition-colors">Ta bort</button>
                 </div>
                 <div className="space-y-2">
                   {period.workouts.map((w, wi) => (
                     <div key={wi} className="flex items-center justify-between gap-2 text-sm py-0.5 pl-1">
                       <span className="text-stone-300">{w.workoutName}</span>
                       <button type="button" onClick={() => removeWorkoutFromPeriod(pi, wi)}
-                        className="p-1.5 rounded-lg text-stone-600 hover:text-red-400 hover:bg-stone-800 transition-colors text-xs">&#x2715;</button>
+                        className="flex items-center gap-1.5 text-red-400 text-base hover:text-red-300 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        Ta bort
+                      </button>
                     </div>
                   ))}
                   <div className="mt-3">
