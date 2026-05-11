@@ -220,6 +220,39 @@ describe('ExerciseForm', () => {
     });
   });
 
+  it('re-generates poster when a new video replaces the previous one', async () => {
+    const { extractVideoFrame } = await import('../utils/extractVideoFrame');
+    const fakeBlob = new Blob(['poster'], { type: 'image/jpeg' });
+    vi.mocked(extractVideoFrame).mockResolvedValue(fakeBlob);
+
+    mockCreate.mockResolvedValue({ id: 'new-id', name: 'Squat', equipment: 'Barbell' });
+    mockLinkPoster.mockResolvedValue(undefined);
+    mockLinkVideo.mockResolvedValue(undefined);
+
+    render(
+      <MemoryRouter initialEntries={['/admin/exercises/new']}>
+        <Routes>
+          <Route path="/admin/exercises/new" element={<ExerciseForm />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByLabelText(/namn/i), 'Squat');
+    await userEvent.type(screen.getByLabelText(/utrustning/i), 'Barbell');
+
+    // Upload first video — triggers auto-poster
+    await userEvent.click(screen.getByTestId('upload-Video (.mp4, .mov, .webm)'));
+    await waitFor(() => {
+      expect(extractVideoFrame).toHaveBeenCalledTimes(1);
+    });
+
+    // Upload second video — should trigger a NEW auto-poster
+    await userEvent.click(screen.getByTestId('upload-Video (.mp4, .mov, .webm)'));
+    await waitFor(() => {
+      expect(extractVideoFrame).toHaveBeenCalledTimes(2);
+    });
+  });
+
   it('does NOT auto-generate poster when poster already uploaded manually', async () => {
     const { extractVideoFrame } = await import('../utils/extractVideoFrame');
     vi.mocked(extractVideoFrame).mockResolvedValue(new Blob(['poster'], { type: 'image/jpeg' }));

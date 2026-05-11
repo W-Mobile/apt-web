@@ -21,19 +21,47 @@ describe('extractVideoFrame', () => {
       height: 0,
     };
 
+    const eventHandlers: Record<string, EventListener[]> = {};
+
     mockVideo = {
       src: '',
       currentTime: 0,
+      preload: '',
       videoWidth: 1920,
       videoHeight: 1080,
       addEventListener: vi.fn((event: string, handler: EventListener) => {
-        if (event === 'seeked') {
-          setTimeout(() => handler(new Event('seeked')), 0);
+        if (!eventHandlers[event]) eventHandlers[event] = [];
+        eventHandlers[event].push(handler);
+      }),
+      removeEventListener: vi.fn((event: string, handler: EventListener) => {
+        if (eventHandlers[event]) {
+          eventHandlers[event] = eventHandlers[event].filter((h) => h !== handler);
         }
       }),
-      removeEventListener: vi.fn(),
-      load: vi.fn(),
     };
+
+    // When src is set, fire loadeddata; when currentTime is set, fire seeked
+    Object.defineProperty(mockVideo, 'src', {
+      set(_value: string) {
+        // Fire loadeddata after a tick
+        setTimeout(() => {
+          eventHandlers['loadeddata']?.forEach((h) => h(new Event('loadeddata')));
+        }, 0);
+      },
+      get() { return ''; },
+    });
+
+    const originalCurrentTime = { value: 0 };
+    Object.defineProperty(mockVideo, 'currentTime', {
+      set(value: number) {
+        originalCurrentTime.value = value;
+        // Fire seeked after a tick
+        setTimeout(() => {
+          eventHandlers['seeked']?.forEach((h) => h(new Event('seeked')));
+        }, 0);
+      },
+      get() { return originalCurrentTime.value; },
+    });
 
     vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'video') return mockVideo as HTMLVideoElement;
@@ -93,10 +121,21 @@ describe('extractVideoFrame', () => {
   });
 
   it('rejectar när video error-event avfyras', async () => {
+    const errorHandlers: Record<string, EventListener[]> = {};
     mockVideo.addEventListener = vi.fn((event: string, handler: EventListener) => {
-      if (event === 'error') {
-        setTimeout(() => handler(new Event('error')), 0);
-      }
+      if (!errorHandlers[event]) errorHandlers[event] = [];
+      errorHandlers[event].push(handler);
+    });
+
+    // Fire error when src is set
+    Object.defineProperty(mockVideo, 'src', {
+      set() {
+        setTimeout(() => {
+          errorHandlers['error']?.forEach((h) => h(new Event('error')));
+        }, 0);
+      },
+      get() { return ''; },
+      configurable: true,
     });
 
     const videoFile = new File(['corrupt-video'], 'corrupt.mp4', { type: 'video/mp4' });
@@ -124,8 +163,13 @@ describe('extractVideoFrame', () => {
   });
 
   it('rejectar med timeout-fel om varken seeked eller error avfyras', async () => {
-    // Override addEventListener so neither seeked nor error fires
+    // Override addEventListener so neither loadeddata nor error fires
     mockVideo.addEventListener = vi.fn();
+    Object.defineProperty(mockVideo, 'src', {
+      set() { /* noop — don't fire any events */ },
+      get() { return ''; },
+      configurable: true,
+    });
 
     const videoFile = new File(['fake-video'], 'test.mp4', { type: 'video/mp4' });
     const assertion = expect(extractVideoFrame(videoFile)).rejects.toThrow('extractVideoFrame: timed out after 15 seconds');
@@ -133,6 +177,16 @@ describe('extractVideoFrame', () => {
     // Advance time past the 15-second timeout
     await vi.advanceTimersByTimeAsync(15_001);
 
+    await assertion;
+  });
+
+  it('rejectar när videon har 0-dimensioner', async () => {
+    mockVideo.videoWidth = 0;
+    mockVideo.videoHeight = 0;
+
+    const videoFile = new File(['fake-video'], 'test.mp4', { type: 'video/mp4' });
+    const assertion = expect(extractVideoFrame(videoFile)).rejects.toThrow('Videon har ogiltiga dimensioner');
+    await vi.runAllTimersAsync();
     await assertion;
   });
 });

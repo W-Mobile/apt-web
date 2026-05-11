@@ -42,7 +42,6 @@ export function ProgramForm() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [equipment, setEquipment] = useState('');
-  const [marketingText, setMarketingText] = useState('');
   const [periods, setPeriods] = useState<PeriodRow[]>([]);
   const [availableWorkouts, setAvailableWorkouts] = useState<WorkoutOption[]>([]);
   const [loading, setLoading] = useState(!isNew);
@@ -51,8 +50,8 @@ export function ProgramForm() {
   const [posterFileKey, setPosterFileKey] = useState<string | null>(null);
   const [existingPosterKey, setExistingPosterKey] = useState<string | null>(null);
 
-  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', marketingText: '', posterFileKey: null, periods: [] } : null);
-  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, marketingText, posterFileKey, periods });
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', posterFileKey: null, periods: [] } : null);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, posterFileKey, periods });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -73,7 +72,6 @@ export function ProgramForm() {
           setName(program.name);
           setDescription(program.description);
           setEquipment(program.equipment);
-          setMarketingText(program.marketingText);
         }
         const periodRows: PeriodRow[] = await Promise.all(
           programPeriods.map(async (p) => {
@@ -96,7 +94,6 @@ export function ProgramForm() {
           name: program?.name ?? '',
           description: program?.description ?? '',
           equipment: program?.equipment ?? '',
-          marketingText: program?.marketingText ?? '',
           posterFileKey: null,
           periods: periodRows,
         });
@@ -144,10 +141,10 @@ export function ProgramForm() {
     try {
       let programID = id!;
       if (isNew) {
-        const created = await createProgram({ name, description, equipment, marketingText });
+        const created = await createProgram({ name, description, equipment });
         programID = created.id;
       } else {
-        await updateProgram({ id: programID, name, description, equipment, marketingText });
+        await updateProgram({ id: programID, name, description, equipment });
         const existingPeriods = await getPeriods(programID);
         for (const p of existingPeriods) {
           const pws = await getPeriodWorkouts(p.id);
@@ -208,12 +205,6 @@ export function ProgramForm() {
             <input id="equipment" type="text" value={equipment} onChange={(e) => setEquipment(e.target.value)} required
               className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
           </div>
-          <div>
-            <label htmlFor="marketingText" className="block text-base font-medium text-stone-200 mb-1.5">Marknadsföringstext</label>
-            <textarea id="marketingText" value={marketingText} onChange={(e) => setMarketingText(e.target.value)} rows={3}
-              className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors resize-y" />
-          </div>
-
           <MediaUpload
             label="Poster-bild"
             accept="image/*"
