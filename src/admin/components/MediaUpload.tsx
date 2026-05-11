@@ -14,7 +14,7 @@ interface MediaUploadProps {
   label: string;
   accept: string;
   fileKeyPrefix: string;
-  onUpload: (fileKey: string) => void;
+  onUpload: (fileKey: string, file?: File) => void;
   existingFileKey?: string | null;
   maxSizeMB?: number;
 }
@@ -215,7 +215,7 @@ export function MediaUpload({
           },
         });
         setUploadedKey(fileKey);
-        onUpload(fileKey);
+        onUpload(fileKey, file);
       } catch {
         setError('Uppladdningen misslyckades. Försök igen.');
         setFileName(null);

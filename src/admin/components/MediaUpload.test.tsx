@@ -93,7 +93,7 @@ describe('MediaUpload', () => {
     });
 
     await waitFor(() => {
-      expect(onUpload).toHaveBeenCalledWith('exercise_video/bench.mp4');
+      expect(onUpload).toHaveBeenCalledWith('exercise_video/bench.mp4', expect.any(File));
     });
   });
 

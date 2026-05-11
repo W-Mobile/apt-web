@@ -27,18 +27,44 @@ vi.mock('./exercise-api', () => ({
 }));
 
 vi.mock('../components/MediaUpload', () => ({
-  MediaUpload: ({ label, onUpload }: { label: string; onUpload: (key: string) => void }) => (
+  MediaUpload: ({ label, onUpload }: { label: string; onUpload: (key: string, file?: File) => void }) => (
     <div>
       <span>{label}</span>
-      <button onClick={() => onUpload(`test_${label}_key`)} data-testid={`upload-${label}`}>Upload {label}</button>
+      <button onClick={() => {
+        if (label === 'Video (.mp4)') {
+          onUpload(`test_${label}_key`, new File(['video'], 'test.mp4', { type: 'video/mp4' }));
+        } else {
+          onUpload(`test_${label}_key`);
+        }
+      }} data-testid={`upload-${label}`}>Upload {label}</button>
     </div>
   ),
+}));
+
+vi.mock('../utils/extractVideoFrame', () => ({
+  extractVideoFrame: vi.fn(),
+}));
+
+vi.mock('aws-amplify/storage', () => ({
+  uploadData: vi.fn(() => ({ result: Promise.resolve({ path: 'test-poster-key' }) })),
+  getUrl: vi.fn(() => Promise.resolve({ url: new URL('https://example.com/file') })),
 }));
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return { ...actual, useNavigate: () => mockNavigate };
 });
+
+vi.mock('../contexts/NavigationGuardContext', () => ({
+  useNavigationGuard: () => ({
+    navigate: mockNavigate,
+    setDirty: vi.fn(),
+  }),
+}));
+
+vi.mock('../hooks/useFormDirtyTracking', () => ({
+  useFormDirtyTracking: vi.fn(() => false),
+}));
 
 describe('ExerciseForm', () => {
   beforeEach(() => {
@@ -160,5 +186,62 @@ describe('ExerciseForm', () => {
         name: 'Back Squat',
       }));
     });
+  });
+
+  it('auto-generates poster when video is uploaded and no poster exists', async () => {
+    const { extractVideoFrame } = await import('../utils/extractVideoFrame');
+    const fakeBlob = new Blob(['poster'], { type: 'image/jpeg' });
+    vi.mocked(extractVideoFrame).mockResolvedValue(fakeBlob);
+
+    mockCreate.mockResolvedValue({ id: 'new-id', name: 'Squat', equipment: 'Barbell' });
+    mockLinkPoster.mockResolvedValue(undefined);
+    mockLinkVideo.mockResolvedValue(undefined);
+
+    render(
+      <MemoryRouter initialEntries={['/admin/exercises/new']}>
+        <Routes>
+          <Route path="/admin/exercises/new" element={<ExerciseForm />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByLabelText(/namn/i), 'Squat');
+    await userEvent.type(screen.getByLabelText(/utrustning/i), 'Barbell');
+    await userEvent.click(screen.getByTestId('upload-Video (.mp4)'));
+
+    await waitFor(() => {
+      expect(extractVideoFrame).toHaveBeenCalled();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: /spara/i }));
+
+    await waitFor(() => {
+      expect(mockLinkPoster).toHaveBeenCalledWith('new-id', expect.stringContaining('exercise_poster/'));
+    });
+  });
+
+  it('does NOT auto-generate poster when poster already uploaded manually', async () => {
+    const { extractVideoFrame } = await import('../utils/extractVideoFrame');
+    vi.mocked(extractVideoFrame).mockResolvedValue(new Blob(['poster'], { type: 'image/jpeg' }));
+
+    mockCreate.mockResolvedValue({ id: 'new-id', name: 'Squat', equipment: 'Barbell' });
+
+    render(
+      <MemoryRouter initialEntries={['/admin/exercises/new']}>
+        <Routes>
+          <Route path="/admin/exercises/new" element={<ExerciseForm />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByLabelText(/namn/i), 'Squat');
+    await userEvent.type(screen.getByLabelText(/utrustning/i), 'Barbell');
+
+    // Upload poster FIRST
+    await userEvent.click(screen.getByTestId('upload-Poster-bild'));
+    // Then upload video
+    await userEvent.click(screen.getByTestId('upload-Video (.mp4)'));
+
+    expect(extractVideoFrame).not.toHaveBeenCalled();
   });
 });

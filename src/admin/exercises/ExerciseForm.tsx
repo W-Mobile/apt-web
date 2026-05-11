@@ -9,6 +9,8 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
+import { extractVideoFrame } from '../utils/extractVideoFrame';
+import { uploadData } from 'aws-amplify/storage';
 
 export function ExerciseForm() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +28,7 @@ export function ExerciseForm() {
   const [posterFileKey, setPosterFileKey] = useState<string | null>(null);
   const [existingVideoKey, setExistingVideoKey] = useState<string | null>(null);
   const [existingPosterKey, setExistingPosterKey] = useState<string | null>(null);
+  const [generatingPoster, setGeneratingPoster] = useState(false);
 
   const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', videoFileKey: null, posterFileKey: null } : null);
   const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, videoFileKey, posterFileKey });
@@ -81,6 +84,29 @@ export function ExerciseForm() {
     navigate('/admin/exercises');
   }
 
+  async function handleVideoUpload(key: string, file?: File) {
+    setVideoFileKey(key);
+
+    // Auto-generate poster if no manual poster exists
+    if (file && !posterFileKey && !existingPosterKey) {
+      setGeneratingPoster(true);
+      try {
+        const posterBlob = await extractVideoFrame(file);
+        const posterFileName = file.name.replace(/\.[^.]+$/, '_poster.jpg');
+        const posterKey = `exercise_poster/${posterFileName}`;
+        await uploadData({
+          path: posterKey,
+          data: posterBlob,
+        });
+        setPosterFileKey(posterKey);
+      } catch {
+        console.warn('Kunde inte auto-generera poster-bild');
+      } finally {
+        setGeneratingPoster(false);
+      }
+    }
+  }
+
   if (loading) return <p className="text-stone-400">Laddar...</p>;
 
   return (
@@ -111,7 +137,7 @@ export function ExerciseForm() {
             label="Video (.mp4, .mov, .webm)"
             accept="video/mp4,video/quicktime,video/webm"
             fileKeyPrefix="exercise_video/"
-            onUpload={(key) => setVideoFileKey(key)}
+            onUpload={handleVideoUpload}
             existingFileKey={!videoFileKey ? existingVideoKey : null}
           />
 
@@ -122,6 +148,9 @@ export function ExerciseForm() {
             onUpload={(key) => setPosterFileKey(key)}
             existingFileKey={!posterFileKey ? existingPosterKey : null}
           />
+          {generatingPoster && (
+            <p className="text-xs text-stone-400 mt-1">Genererar poster-bild från video...</p>
+          )}
         </div>
 
         <div className="flex gap-3">
