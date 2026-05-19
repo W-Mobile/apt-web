@@ -14,6 +14,7 @@ const mockLinkVideo = vi.fn();
 const mockLinkPoster = vi.fn();
 const mockGetVideoMedia = vi.fn();
 const mockGetPosterMedia = vi.fn();
+const mockListAllTags = vi.fn();
 
 vi.mock('./exercise-api', () => ({
   createExercise: (...args: unknown[]) => mockCreate(...args),
@@ -24,6 +25,7 @@ vi.mock('./exercise-api', () => ({
   linkExercisePoster: (...args: unknown[]) => mockLinkPoster(...args),
   getExerciseVideoMedia: (...args: unknown[]) => mockGetVideoMedia(...args),
   getExercisePosterMedia: (...args: unknown[]) => mockGetPosterMedia(...args),
+  listAllTags: (...args: unknown[]) => mockListAllTags(...args),
 }));
 
 vi.mock('../components/MediaUpload', () => ({
@@ -71,6 +73,7 @@ describe('ExerciseForm', () => {
     vi.clearAllMocks();
     mockGetVideoMedia.mockResolvedValue(null);
     mockGetPosterMedia.mockResolvedValue(null);
+    mockListAllTags.mockResolvedValue([]);
   });
 
   it('renders empty form for creating a new exercise', () => {
@@ -130,6 +133,78 @@ describe('ExerciseForm', () => {
     });
     expect(screen.getByLabelText(/utrustning/i)).toHaveValue('Barbell');
     expect(screen.getByLabelText(/beskrivning/i)).toHaveValue('Deep squat');
+  });
+
+  it('visar befintliga taggar som chips när en exercise laddas', async () => {
+    mockGet.mockResolvedValue({
+      id: '1', name: 'Squat', description: 'Deep squat', equipment: 'Barbell',
+      tags: ['legs', 'core'], isVisibleInDiscover: true,
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/admin/exercises/1']}>
+        <Routes>
+          <Route path="/admin/exercises/:id" element={<ExerciseForm />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Legs')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Core')).toBeInTheDocument();
+  });
+
+  it('skickar normaliserade taggar vid uppdatering', async () => {
+    mockGet.mockResolvedValue({
+      id: '1', name: 'Squat', description: 'Deep squat', equipment: 'Barbell',
+      tags: ['Legs', 'Core'], isVisibleInDiscover: true,
+    });
+    mockUpdate.mockResolvedValue({ id: '1', name: 'Squat' });
+
+    render(
+      <MemoryRouter initialEntries={['/admin/exercises/1']}>
+        <Routes>
+          <Route path="/admin/exercises/:id" element={<ExerciseForm />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/namn/i)).toHaveValue('Squat');
+    });
+    await userEvent.click(screen.getByRole('button', { name: /spara/i }));
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+        id: '1',
+        tags: ['legs', 'core'],
+      }));
+    });
+  });
+
+  it('skickar en nyskapad tagg vid create', async () => {
+    mockCreate.mockResolvedValue({ id: 'new-id', name: 'Squat', equipment: 'Barbell' });
+
+    render(
+      <MemoryRouter initialEntries={['/admin/exercises/new']}>
+        <Routes>
+          <Route path="/admin/exercises/new" element={<ExerciseForm />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByLabelText(/namn/i), 'Squat');
+    await userEvent.type(screen.getByLabelText(/utrustning/i), 'Barbell');
+    await userEvent.type(screen.getByPlaceholderText(/sök eller skapa/i), 'Mobility{Enter}');
+    await userEvent.click(screen.getByRole('button', { name: /spara/i }));
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({
+        name: 'Squat',
+        tags: ['mobility'],
+      }));
+    });
   });
 
   it('links media when uploading video and poster on new exercise', async () => {

@@ -1,4 +1,5 @@
 import { client } from '../amplify-config';
+import { normalizeTag } from '../utils/tags';
 
 export interface Exercise {
   id: string;
@@ -41,6 +42,22 @@ export async function listExercises(): Promise<Exercise[]> {
   } while (nextToken);
 
   return allExercises;
+}
+
+/**
+ * Distinkta taggar över alla exercises, normaliserade (gemener) och sorterade.
+ * Speglar appens availableTagsProvider (dedupe på gemener). Återanvänder listExercises().
+ */
+export async function listAllTags(): Promise<string[]> {
+  const exercises = await listExercises();
+  const tags = new Set<string>();
+  for (const exercise of exercises) {
+    for (const tag of exercise.tags ?? []) {
+      const normalized = normalizeTag(tag);
+      if (normalized) tags.add(normalized);
+    }
+  }
+  return Array.from(tags).sort();
 }
 
 export async function getExercise(id: string): Promise<Exercise | null> {
