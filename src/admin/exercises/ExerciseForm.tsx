@@ -3,10 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   getExercise, createExercise, updateExercise, deleteExercise,
   getExerciseVideoMedia, getExercisePosterMedia,
-  linkExerciseVideo, linkExercisePoster,
+  linkExerciseVideo, linkExercisePoster, listAllTags,
 } from './exercise-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
+import { TagSelect } from '../components/TagSelect';
+import { normalizeTags, sortTagsForCompare } from '../utils/tags';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 import { extractVideoFrame } from '../utils/extractVideoFrame';
@@ -21,6 +23,8 @@ export function ExerciseForm() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [equipment, setEquipment] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -32,8 +36,8 @@ export function ExerciseForm() {
   const [autoPosterPreviewUrl, setAutoPosterPreviewUrl] = useState<string | null>(null);
   const [generatingPoster, setGeneratingPoster] = useState(false);
 
-  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', videoFileKey: null, posterFileKey: null } : null);
-  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, videoFileKey, posterFileKey: posterFileKey || autoPosterKey });
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', videoFileKey: null, posterFileKey: null, tags: [] } : null);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, videoFileKey, posterFileKey: posterFileKey || autoPosterKey, tags: sortTagsForCompare(tags) });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -41,13 +45,19 @@ export function ExerciseForm() {
   }, [isDirty, setDirty]);
 
   useEffect(() => {
+    listAllTags().then(setAvailableTags).catch(() => setAvailableTags([]));
+  }, []);
+
+  useEffect(() => {
     if (!isNew && id) {
       getExercise(id).then((exercise) => {
         if (exercise) {
+          const normalizedTags = normalizeTags(exercise.tags ?? []);
           setName(exercise.name);
           setDescription(exercise.description ?? '');
           setEquipment(exercise.equipment);
-          setInitialValues({ name: exercise.name, description: exercise.description ?? '', equipment: exercise.equipment, videoFileKey: null, posterFileKey: null });
+          setTags(normalizedTags);
+          setInitialValues({ name: exercise.name, description: exercise.description ?? '', equipment: exercise.equipment, videoFileKey: null, posterFileKey: null, tags: sortTagsForCompare(normalizedTags) });
         }
         setLoading(false);
       });
@@ -65,11 +75,12 @@ export function ExerciseForm() {
     setSaving(true);
     try {
       let exerciseID = id!;
+      const normalizedTags = normalizeTags(tags);
       if (isNew) {
-        const created = await createExercise({ name, description, equipment });
+        const created = await createExercise({ name, description, equipment, tags: normalizedTags });
         exerciseID = created.id;
       } else {
-        await updateExercise({ id: exerciseID, name, description, equipment });
+        await updateExercise({ id: exerciseID, name, description, equipment, tags: normalizedTags });
       }
       if (videoFileKey) await linkExerciseVideo(exerciseID, videoFileKey);
       const effectivePosterKey = posterFileKey || autoPosterKey;
@@ -133,6 +144,16 @@ export function ExerciseForm() {
           <label htmlFor="description" className="block text-sm text-stone-300 mb-1">Beskrivning</label>
           <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
             className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors" />
+        </div>
+
+        <div>
+          <label className="block text-sm text-stone-300 mb-1">Taggar</label>
+          <TagSelect
+            value={tags}
+            onChange={setTags}
+            suggestions={availableTags}
+            placeholder="Sök eller skapa tagg..."
+          />
         </div>
 
         <div className="space-y-4">
