@@ -8,6 +8,7 @@ const navItems = [
   { to: '/admin/workouts', label: 'Workouts' },
   { to: '/admin/programs', label: 'Program' },
   { to: '/admin/posts', label: 'Posts' },
+  { to: '/admin/feedback', label: 'Feedback' },
 ];
 
 function Sidebar() {

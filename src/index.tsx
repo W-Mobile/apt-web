@@ -16,6 +16,8 @@ import { ProgramList } from "./admin/programs/ProgramList";
 import { ProgramForm } from "./admin/programs/ProgramForm";
 import { PostList } from "./admin/posts/PostList";
 import { PostForm } from "./admin/posts/PostForm";
+import { FeedbackList } from "./admin/feedback/FeedbackList";
+import { FeedbackDetail } from "./admin/feedback/FeedbackDetail";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -45,6 +47,8 @@ createRoot(document.getElementById("app") as HTMLElement).render(
                   <Route path="programs/:id" element={<ProgramForm />} />
                   <Route path="posts" element={<PostList />} />
                   <Route path="posts/:id" element={<PostForm />} />
+                  <Route path="feedback" element={<FeedbackList />} />
+                  <Route path="feedback/:id" element={<FeedbackDetail />} />
                   <Route index element={<Navigate to="/admin/exercises" replace />} />
                 </Routes>
               </AdminLayout>
