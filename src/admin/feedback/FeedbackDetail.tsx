@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getFeedback, updateFeedback, Feedback, FeedbackCategory } from './feedback-api';
+import {
+  getFeedback,
+  updateFeedback,
+  getUserByOwnerSub,
+  AdminUser,
+  Feedback,
+  FeedbackCategory,
+} from './feedback-api';
 
 const categoryStyles: Record<FeedbackCategory, { text: string; bg: string; border: string; dot: string; label: string }> = {
   BUG: { text: 'text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20', dot: 'bg-red-400', label: 'Bug' },
@@ -53,6 +60,7 @@ export function FeedbackDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -61,12 +69,15 @@ export function FeedbackDetail() {
     getFeedback(id).then(async (data) => {
       setFeedback(data);
       setLoading(false);
-      if (data && !data.isRead) {
-        try {
-          const updated = await updateFeedback({ id: data.id, isRead: true });
-          setFeedback(updated);
-        } catch {
-          // Silent fail — UI still shows the feedback, admin can manually toggle later
+      if (data) {
+        getUserByOwnerSub(data.userId).then(setUser).catch(() => setUser(null));
+        if (!data.isRead) {
+          try {
+            const updated = await updateFeedback({ id: data.id, isRead: true });
+            setFeedback(updated);
+          } catch {
+            // Silent fail — UI still shows the feedback, admin can manually toggle later
+          }
         }
       }
     });
@@ -123,7 +134,7 @@ export function FeedbackDetail() {
             Feedback · {shortId}
           </div>
           <h2 className="text-2xl font-bold">
-            {categoryStyles[feedback.category].label}-feedback från {feedback.userId.slice(0, 8)}…
+            {categoryStyles[feedback.category].label}-feedback från {user?.email ?? `${feedback.userId.slice(0, 8)}…`}
           </h2>
           <div className="w-12 h-0.5 bg-[#F24E1E] mt-3 rounded-full" />
         </div>
@@ -170,7 +181,13 @@ export function FeedbackDetail() {
           </div>
           <dl className="space-y-3 text-xs">
             <div className="flex justify-between gap-3">
-              <dt className="text-stone-500">Användare</dt>
+              <dt className="text-stone-500">E-post</dt>
+              <dd className="text-stone-200 text-right break-all">
+                {user?.email ?? <span className="text-stone-500 italic">— okänd —</span>}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-stone-500">Användar-ID</dt>
               <dd className="text-stone-200 font-mono text-[10px] text-right break-all">{feedback.userId}</dd>
             </div>
             <div className="flex justify-between gap-3">

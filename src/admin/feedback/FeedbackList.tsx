@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listFeedback, Feedback, FeedbackCategory } from './feedback-api';
+import {
+  listFeedback,
+  listUsers,
+  buildEmailMap,
+  displayEmailFor,
+  Feedback,
+  FeedbackCategory,
+} from './feedback-api';
 import { DataTable } from '../components/DataTable';
 import { SearchInput } from '../components/SearchInput';
 
@@ -77,52 +84,9 @@ function StatusBadge({ feedback }: { feedback: Feedback }) {
   );
 }
 
-const columns = [
-  {
-    key: 'createdAt' as const,
-    header: 'Mottagen',
-    sortable: true,
-    render: (value: string) => (
-      <span className="text-stone-500">{formatRelative(value)}</span>
-    ),
-  },
-  {
-    key: 'category' as const,
-    header: 'Kategori',
-    render: (value: FeedbackCategory) => <CategoryBadge category={value} />,
-  },
-  {
-    key: 'id' as const,
-    header: 'Status',
-    render: (_: string, row: Feedback) => <StatusBadge feedback={row} />,
-  },
-  {
-    key: 'userId' as const,
-    header: 'Användare',
-    render: (value: string) => (
-      <span className="font-mono text-xs text-stone-400">{value.slice(0, 8)}…</span>
-    ),
-  },
-  {
-    key: 'message' as const,
-    header: 'Meddelande',
-    render: (value: string | null) => (
-      <div className="max-w-[320px] truncate text-stone-400">
-        {value?.trim() ? value : <span className="text-stone-600">— inget meddelande —</span>}
-      </div>
-    ),
-  },
-  {
-    key: 'appVersion' as const,
-    header: 'Version',
-    render: (value: string, row: Feedback) => (
-      <span className="text-stone-500 text-xs">{value} · {row.platform}</span>
-    ),
-  },
-];
-
 export function FeedbackList() {
   const [feedback, setFeedback] = useState<Feedback[]>([]);
+  const [emailMap, setEmailMap] = useState<Map<string, string>>(new Map());
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
@@ -131,10 +95,60 @@ export function FeedbackList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    listFeedback()
-      .then(setFeedback)
+    Promise.all([
+      listFeedback(),
+      listUsers().catch(() => []),
+    ])
+      .then(([fb, users]) => {
+        setFeedback(fb);
+        setEmailMap(buildEmailMap(users));
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  const columns = useMemo(() => [
+    {
+      key: 'createdAt' as const,
+      header: 'Mottagen',
+      sortable: true,
+      render: (value: string) => (
+        <span className="text-stone-500">{formatRelative(value)}</span>
+      ),
+    },
+    {
+      key: 'category' as const,
+      header: 'Kategori',
+      render: (value: FeedbackCategory) => <CategoryBadge category={value} />,
+    },
+    {
+      key: 'id' as const,
+      header: 'Status',
+      render: (_: string, row: Feedback) => <StatusBadge feedback={row} />,
+    },
+    {
+      key: 'userId' as const,
+      header: 'Användare',
+      render: (value: string) => (
+        <span className="text-stone-300 text-xs">{displayEmailFor(emailMap, value)}</span>
+      ),
+    },
+    {
+      key: 'message' as const,
+      header: 'Meddelande',
+      render: (value: string | null) => (
+        <div className="max-w-[320px] truncate text-stone-400">
+          {value?.trim() ? value : <span className="text-stone-600">— inget meddelande —</span>}
+        </div>
+      ),
+    },
+    {
+      key: 'appVersion' as const,
+      header: 'Version',
+      render: (value: string, row: Feedback) => (
+        <span className="text-stone-500 text-xs">{value} · {row.platform}</span>
+      ),
+    },
+  ], [emailMap]);
 
   const unreadCount = feedback.filter((f) => !f.isRead && !f.isResolved).length;
 
@@ -146,8 +160,10 @@ export function FeedbackList() {
       if (categoryFilter !== 'all' && f.category !== categoryFilter) return false;
       if (search) {
         const q = search.toLowerCase();
+        const email = emailMap.get(f.userId)?.toLowerCase();
         const matches =
           f.message?.toLowerCase().includes(q) ||
+          email?.includes(q) ||
           f.userId.toLowerCase().includes(q) ||
           f.appVersion.toLowerCase().includes(q);
         if (!matches) return false;
