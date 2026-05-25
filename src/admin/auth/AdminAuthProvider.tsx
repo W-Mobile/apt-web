@@ -13,6 +13,8 @@ interface AdminUser {
 interface AdminAuthContextType {
   user: AdminUser | null;
   isAdmin: boolean;
+  groups: string[];
+  isInGroup: (group: string) => boolean;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
@@ -29,9 +31,12 @@ export function useAdminAuth(): AdminAuthContextType {
   return context;
 }
 
-async function isUserInAdminsGroup(): Promise<boolean> {
+async function fetchUserGroups(): Promise<string[]> {
   const session = await fetchAuthSession();
-  const groups = (session.tokens?.accessToken?.payload?.['cognito:groups'] as string[] | undefined) ?? [];
+  return (session.tokens?.accessToken?.payload?.['cognito:groups'] as string[] | undefined) ?? [];
+}
+
+function hasAdminAccess(groups: string[]): boolean {
   return groups.includes('ADMINS') || groups.includes('AMIR');
 }
 
@@ -53,7 +58,7 @@ async function buildAdminUser(baseUser: { username: string; userId: string }): P
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [groups, setGroups] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,10 +68,10 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         const remembered = localStorage.getItem('admin_remember_me') === 'true';
         cognitoUserPoolsTokenProvider.setKeyValueStorage(remembered ? defaultStorage : sessionStorage);
         const currentUser = await getCurrentUser();
-        const admin = await isUserInAdminsGroup();
-        if (admin) {
+        const userGroups = await fetchUserGroups();
+        if (hasAdminAccess(userGroups)) {
           setUser(await buildAdminUser(currentUser));
-          setIsAdmin(true);
+          setGroups(userGroups);
         } else {
           await amplifySignOut();
         }
@@ -84,15 +89,15 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     try {
       cognitoUserPoolsTokenProvider.setKeyValueStorage(rememberMe ? defaultStorage : sessionStorage);
       await amplifySignIn({ username: email, password });
-      const admin = await isUserInAdminsGroup();
-      if (!admin) {
+      const userGroups = await fetchUserGroups();
+      if (!hasAdminAccess(userGroups)) {
         await amplifySignOut();
         setError('Du har inte admin-behörighet.');
         return;
       }
       const currentUser = await getCurrentUser();
       setUser(await buildAdminUser(currentUser));
-      setIsAdmin(true);
+      setGroups(userGroups);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Inloggningen misslyckades.');
     }
@@ -101,11 +106,14 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await amplifySignOut();
     setUser(null);
-    setIsAdmin(false);
+    setGroups([]);
   }, []);
 
+  const isAdmin = hasAdminAccess(groups);
+  const isInGroup = useCallback((group: string) => groups.includes(group), [groups]);
+
   return (
-    <AdminAuthContext.Provider value={{ user, isAdmin, isLoading, error, login, logout }}>
+    <AdminAuthContext.Provider value={{ user, isAdmin, groups, isInGroup, isLoading, error, login, logout }}>
       {children}
     </AdminAuthContext.Provider>
   );

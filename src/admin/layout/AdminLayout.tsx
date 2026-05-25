@@ -3,17 +3,24 @@ import { NavLink } from 'react-router-dom';
 import { useAdminAuth } from '../auth/AdminAuthProvider';
 import { NavigationGuardProvider, useNavigationGuard } from '../contexts/NavigationGuardContext';
 
-const navItems = [
+interface NavItem {
+  to: string;
+  label: string;
+  requireGroup?: string;
+}
+
+const navItems: NavItem[] = [
   { to: '/admin/exercises', label: 'Exercises' },
   { to: '/admin/workouts', label: 'Workouts' },
   { to: '/admin/programs', label: 'Program' },
   { to: '/admin/posts', label: 'Posts' },
-  { to: '/admin/feedback', label: 'Feedback' },
+  { to: '/admin/feedback', label: 'Feedback', requireGroup: 'ADMINS' },
 ];
 
 function Sidebar() {
-  const { user, logout } = useAdminAuth();
+  const { user, logout, isInGroup } = useAdminAuth();
   const { navigate } = useNavigationGuard();
+  const visibleNavItems = navItems.filter((item) => !item.requireGroup || isInGroup(item.requireGroup));
 
   return (
     <aside className="w-64 bg-stone-900 border-r border-stone-800 flex flex-col">
@@ -22,7 +29,7 @@ function Sidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map(({ to, label }) => (
+        {visibleNavItems.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}

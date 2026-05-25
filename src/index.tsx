@@ -47,8 +47,8 @@ createRoot(document.getElementById("app") as HTMLElement).render(
                   <Route path="programs/:id" element={<ProgramForm />} />
                   <Route path="posts" element={<PostList />} />
                   <Route path="posts/:id" element={<PostForm />} />
-                  <Route path="feedback" element={<FeedbackList />} />
-                  <Route path="feedback/:id" element={<FeedbackDetail />} />
+                  <Route path="feedback" element={<ProtectedRoute requireGroup="ADMINS"><FeedbackList /></ProtectedRoute>} />
+                  <Route path="feedback/:id" element={<ProtectedRoute requireGroup="ADMINS"><FeedbackDetail /></ProtectedRoute>} />
                   <Route index element={<Navigate to="/admin/exercises" replace />} />
                 </Routes>
               </AdminLayout>
