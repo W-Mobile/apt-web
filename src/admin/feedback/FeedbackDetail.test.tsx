@@ -7,7 +7,7 @@ const mockFeedback = {
   id: 'fb-1',
   userId: 'sub-tasdi',
   category: 'SUGGESTION' as const,
-  message: 'Önskar att jag kunde drag-and-droppa övningar',
+  message: 'Wish I could drag-and-drop exercises',
   appVersion: '1.8.0',
   platform: 'ios',
   deviceModel: 'iPhone 15',
@@ -55,14 +55,14 @@ describe('FeedbackDetail', () => {
     });
   });
 
-  it('visar användarens email i rubriken', async () => {
+  it('shows the user email in the heading', async () => {
     renderAt('/admin/feedback/fb-1');
     await waitFor(() => {
       expect(screen.getByText(/Suggestion-feedback från tasdi@workmobile.se/)).toBeInTheDocument();
     });
   });
 
-  it('visar både email och full sub-UUID i metadata-sidebar', async () => {
+  it('shows both email and full sub-UUID in the metadata sidebar', async () => {
     renderAt('/admin/feedback/fb-1');
     await waitFor(() => {
       expect(screen.getByText('tasdi@workmobile.se')).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe('FeedbackDetail', () => {
     expect(screen.getByText('Användar-ID')).toBeInTheDocument();
   });
 
-  it('faller tillbaka till kortad sub när User saknas', async () => {
+  it('falls back to truncated sub when User is missing', async () => {
     getUserByOwnerSubMock.mockResolvedValueOnce(null);
     renderAt('/admin/feedback/fb-1');
     await waitFor(() => {
@@ -81,14 +81,14 @@ describe('FeedbackDetail', () => {
     expect(screen.getByText('— okänd —')).toBeInTheDocument();
   });
 
-  it('auto-markerar feedback som läst när den öppnas', async () => {
+  it('auto-marks feedback as read when opened', async () => {
     renderAt('/admin/feedback/fb-1');
     await waitFor(() => {
       expect(updateFeedbackMock).toHaveBeenCalledWith({ id: 'fb-1', isRead: true });
     });
   });
 
-  it('kraschar inte när getUserByOwnerSub fallerar', async () => {
+  it('does not crash when getUserByOwnerSub fails', async () => {
     getUserByOwnerSubMock.mockRejectedValueOnce(new Error('Network error'));
     renderAt('/admin/feedback/fb-1');
     await waitFor(() => {

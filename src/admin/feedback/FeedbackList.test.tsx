@@ -9,7 +9,7 @@ const mockFeedback = [
     id: 'fb-1',
     userId: 'sub-tasdi',
     category: 'SUGGESTION',
-    message: 'Önskar att jag kunde drag-and-droppa övningar',
+    message: 'Wish I could drag-and-drop exercises',
     appVersion: '1.8.0',
     platform: 'ios',
     deviceModel: 'iPhone 15',
@@ -24,7 +24,7 @@ const mockFeedback = [
     id: 'fb-2',
     userId: 'sub-ghost',
     category: 'BUG',
-    message: 'Timern resettar vid lockscreen',
+    message: 'Timer resets on lockscreen',
     appVersion: '1.8.0',
     platform: 'android',
     deviceModel: 'Pixel 8',
@@ -60,21 +60,21 @@ describe('FeedbackList', () => {
     listUsersMock.mockResolvedValue(mockUsers);
   });
 
-  it('visar email i Användare-kolumnen när User-post finns', async () => {
+  it('shows email in the user column when a User record exists', async () => {
     render(<MemoryRouter><FeedbackList /></MemoryRouter>);
     await waitFor(() => {
       expect(screen.getByText('tasdi@workmobile.se')).toBeInTheDocument();
     });
   });
 
-  it('faller tillbaka till kortad sub när User saknas', async () => {
+  it('falls back to truncated sub when User is missing', async () => {
     render(<MemoryRouter><FeedbackList /></MemoryRouter>);
     await waitFor(() => {
       expect(screen.getByText('sub-ghos…')).toBeInTheDocument();
     });
   });
 
-  it('filtrerar listan på email-substring i sökrutan', async () => {
+  it('filters the list on email substring in the search box', async () => {
     render(<MemoryRouter><FeedbackList /></MemoryRouter>);
     await waitFor(() => {
       expect(screen.getByText('tasdi@workmobile.se')).toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('FeedbackList', () => {
     expect(within(table).queryByText('sub-ghos…')).not.toBeInTheDocument();
   });
 
-  it('renderar feedback-listan även när listUsers fallerar', async () => {
+  it('renders the feedback list even when listUsers fails', async () => {
     listUsersMock.mockRejectedValueOnce(new Error('User fetch failed'));
     render(<MemoryRouter><FeedbackList /></MemoryRouter>);
     await waitFor(() => {
