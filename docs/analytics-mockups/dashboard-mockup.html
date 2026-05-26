@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Awaye · Analytics · Recommended Hybrid</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,300;9..144,0,400;9..144,0,500;9..144,1,300;9..144,1,400&family=Sora:wght@200;300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0a09;
+    --bg-2: #0f0d0b;
+    --surface: rgba(28, 25, 23, 0.7);
+    --surface-solid: #1c1917;
+    --surface-hover: rgba(41, 37, 36, 0.85);
+    --line: rgba(255,255,255,0.06);
+    --line-2: rgba(255,255,255,0.10);
+    --ink: #fafaf9;
+    --ink-2: #e7e5e4;
+    --ink-3: #a8a29e;
+    --ink-4: #78716c;
+    --ink-5: #57534e;
+    --accent: #F24E1E;
+    --accent-2: #FF7262;
+    --accent-3: #FFA591;
+    --good: #34d399;
+    --bad: #fb7185;
+    --warn: #fbbf24;
+  }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(242,78,30,0.07), transparent 50%),
+      radial-gradient(circle at 100% 0%, rgba(255,114,98,0.04), transparent 50%);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: 'Sora', sans-serif;
+    letter-spacing: -0.011em;
+  }
+  .display { font-family: 'Fraunces', serif; font-optical-sizing: auto; }
+  .display-vary { font-variation-settings: "opsz" 144, "SOFT" 30; }
+  .mono { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    transition: all .25s ease;
+  }
+  .card:hover { border-color: var(--line-2); background: var(--surface-hover); }
+
+  .card-hero {
+    background: linear-gradient(165deg, rgba(28,25,23,0.85), rgba(28,25,23,0.4));
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .card-hero::before {
+    content:"";
+    position: absolute; inset:0;
+    border-radius: 16px;
+    background: radial-gradient(120% 60% at 100% 0%, rgba(242,78,30,0.10), transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Delta chips */
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .chip-up { background: rgba(52,211,153,0.12); color: var(--good); border: 1px solid rgba(52,211,153,0.25); }
+  .chip-down { background: rgba(251,113,133,0.12); color: var(--bad); border: 1px solid rgba(251,113,133,0.25); }
+  .chip-flat { background: rgba(168,162,158,0.10); color: var(--ink-3); border: 1px solid rgba(168,162,158,0.20); }
+  .chip-warn { background: rgba(251,191,36,0.10); color: var(--warn); border: 1px solid rgba(251,191,36,0.22); }
+
+  .spark path.line { stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .spark .fill { opacity: 0.5; }
+
+  .expand-btn {
+    width: 26px; height: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--ink-3);
+    background: rgba(255,255,255,0.02);
+    transition: all .2s ease;
+  }
+  .expand-btn:hover { color: var(--accent-2); border-color: var(--accent-2); background: rgba(255,114,98,0.08); }
+
+  .pill { padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; }
+  .pill-active { background: var(--ink); color: #111; }
+  .pill-inactive { color: var(--ink-3); }
+  .pill-inactive:hover { color: var(--ink-2); }
+
+  /* Funnel — P3 base with P2 drop-zones */
+  .funnel-row { padding: 6px 0; }
+  .funnel-bar {
+    background: linear-gradient(90deg, rgba(242,78,30,0.95), rgba(255,114,98,0.95));
+    box-shadow: 0 0 24px rgba(242,78,30,0.20);
+  }
+  .funnel-bar-fade { background: linear-gradient(90deg, rgba(242,78,30,0.72), rgba(255,114,98,0.5)); }
+  .funnel-bar-end { background: linear-gradient(90deg, rgba(250,250,249,0.92), rgba(231,229,228,0.88)); }
+
+  /* Drop-zone between funnel rows — borrowed from P2 */
+  .dropzone {
+    margin: 2px 0 2px 140px;  /* match label column width */
+    padding: 6px 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    background: repeating-linear-gradient(
+      135deg,
+      rgba(251,113,133,0.05),
+      rgba(251,113,133,0.05) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    border-top: 1px dashed rgba(251,113,133,0.15);
+    border-bottom: 1px dashed rgba(251,113,133,0.15);
+    border-radius: 4px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-4);
+  }
+  .dropzone-critical {
+    background: repeating-linear-gradient(
+      135deg,
+      rgba(251,113,133,0.16),
+      rgba(251,113,133,0.16) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    border-top: 1px solid rgba(251,113,133,0.5);
+    border-bottom: 1px solid rgba(251,113,133,0.5);
+    color: var(--bad);
+    font-weight: 600;
+  }
+
+  /* heatmap */
+  .hm-cell {
+    aspect-ratio: 1.5/1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    border-radius: 4px;
+    font-family: 'Geist Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .insight {
+    background: rgba(242,78,30,0.06);
+    border: 1px solid rgba(242,78,30,0.15);
+    border-radius: 10px;
+    padding: 8px 12px;
+  }
+
+  .banner {
+    background: linear-gradient(90deg, rgba(242,78,30,0.10), rgba(255,114,98,0.04));
+    border: 1px solid rgba(242,78,30,0.2);
+    border-radius: 14px;
+  }
+
+  .dot { width:6px; height:6px; border-radius: 999px; display:inline-block; }
+
+  .label-xs {
+    font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-4); font-weight: 500;
+  }
+
+  .num-xl { font-size: 56px; font-weight: 200; letter-spacing: -0.04em; line-height: 1; }
+  .num-lg { font-size: 32px; font-weight: 300; letter-spacing: -0.025em; line-height: 1; }
+
+  /* Pull-quote from P1 — but more refined for hybrid */
+  .pullquote {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+
+  /* Hero serif headline — P1 inspired */
+  .hero-title {
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+    font-weight: 300;
+    letter-spacing: -0.025em;
+    line-height: 0.96;
+  }
+  .hero-italic {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 80;
+    color: var(--accent-2);
+  }
+
+  /* tag */
+  .tag {
+    display:inline-flex; align-items:center; gap:6px;
+    padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--line-2);
+    font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--ink-3);
+    background: rgba(255,255,255,0.02);
+  }
+
+  /* recommended ribbon */
+  .ribbon {
+    background: linear-gradient(90deg, #F24E1E, #FF7262);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-60 shrink-0 border-r border-stone-800/50 flex flex-col bg-stone-900/30 backdrop-blur-lg">
+    <div class="p-5 border-b border-stone-800/50">
+      <h1 class="text-base font-bold tracking-wide">APT Admin</h1>
+    </div>
+    <nav class="flex-1 p-3 space-y-1 text-sm">
+      <a class="block px-3 py-2.5 rounded-xl text-stone-400 hover:bg-stone-800/40">Exercises</a>
+      <a class="block px-3 py-2.5 rounded-xl text-stone-400 hover:bg-stone-800/40">Workouts</a>
+      <a class="block px-3 py-2.5 rounded-xl text-stone-400 hover:bg-stone-800/40">Programs</a>
+      <a class="block px-3 py-2.5 rounded-xl text-stone-400 hover:bg-stone-800/40">Posts</a>
+      <a class="block px-3 py-2.5 rounded-xl text-stone-400 hover:bg-stone-800/40">Feedback</a>
+      <a class="flex items-center justify-between px-3 py-2.5 rounded-xl text-white font-medium" style="background:#F24E1E">
+        <span>Analytics</span>
+        <span class="text-[10px] tracking-[0.18em] uppercase opacity-80">New</span>
+      </a>
+    </nav>
+    <div class="p-4 border-t border-stone-800/50 text-xs text-stone-500">
+      v.0.1.0 · mockup
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 overflow-x-hidden">
+
+    <!-- HERO HEADER — P1 inspired gravitas -->
+    <header class="px-10 pt-14 pb-10">
+      <div class="flex items-end justify-between gap-8">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="tag">
+              <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="#F24E1E"/></svg>
+              Weekly Brief · Vol. 21
+            </span>
+            <span class="ribbon">Recommended</span>
+          </div>
+          <h2 class="hero-title text-7xl mt-5">
+            Veckan i <span class="hero-italic">siffror</span>.
+          </h2>
+          <p class="mt-4 text-stone-400 text-sm">
+            Vecka 21 · 19 – 25 maj 2026 · publicerad mån 26 maj kl 07:00
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-3">
+          <div class="flex items-center gap-1 p-1 rounded-full bg-stone-900/60 border border-stone-800">
+            <button class="pill pill-active">7d</button>
+            <button class="pill pill-inactive">30d</button>
+            <button class="pill pill-inactive">90d</button>
+            <button class="pill pill-inactive">YTD</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="expand-btn" title="Export">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
+            </button>
+            <button class="expand-btn" title="Filter">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+            </button>
+            <button class="expand-btn" title="Settings">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12c0-.7-.1-1.3-.2-2l2-1.6-2-3.5-2.4.9c-.9-.7-2-1.3-3.1-1.6L13 2h-4l-.3 2.2c-1.1.3-2.2.9-3.1 1.6L3.2 5l-2 3.5L3.2 10c-.1.7-.2 1.3-.2 2s.1 1.3.2 2L1.2 15.6l2 3.5 2.4-.9c.9.7 2 1.3 3.1 1.6L9 22h4l.3-2.2c1.1-.3 2.2-.9 3.1-1.6l2.4.9 2-3.5-2-1.6c.1-.7.2-1.3.2-2z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Insight banner with editorial pull-quote feel -->
+    <section class="px-10">
+      <div class="banner px-6 py-5 flex items-center gap-5">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background: rgba(242,78,30,0.15); border:1px solid rgba(242,78,30,0.3);">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#FF7262" stroke-width="2"><path d="M12 18v-6m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="flex-1">
+          <p class="label-xs">Veckans takeaway</p>
+          <p class="pullquote text-xl leading-snug mt-1.5">
+            "Aktiveringen stiger, men något i språnget från program-val till första pass
+            släpper grepp om var tredje nybörjare. Det är där pengarna ligger."
+          </p>
+        </div>
+        <button class="text-xs text-stone-400 hover:text-stone-200 whitespace-nowrap shrink-0">Visa fullständig analys →</button>
+      </div>
+    </section>
+
+    <!-- Hero KPI Grid (from P3) -->
+    <section class="px-10 pt-6">
+      <div class="grid grid-cols-3 gap-4">
+
+        <!-- KPI 1: Signups -->
+        <div class="card card-hero p-6">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="label-xs">Signups · denna vecka</p>
+              <p class="num-xl mt-4">247</p>
+            </div>
+            <button class="expand-btn">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
+          <div class="mt-4 flex items-center gap-2">
+            <span class="chip chip-up">↑ 12.3%</span>
+            <span class="text-xs text-stone-500">vs förra veckan (220)</span>
+          </div>
+
+          <svg class="spark mt-5" width="100%" height="64" viewBox="0 0 320 64" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="sg1" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#F24E1E" stop-opacity="0.4"/>
+                <stop offset="1" stop-color="#F24E1E" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="fill" d="M0,50 L40,48 L80,42 L120,46 L160,38 L200,32 L240,30 L280,22 L320,18 L320,64 L0,64 Z" fill="url(#sg1)"/>
+            <path class="line" d="M0,50 L40,48 L80,42 L120,46 L160,38 L200,32 L240,30 L280,22 L320,18" stroke="#FF7262" stroke-width="2"/>
+            <circle cx="320" cy="18" r="3" fill="#FF7262"/>
+          </svg>
+
+          <div class="mt-4 pt-4 border-t border-dashed border-stone-700/40">
+            <p class="text-xs text-stone-400">
+              <strong class="text-stone-200">Android</strong> +47% w/w driver uppgången.
+              iOS stabilt (+1%).
+            </p>
+            <div class="flex gap-4 mt-3 text-xs">
+              <div>
+                <p class="label-xs">iOS</p>
+                <p class="mono text-base mt-1">126 <span class="text-stone-500 text-xs">(+1%)</span></p>
+              </div>
+              <div>
+                <p class="label-xs">Android</p>
+                <p class="mono text-base mt-1">121 <span class="text-emerald-400 text-xs">(+47%)</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 2: Activation -->
+        <div class="card card-hero p-6">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="label-xs">Activation · valt program</p>
+              <p class="num-xl mt-4">68<span class="text-2xl text-stone-500">%</span></p>
+            </div>
+            <button class="expand-btn">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+
+          <div class="mt-4 flex items-center gap-2">
+            <span class="chip chip-up">↑ 4.6 pp</span>
+            <span class="text-xs text-stone-500">vs förra veckan (63.4%)</span>
+          </div>
+
+          <svg class="spark mt-5" width="100%" height="64" viewBox="0 0 320 64" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="sg2" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#FF7262" stop-opacity="0.35"/>
+                <stop offset="1" stop-color="#FF7262" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="fill" d="M0,40 L40,38 L80,42 L120,36 L160,28 L200,30 L240,24 L280,20 L320,18 L320,64 L0,64 Z" fill="url(#sg2)"/>
+            <path class="line" d="M0,40 L40,38 L80,42 L120,36 L160,28 L200,30 L240,24 L280,20 L320,18" stroke="#FF7262" stroke-width="2"/>
+            <circle cx="320" cy="18" r="3" fill="#FF7262"/>
+          </svg>
+
+          <p class="text-xs text-stone-400 mt-4">
+            168 av 247 signups valde första program. Nästa steg
+            <span class="text-[#fb7185]">(startat pass)</span> är veckans flaskhals — se funnel.
+          </p>
+        </div>
+
+        <!-- KPI 3: Trial → Paid (low conf) -->
+        <div class="card card-hero p-6" style="border-color: rgba(251,191,36,0.18);">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="label-xs">Trial → paid · veckans kohort</p>
+              <p class="num-xl mt-4">4.2<span class="text-2xl text-stone-500">%</span></p>
+            </div>
+            <button class="expand-btn">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+
+          <div class="mt-4 flex items-center gap-2">
+            <span class="chip chip-down">↓ 0.8 pp</span>
+            <span class="chip chip-warn">N=23 låg konf</span>
+          </div>
+
+          <div class="mt-5 flex items-start gap-3 insight">
+            <svg width="16" height="16" fill="none" stroke="#fbbf24" stroke-width="2" viewBox="0 0 24 24" class="mt-0.5 shrink-0"><path d="M12 9v2m0 4h.01M12 3l9 16H3l9-16z"/></svg>
+            <p class="text-xs text-stone-300">
+              <strong class="text-amber-300">Tunna data</strong> — vid n=23 är slumpvariation ±2.4 pp.
+              Använd 30d-snittet (<strong class="text-stone-200">4.8%, n=89</strong>) för beslut.
+            </p>
+          </div>
+
+          <div class="mt-4 grid grid-cols-2 gap-3 text-xs pt-4 border-t border-dashed border-stone-700/40">
+            <div>
+              <p class="label-xs">iOS</p>
+              <p class="mono text-base mt-1">5.1% <span class="text-stone-500 text-[10px]">n=14</span></p>
+            </div>
+            <div>
+              <p class="label-xs">Android</p>
+              <p class="mono text-base mt-1">3.4% <span class="text-stone-500 text-[10px]">n=9</span></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Second row KPIs -->
+      <div class="grid grid-cols-4 gap-4 mt-4">
+
+        <div class="card p-5">
+          <div class="flex items-baseline justify-between">
+            <p class="label-xs">E-postverify</p>
+            <span class="chip chip-flat">±0.4 pp</span>
+          </div>
+          <p class="num-lg mt-3">91.1<span class="text-base text-stone-500">%</span></p>
+          <svg class="spark mt-2" width="100%" height="24" viewBox="0 0 160 24" preserveAspectRatio="none">
+            <path class="line" d="M0,12 L20,11 L40,13 L60,12 L80,11 L100,12 L120,11 L140,12 L160,11" stroke="#a8a29e" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-baseline justify-between">
+            <p class="label-xs">Paywall views</p>
+            <span class="chip chip-up">↑ 9%</span>
+          </div>
+          <p class="num-lg mt-3">412</p>
+          <svg class="spark mt-2" width="100%" height="24" viewBox="0 0 160 24" preserveAspectRatio="none">
+            <path class="line" d="M0,16 L20,14 L40,15 L60,12 L80,10 L100,8 L120,7 L140,6 L160,5" stroke="#FF7262" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-baseline justify-between">
+            <p class="label-xs">Paywall CR</p>
+            <span class="chip chip-down">↓ 0.9 pp</span>
+          </div>
+          <p class="num-lg mt-3">5.6<span class="text-base text-stone-500">%</span></p>
+          <svg class="spark mt-2" width="100%" height="24" viewBox="0 0 160 24" preserveAspectRatio="none">
+            <path class="line" d="M0,8 L20,9 L40,11 L60,10 L80,12 L100,11 L120,12 L140,13 L160,14" stroke="#fb7185" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-baseline justify-between">
+            <p class="label-xs">Retention D30</p>
+            <span class="chip chip-flat">±0.4 pp</span>
+          </div>
+          <p class="num-lg mt-3">32.0<span class="text-base text-stone-500">%</span></p>
+          <svg class="spark mt-2" width="100%" height="24" viewBox="0 0 160 24" preserveAspectRatio="none">
+            <path class="line" d="M0,11 L20,12 L40,11 L60,13 L80,12 L100,12 L120,11 L140,12 L160,11" stroke="#a8a29e" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FUNNEL with P2-style drop-zones between every step -->
+    <section class="px-10 pt-8">
+      <div class="card p-6">
+        <div class="flex items-end justify-between mb-6">
+          <div>
+            <p class="label-xs">Conversion funnel · vecka 21</p>
+            <h3 class="display text-2xl font-light mt-2 tracking-tight">Från signup till betalande, <em class="hero-italic" style="font-style:italic;">steg för steg</em>.</h3>
+          </div>
+          <div class="text-right">
+            <p class="num-lg text-[#FF7262]">9.3<span class="text-base text-stone-500">%</span></p>
+            <p class="text-xs text-stone-500 mt-1">end-to-end konvertering</p>
+          </div>
+        </div>
+
+        <!-- Each step + its drop-zone underneath (except last) -->
+        <div>
+
+          <!-- Signup -->
+          <div class="funnel-row">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="w-32 text-stone-300">Signup</span>
+              <div class="flex-1 h-8 rounded-md bg-stone-800/40 overflow-hidden relative">
+                <div class="funnel-bar h-full rounded-md flex items-center justify-end pr-3" style="width: 100%">
+                  <span class="mono text-xs text-white">247</span>
+                </div>
+              </div>
+              <span class="mono text-sm text-stone-300 w-14 text-right">100%</span>
+            </div>
+          </div>
+          <div class="dropzone">
+            <span>↓ drop −22 users · verifierade e-post</span>
+            <span class="text-[#FF7262]">−8.9%</span>
+          </div>
+
+          <!-- Verified -->
+          <div class="funnel-row">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="w-32 text-stone-300">E-post verify</span>
+              <div class="flex-1 h-8 rounded-md bg-stone-800/40 overflow-hidden relative">
+                <div class="funnel-bar h-full rounded-md flex items-center justify-end pr-3" style="width: 91.1%">
+                  <span class="mono text-xs text-white">225</span>
+                </div>
+              </div>
+              <span class="mono text-sm text-stone-300 w-14 text-right">91.1%</span>
+            </div>
+          </div>
+          <div class="dropzone">
+            <span>↓ drop −57 users · valde inget program</span>
+            <span class="text-[#FF7262]">−25.3%</span>
+          </div>
+
+          <!-- First program -->
+          <div class="funnel-row">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="w-32 text-stone-300">Valt program</span>
+              <div class="flex-1 h-8 rounded-md bg-stone-800/40 overflow-hidden relative">
+                <div class="funnel-bar-fade h-full rounded-md flex items-center justify-end pr-3" style="width: 68%">
+                  <span class="mono text-xs text-white">168</span>
+                </div>
+              </div>
+              <span class="mono text-sm text-stone-300 w-14 text-right">68.0%</span>
+            </div>
+          </div>
+          <!-- CRITICAL drop-zone -->
+          <div class="dropzone dropzone-critical">
+            <span>⚠ STÖRSTA TAPPET · drop −79 users · startade aldrig pass</span>
+            <span>−47.0%</span>
+          </div>
+
+          <!-- First workout started -->
+          <div class="funnel-row">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="w-32 text-stone-300">Startat pass</span>
+              <div class="flex-1 h-8 rounded-md bg-stone-800/40 overflow-hidden relative">
+                <div class="funnel-bar-fade h-full rounded-md flex items-center justify-end pr-3" style="width: 36%">
+                  <span class="mono text-xs text-white">89</span>
+                </div>
+              </div>
+              <span class="mono text-sm text-stone-300 w-14 text-right">36.0%</span>
+            </div>
+          </div>
+          <div class="dropzone">
+            <span>↓ drop −37 users · slutförde inte passet</span>
+            <span class="text-[#FF7262]">−41.6%</span>
+          </div>
+
+          <!-- First workout completed -->
+          <div class="funnel-row">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="w-32 text-stone-300">Slutfört pass</span>
+              <div class="flex-1 h-8 rounded-md bg-stone-800/40 overflow-hidden relative">
+                <div class="funnel-bar-fade h-full rounded-md flex items-center justify-end pr-3" style="width: 21.1%">
+                  <span class="mono text-xs text-white">52</span>
+                </div>
+              </div>
+              <span class="mono text-sm text-stone-300 w-14 text-right">21.1%</span>
+            </div>
+          </div>
+          <div class="dropzone" style="background: repeating-linear-gradient(135deg, rgba(52,211,153,0.06), rgba(52,211,153,0.06) 4px, transparent 4px, transparent 8px); border-color: rgba(52,211,153,0.18); color:#34d399;">
+            <span>✓ STÄRKT KONVERTERING · drop −11 users · startade trial</span>
+            <span>−21.2%</span>
+          </div>
+
+          <!-- Trial -->
+          <div class="funnel-row">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="w-32 text-stone-300">Trial</span>
+              <div class="flex-1 h-8 rounded-md bg-stone-800/40 overflow-hidden relative">
+                <div class="funnel-bar-fade h-full rounded-md flex items-center justify-end pr-3" style="width: 16.6%">
+                  <span class="mono text-xs text-white">41</span>
+                </div>
+              </div>
+              <span class="mono text-sm text-stone-300 w-14 text-right">16.6%</span>
+            </div>
+          </div>
+          <div class="dropzone" style="background: repeating-linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.08) 4px, transparent 4px, transparent 8px); border-color: rgba(251,191,36,0.25); color:#fbbf24;">
+            <span>⚠ LÅG KONFIDENS · drop −18 users · konverterade inte (n=23)</span>
+            <span>−43.9%</span>
+          </div>
+
+          <!-- Paid -->
+          <div class="funnel-row">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="w-32 text-stone-100 font-medium">Betalande</span>
+              <div class="flex-1 h-8 rounded-md bg-stone-800/40 overflow-hidden relative">
+                <div class="funnel-bar-end h-full rounded-md flex items-center justify-end pr-3" style="width: 9.3%">
+                  <span class="mono text-xs text-stone-900 font-semibold">23</span>
+                </div>
+              </div>
+              <span class="mono text-sm text-stone-100 w-14 text-right font-medium">9.3%</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Insight under funnel -->
+        <div class="insight mt-6 flex items-start gap-3">
+          <svg width="14" height="14" fill="none" stroke="#FF7262" stroke-width="2" viewBox="0 0 24 24" class="mt-0.5 shrink-0">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/>
+          </svg>
+          <p class="text-xs text-stone-300 leading-relaxed">
+            <strong class="text-stone-100">Var tappar vi:</strong>
+            Steget <span class="text-[#fb7185]">"Valt program → Startat pass"</span> tappar 47%, jämfört med tidigare snitt 36–40%.
+            Stark konvertering däremot från <span class="text-emerald-400">"Slutfört pass → Trial"</span> (79%) — value-prop landar när användaren kommit hela vägen genom första session.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom row: Cohort heatmap + side stats -->
+    <section class="px-10 pt-6 pb-12 grid grid-cols-12 gap-4">
+
+      <!-- Cohort retention heatmap -->
+      <div class="card p-6 col-span-7">
+        <div class="flex items-end justify-between mb-5">
+          <div>
+            <p class="label-xs">Cohort retention</p>
+            <h3 class="display text-2xl font-light mt-2 tracking-tight">% aktiva efter signup</h3>
+          </div>
+          <div class="flex items-center gap-1 text-[10px] mono text-stone-500">
+            <span>0%</span>
+            <span class="w-4 h-2 rounded-sm" style="background: rgba(242,78,30,0.1)"></span>
+            <span class="w-4 h-2 rounded-sm" style="background: rgba(242,78,30,0.3)"></span>
+            <span class="w-4 h-2 rounded-sm" style="background: rgba(242,78,30,0.55)"></span>
+            <span class="w-4 h-2 rounded-sm" style="background: rgba(242,78,30,0.8)"></span>
+            <span class="w-4 h-2 rounded-sm" style="background: rgba(242,78,30,1)"></span>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-[68px_repeat(6,1fr)] gap-1.5">
+          <div class="text-[10px] text-stone-500 mono uppercase tracking-wider text-right pr-2 self-center">kohort ↓</div>
+          <div class="text-[10px] text-stone-500 mono text-center">D1</div>
+          <div class="text-[10px] text-stone-500 mono text-center">D3</div>
+          <div class="text-[10px] text-stone-500 mono text-center">D7</div>
+          <div class="text-[10px] text-stone-500 mono text-center">D14</div>
+          <div class="text-[10px] text-stone-500 mono text-center">D30</div>
+          <div class="text-[10px] text-stone-500 mono text-center">D60</div>
+
+          <div class="text-[11px] text-stone-400 text-right pr-2 self-center">v.14</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.95)">87%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.75)">68%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.55)">54%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.42)">43%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.30)">33%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.22)">27%</div>
+
+          <div class="text-[11px] text-stone-400 text-right pr-2 self-center">v.15</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.92)">85%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.72)">66%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.50)">51%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.38)">40%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.27)">30%</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+
+          <div class="text-[11px] text-stone-400 text-right pr-2 self-center">v.16</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.95)">88%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.78)">71%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.56)">55%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.42)">44%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.32)">35%</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+
+          <div class="text-[11px] text-stone-400 text-right pr-2 self-center">v.17</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.94)">86%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.74)">67%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.54)">53%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.39)">42%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.29)">32%</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+
+          <div class="text-[11px] text-stone-400 text-right pr-2 self-center">v.18</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.96)">89%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.80)">73%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.58)">56%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.44)">45%</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+
+          <div class="text-[11px] text-stone-400 text-right pr-2 self-center">v.19</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.93)">87%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.76)">69%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.52)">52%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.40)">41%</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+
+          <div class="text-[11px] text-stone-400 text-right pr-2 self-center">v.20</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.91)">85%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.74)">68%</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.55)">53%</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">—</div>
+
+          <div class="text-[11px] text-stone-200 font-medium text-right pr-2 self-center">v.21</div>
+          <div class="hm-cell text-stone-100" style="background: rgba(242,78,30,0.95); outline: 1px solid rgba(255,114,98,0.6); outline-offset: -1px;">88%</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">…</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">…</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">…</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">…</div>
+          <div class="hm-cell text-stone-400" style="background: rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.1);">…</div>
+        </div>
+
+        <p class="text-xs text-stone-500 mt-5">
+          Tomma celler = kohorten har inte hunnit till mätpunkten än. Klubbkods-kohorter har <strong class="text-stone-300">+8 pp på D30</strong> jämfört med organisk (n=89 vs n=158).
+        </p>
+      </div>
+
+      <!-- Side stats -->
+      <div class="col-span-5 space-y-4">
+
+        <div class="card p-5">
+          <p class="label-xs">Tid-till-värde · medianer</p>
+          <div class="grid grid-cols-3 gap-3 mt-4">
+            <div>
+              <p class="num-lg">2.4<span class="text-base text-stone-500">d</span></p>
+              <p class="text-[11px] text-stone-500 mt-2 leading-tight">signup<br/>→ 1:a pass slutfört</p>
+            </div>
+            <div>
+              <p class="num-lg">11.8<span class="text-base text-stone-500">d</span></p>
+              <p class="text-[11px] text-stone-500 mt-2 leading-tight">signup<br/>→ betalande</p>
+            </div>
+            <div>
+              <p class="num-lg">3</p>
+              <p class="text-[11px] text-stone-500 mt-2 leading-tight">paywall-vyer<br/>innan köp (median)</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <p class="label-xs">Paywall · händelser</p>
+            <span class="dot" style="background:#34d399"></span>
+          </div>
+          <dl class="text-sm divide-y divide-stone-800/60">
+            <div class="flex justify-between py-2"><dt class="text-stone-400">shown</dt><dd class="mono">412</dd></div>
+            <div class="flex justify-between py-2"><dt class="text-stone-400">dismissed</dt><dd class="mono">301 <span class="text-stone-500 text-xs">73%</span></dd></div>
+            <div class="flex justify-between py-2"><dt class="text-stone-400">purchase_initiated</dt><dd class="mono">34</dd></div>
+            <div class="flex justify-between py-2"><dt class="text-stone-400">purchase_completed</dt><dd class="mono text-[#FF7262]">23 · 5.6%</dd></div>
+          </dl>
+        </div>
+
+        <div class="card p-5">
+          <p class="label-xs">Club-code · D30 retention</p>
+          <div class="mt-4 flex items-end gap-2">
+            <div class="flex-1">
+              <p class="text-[11px] text-stone-500">Club code</p>
+              <p class="mono text-xl">38.4%</p>
+              <div class="h-1.5 mt-2 rounded-sm bg-stone-800"><div class="h-full rounded-sm" style="width:96%; background:#F24E1E"></div></div>
+            </div>
+            <div class="flex-1">
+              <p class="text-[11px] text-stone-500">Organic</p>
+              <p class="mono text-xl">30.1%</p>
+              <div class="h-1.5 mt-2 rounded-sm bg-stone-800"><div class="h-full rounded-sm" style="width:75%; background:#a8a29e"></div></div>
+            </div>
+            <span class="chip chip-up mb-1">↑ 8.3 pp</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <footer class="border-t border-stone-800/40 px-10 py-6 flex justify-between text-xs text-stone-500">
+      <span>Recommended Hybrid · P3 base + P1 gravitas-header & pull-quote + P2 drop-zones · mock data</span>
+      <span class="mono">Last refresh: 2026-05-26 06:14 UTC</span>
+    </footer>
+
+  </main>
+</div>
+</body>
+</html>
