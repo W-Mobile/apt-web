@@ -11,6 +11,8 @@ import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 import { extractVideoFrame } from '../utils/extractVideoFrame';
 import { uploadData } from 'aws-amplify/storage';
+import { PostContentEditor } from './PostContentEditor';
+import { extractPlainText } from './postContent';
 
 interface MediaSlot {
   id?: string;
@@ -123,6 +125,10 @@ export function PostForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (extractPlainText(content).trim() === '') {
+      window.alert('Innehållet får inte vara tomt.');
+      return;
+    }
     setSaving(true);
     try {
       const now = new Date().toISOString();
@@ -189,15 +195,8 @@ export function PostForm() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Content */}
         <div>
-          <label htmlFor="content" className="block text-base font-medium text-stone-200 mb-1.5">Innehåll</label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-            rows={10}
-            className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors resize-y"
-          />
+          <label className="block text-base font-medium text-stone-200 mb-1.5">Innehåll</label>
+          <PostContentEditor value={content} onChange={setContent} />
         </div>
 
         {/* Publish toggle */}
