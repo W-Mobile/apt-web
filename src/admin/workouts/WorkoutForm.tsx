@@ -2,6 +2,22 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Undo2 } from 'lucide-react';
 import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  DragStartEvent,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+import {
   getWorkout, createWorkout, updateWorkout, deleteWorkout,
   getWorkoutExercises, createWorkoutExercise, deleteWorkoutExercise,
   WorkoutExercise,
@@ -11,6 +27,8 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SearchableSelect } from '../components/SearchableSelect';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
+import { SortableExerciseRow, ExerciseRowDragOverlay } from './SortableExerciseRow';
+import { reorderExercises } from './reorderExercises';
 
 interface ExerciseOption {
   id: string;
@@ -19,6 +37,7 @@ interface ExerciseOption {
 }
 
 interface WorkoutExerciseRow {
+  clientId: string;
   id?: string;
   exerciseID: string;
   exerciseName: string;
@@ -42,9 +61,17 @@ export function WorkoutForm() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
-  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', exercises: [] } : null);
-  const trackableExercises = exercises.map(({ exerciseName, ...rest }) => rest);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(
+    isNew ? { name: '', description: '', exercises: [] } : null
+  );
+  const trackableExercises = exercises.map(({ exerciseName, clientId, ...rest }) => rest);
   const isDirty = useFormDirtyTracking(initialValues, { name, description, exercises: trackableExercises });
 
   useEffect(() => {
@@ -65,7 +92,8 @@ export function WorkoutForm() {
           setName(workout.name);
           setDescription(workout.description);
         }
-        const loadedExercises = wExercises.map((we) => ({
+        const loadedExercises: WorkoutExerciseRow[] = wExercises.map((we) => ({
+          clientId: crypto.randomUUID(),
           id: we.id,
           exerciseID: we.exerciseID,
           exerciseName: '',
@@ -78,7 +106,7 @@ export function WorkoutForm() {
         setInitialValues({
           name: workout?.name ?? '',
           description: workout?.description ?? '',
-          exercises: loadedExercises.map(({ exerciseName, ...rest }) => rest),
+          exercises: loadedExercises.map(({ exerciseName, clientId, ...rest }) => rest),
         });
         setLoading(false);
       });
@@ -90,26 +118,49 @@ export function WorkoutForm() {
     if (!ex) return;
     setExercises((prev) => [
       ...prev,
-      { exerciseID, exerciseName: ex.name, sortOrder: prev.length, sets: '3', reps: '10', superset: '' },
+      {
+        clientId: crypto.randomUUID(),
+        exerciseID,
+        exerciseName: ex.name,
+        sortOrder: prev.length,
+        sets: '3',
+        reps: '10',
+        superset: '',
+      },
     ]);
   }
 
-  function removeExercise(index: number) {
+  function removeExercise(clientId: string) {
     setExercises((prev) =>
-      prev.map((row, i) => (i === index ? { ...row, pendingDelete: true } : row))
+      prev.map((row) => (row.clientId === clientId ? { ...row, pendingDelete: true } : row))
     );
   }
 
-  function undoRemoveExercise(index: number) {
+  function undoRemoveExercise(clientId: string) {
     setExercises((prev) =>
-      prev.map((row, i) => (i === index ? { ...row, pendingDelete: false } : row))
+      prev.map((row) => (row.clientId === clientId ? { ...row, pendingDelete: false } : row))
     );
   }
 
-  function updateExerciseRow(index: number, field: keyof WorkoutExerciseRow, value: string) {
+  function updateExerciseRow(clientId: string, field: 'sets' | 'reps' | 'superset', value: string) {
     setExercises((prev) =>
-      prev.map((row, i) => (i === index ? { ...row, [field]: value } : row))
+      prev.map((row) => (row.clientId === clientId ? { ...row, [field]: value } : row))
     );
+  }
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveDragId(event.active.id as string);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveDragId(null);
+    const { active, over } = event;
+    if (!over) return;
+    setExercises((prev) => reorderExercises(prev, active.id as string, over.id as string));
+  }
+
+  function handleDragCancel() {
+    setActiveDragId(null);
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -155,6 +206,13 @@ export function WorkoutForm() {
 
   if (loading) return <p className="text-stone-400">Laddar...</p>;
 
+  const activeExerciseIds = exercises.filter((e) => !e.pendingDelete).map((e) => e.clientId);
+  const dragRow = activeDragId ? exercises.find((e) => e.clientId === activeDragId) : null;
+  const dragRowIndex = dragRow ? activeExerciseIds.indexOf(dragRow.clientId) + 1 : 0;
+  const dragRowName = dragRow
+    ? dragRow.exerciseName || availableExercises.find((a) => a.id === dragRow.exerciseID)?.name || dragRow.exerciseID
+    : '';
+
   return (
     <div className="max-w-2xl">
       <h2 className="text-xl font-bold mb-4">{isNew ? 'Ny workout' : 'Redigera workout'}</h2>
@@ -178,6 +236,7 @@ export function WorkoutForm() {
           {exercises.length === 0 && <p className="text-stone-500 text-sm">Inga exercises tillagda ännu.</p>}
           {exercises.length > 0 && (
             <div className="flex items-center gap-2 px-2.5 mb-1">
+              <span className="w-7 flex-shrink-0" aria-hidden="true"></span>
               <span className="text-xs text-stone-500 flex-1"></span>
               <span className="w-16 text-xs text-stone-500 text-center">Sets</span>
               <span className="w-16 text-xs text-stone-500 text-center">Reps</span>
@@ -185,37 +244,69 @@ export function WorkoutForm() {
               <span className="text-sm opacity-0">&#x2715;</span>
             </div>
           )}
-          <div className="space-y-2">
-            {exercises.map((ex, i) => {
-              const exName = ex.exerciseName || availableExercises.find((a) => a.id === ex.exerciseID)?.name || ex.exerciseID;
-              if (ex.pendingDelete) {
-                return (
-                  <div key={i} className="flex items-center justify-between bg-stone-800/50 border border-dashed border-amber-600/40 p-2.5 rounded-xl animate-fade-in">
-                    <span className="text-sm text-amber-500">Borttagen — sparas vid nästa spara</span>
-                    <button type="button" onClick={() => undoRemoveExercise(i)}
-                      className="flex items-center gap-1.5 text-[#F24E1E] font-medium text-sm hover:text-[#d93d0f] transition-colors">
-                      <Undo2 className="w-3.5 h-3.5" />
-                      Ångra
-                    </button>
-                  </div>
-                );
-              }
-              const activeIndex = exercises.slice(0, i).filter((e) => !e.pendingDelete).length + 1;
-              return (
-                <div key={i} className="flex items-center gap-2 bg-stone-800 p-2.5 rounded-xl">
-                  <span className="text-sm text-white flex-1">{activeIndex}. {exName}</span>
-                  <input value={ex.sets} onChange={(e) => updateExerciseRow(i, 'sets', e.target.value)}
-                    placeholder="Sets" className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm text-center rounded-lg border border-stone-600" />
-                  <input value={ex.reps} onChange={(e) => updateExerciseRow(i, 'reps', e.target.value)}
-                    placeholder="Reps" className="w-16 px-2 py-1.5 bg-stone-700 text-white text-sm text-center rounded-lg border border-stone-600" />
-                  <input value={ex.superset} onChange={(e) => updateExerciseRow(i, 'superset', e.target.value)}
-                    placeholder="Superset" className="w-20 px-2 py-1.5 bg-stone-700 text-white text-sm text-center rounded-lg border border-stone-600" />
-                  <button type="button" onClick={() => removeExercise(i)}
-                    className="text-red-400 text-sm hover:text-red-300 transition-colors">&#x2715;</button>
-                </div>
-              );
-            })}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
+          >
+            <SortableContext items={activeExerciseIds} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {exercises.map((ex, i) => {
+                  if (ex.pendingDelete) {
+                    return (
+                      <div
+                        key={ex.clientId}
+                        className="flex items-center justify-between bg-stone-800/50 border border-dashed border-amber-600/40 p-2.5 rounded-xl animate-fade-in"
+                      >
+                        <span className="text-sm text-amber-500">Borttagen — sparas vid nästa spara</span>
+                        <button
+                          type="button"
+                          onClick={() => undoRemoveExercise(ex.clientId)}
+                          className="flex items-center gap-1.5 text-[#F24E1E] font-medium text-sm hover:text-[#d93d0f] transition-colors"
+                        >
+                          <Undo2 className="w-3.5 h-3.5" />
+                          Ångra
+                        </button>
+                      </div>
+                    );
+                  }
+                  const activeIndex = exercises.slice(0, i).filter((e) => !e.pendingDelete).length + 1;
+                  const exName = ex.exerciseName || availableExercises.find((a) => a.id === ex.exerciseID)?.name || ex.exerciseID;
+                  return (
+                    <SortableExerciseRow
+                      key={ex.clientId}
+                      row={{
+                        clientId: ex.clientId,
+                        exerciseName: exName,
+                        sets: ex.sets,
+                        reps: ex.reps,
+                        superset: ex.superset,
+                      }}
+                      activeIndex={activeIndex}
+                      onUpdate={(field, value) => updateExerciseRow(ex.clientId, field, value)}
+                      onRemove={() => removeExercise(ex.clientId)}
+                    />
+                  );
+                })}
+              </div>
+            </SortableContext>
+            <DragOverlay>
+              {dragRow ? (
+                <ExerciseRowDragOverlay
+                  row={{
+                    clientId: dragRow.clientId,
+                    exerciseName: dragRowName,
+                    sets: dragRow.sets,
+                    reps: dragRow.reps,
+                    superset: dragRow.superset,
+                  }}
+                  activeIndex={dragRowIndex}
+                />
+              ) : null}
+            </DragOverlay>
+          </DndContext>
 
           <div className="mt-3">
             <SearchableSelect
