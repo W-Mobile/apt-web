@@ -14,7 +14,6 @@ import {
 } from '@dnd-kit/core';
 import {
   SortableContext,
-  arrayMove,
   verticalListSortingStrategy,
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
@@ -29,6 +28,7 @@ import { SearchableSelect } from '../components/SearchableSelect';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 import { SortableExerciseRow, ExerciseRowDragOverlay } from './SortableExerciseRow';
+import { reorderExercises } from './reorderExercises';
 
 interface ExerciseOption {
   id: string;
@@ -155,20 +155,8 @@ export function WorkoutForm() {
   function handleDragEnd(event: DragEndEvent) {
     setActiveDragId(null);
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    setExercises((prev) => {
-      const activeRows = prev.filter((r) => !r.pendingDelete);
-      const activeIds = activeRows.map((r) => r.clientId);
-      const oldIdx = activeIds.indexOf(active.id as string);
-      const newIdx = activeIds.indexOf(over.id as string);
-      if (oldIdx < 0 || newIdx < 0) return prev;
-
-      const reorderedActiveIds = arrayMove(activeIds, oldIdx, newIdx);
-      const byId = new Map(activeRows.map((r) => [r.clientId, r]));
-      const queue = reorderedActiveIds.map((cid) => byId.get(cid)!);
-      return prev.map((r) => (r.pendingDelete ? r : queue.shift()!));
-    });
+    if (!over) return;
+    setExercises((prev) => reorderExercises(prev, active.id as string, over.id as string));
   }
 
   function handleDragCancel() {
