@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { listPosts, Post } from './post-api';
 import { DataTable } from '../components/DataTable';
 import { SearchInput } from '../components/SearchInput';
+import { extractPlainText } from './postContent';
 
 type StatusFilter = 'all' | 'published' | 'draft';
 
@@ -17,7 +18,9 @@ const columns = [
     key: 'content' as const,
     header: 'Innehåll',
     render: (value: string) => (
-      <div className="max-w-md line-clamp-2 text-stone-200">{value}</div>
+      <div className="max-w-md line-clamp-2 text-stone-200">
+        {extractPlainText(value, 160)}
+      </div>
     ),
   },
   {
@@ -75,7 +78,7 @@ export function PostList() {
     .filter((p) => {
       if (statusFilter === 'published' && !p.isPublished) return false;
       if (statusFilter === 'draft' && p.isPublished) return false;
-      if (search && !p.content.toLowerCase().includes(search.toLowerCase())) return false;
+      if (search && !extractPlainText(p.content).toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     })
     .sort((a, b) => {

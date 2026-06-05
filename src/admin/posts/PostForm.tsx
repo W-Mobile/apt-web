@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   getPost, createPost, updatePost, deletePost,
   getPostMedia, linkPostVideo, deletePostMedia,
+  getPostImage, linkPostImage, unlinkPostImage,
   PostMediaWithFiles,
 } from './post-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -11,6 +12,8 @@ import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 import { extractVideoFrame } from '../utils/extractVideoFrame';
 import { uploadData } from 'aws-amplify/storage';
+import { PostContentEditor } from './PostContentEditor';
+import { extractPlainText } from './postContent';
 
 interface MediaSlot {
   id?: string;
@@ -39,14 +42,23 @@ export function PostForm() {
   const [isPublished, setIsPublished] = useState(false);
   const [publishedAt, setPublishedAt] = useState<string | null>(null);
   const [mediaSlots, setMediaSlots] = useState<MediaSlot[]>([]);
+  const [imageFileKey, setImageFileKey] = useState<string>('');
+  const [imageCleared, setImageCleared] = useState(false);
+  const [existingImage, setExistingImage] = useState<{
+    linkID: string;
+    mediaID: string;
+    fileKey: string;
+  } | null>(null);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
   const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(
-    isNew ? { content: '', isPublished: false, mediaSlots: [] } : null,
+    isNew ? { content: '', isPublished: false, mediaSlots: [], imageFileKey: '', imageCleared: false } : null,
   );
-  const isDirty = useFormDirtyTracking(initialValues, { content, isPublished, mediaSlots });
+  const isDirty = useFormDirtyTracking(initialValues, {
+    content, isPublished, mediaSlots, imageFileKey, imageCleared,
+  });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -55,7 +67,7 @@ export function PostForm() {
 
   useEffect(() => {
     if (!isNew && id) {
-      Promise.all([getPost(id), getPostMedia(id)]).then(([post, media]) => {
+      Promise.all([getPost(id), getPostMedia(id), getPostImage(id)]).then(([post, media, image]) => {
         if (post) {
           setContent(post.content);
           setIsPublished(post.isPublished);
@@ -73,10 +85,19 @@ export function PostForm() {
           existingPosterMediaID: pm.posterMedia.id,
         }));
         setMediaSlots(slots);
+        if (image) {
+          setExistingImage({
+            linkID: image.link.id,
+            mediaID: image.media.id,
+            fileKey: image.media.fileKey,
+          });
+        }
         setInitialValues({
           content: post?.content ?? '',
           isPublished: post?.isPublished ?? false,
           mediaSlots: slots,
+          imageFileKey: '',
+          imageCleared: false,
         });
         setLoading(false);
       });
@@ -121,8 +142,22 @@ export function PostForm() {
     setMediaSlots((prev) => prev.map((s, i) => (i === index ? { ...s, posterFileKey: key } : s)));
   }
 
+  function handleImageUpload(key: string) {
+    if (key === '') {
+      setImageCleared(true);
+      setImageFileKey('');
+    } else {
+      setImageFileKey(key);
+      setImageCleared(false);
+    }
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (extractPlainText(content).trim() === '') {
+      window.alert('Innehållet får inte vara tomt.');
+      return;
+    }
     setSaving(true);
     try {
       const now = new Date().toISOString();
@@ -166,6 +201,13 @@ export function PostForm() {
         }
       }
 
+      // Handle image upload/clear
+      if (imageFileKey) {
+        await linkPostImage(postID, imageFileKey);
+      } else if (imageCleared && existingImage) {
+        await unlinkPostImage(existingImage.linkID, existingImage.mediaID);
+      }
+
       setDirty(false);
       navigate('/admin/posts');
     } finally {
@@ -189,14 +231,21 @@ export function PostForm() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Content */}
         <div>
-          <label htmlFor="content" className="block text-base font-medium text-stone-200 mb-1.5">Innehåll</label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-            rows={10}
-            className="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors resize-y"
+          <label className="block text-base font-medium text-stone-200 mb-1.5">Innehåll</label>
+          <PostContentEditor value={content} onChange={setContent} />
+        </div>
+
+        {/* Image */}
+        <div className="border-t border-stone-700/50 pt-6">
+          <h3 className="text-base font-medium text-stone-200 mb-4">Bild</h3>
+          <MediaUpload
+            label="Bild"
+            accept="image/jpeg,image/png,image/webp"
+            fileKeyPrefix="post_image/"
+            onUpload={handleImageUpload}
+            existingFileKey={
+              !imageFileKey && !imageCleared ? (existingImage?.fileKey ?? null) : null
+            }
           />
         </div>
 
