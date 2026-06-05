@@ -81,6 +81,11 @@ export async function deletePost(id: string): Promise<void> {
     await client.models.Media.delete({ id: pm.posterMedia.id });
     await client.models.PostMedia.delete({ id: pm.id });
   }
+  const image = await getPostImage(id);
+  if (image) {
+    await client.models.PostImage.delete({ id: image.link.id });
+    await client.models.Media.delete({ id: image.media.id });
+  }
   const { errors } = await client.models.Post.delete({ id });
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
 }
@@ -142,4 +147,40 @@ export async function deletePostMedia(id: string, videoMediaID: string, posterMe
   await client.models.Media.delete({ id: posterMediaID });
   const { errors } = await client.models.PostMedia.delete({ id });
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+}
+
+export interface PostImageLink {
+  id: string;
+  postID: string;
+  mediaID: string;
+}
+
+export async function getPostImage(
+  postID: string,
+): Promise<{ link: PostImageLink; media: Media } | null> {
+  const { data } = await client.models.PostImage.list({
+    filter: { postID: { eq: postID } },
+  });
+  const links = data as unknown as PostImageLink[];
+  if (!links.length) return null;
+  const link = links[0];
+  const { data: mediaData } = await client.models.Media.get({ id: link.mediaID });
+  if (!mediaData) return null;
+  return { link, media: mediaData as unknown as Media };
+}
+
+export async function linkPostImage(postID: string, fileKey: string): Promise<void> {
+  const existing = await getPostImage(postID);
+  const newMedia = await createMedia(fileKey, 'image');
+  const { errors } = await client.models.PostImage.create({ postID, mediaID: newMedia.id });
+  if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+  if (existing) {
+    await client.models.PostImage.delete({ id: existing.link.id });
+    await client.models.Media.delete({ id: existing.media.id });
+  }
+}
+
+export async function unlinkPostImage(linkID: string, mediaID: string): Promise<void> {
+  await client.models.PostImage.delete({ id: linkID });
+  await client.models.Media.delete({ id: mediaID });
 }

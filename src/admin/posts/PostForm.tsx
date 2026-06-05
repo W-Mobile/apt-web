@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   getPost, createPost, updatePost, deletePost,
   getPostMedia, linkPostVideo, deletePostMedia,
+  getPostImage, linkPostImage, unlinkPostImage,
   PostMediaWithFiles,
 } from './post-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -41,14 +42,23 @@ export function PostForm() {
   const [isPublished, setIsPublished] = useState(false);
   const [publishedAt, setPublishedAt] = useState<string | null>(null);
   const [mediaSlots, setMediaSlots] = useState<MediaSlot[]>([]);
+  const [imageFileKey, setImageFileKey] = useState<string>('');
+  const [imageCleared, setImageCleared] = useState(false);
+  const [existingImage, setExistingImage] = useState<{
+    linkID: string;
+    mediaID: string;
+    fileKey: string;
+  } | null>(null);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
   const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(
-    isNew ? { content: '', isPublished: false, mediaSlots: [] } : null,
+    isNew ? { content: '', isPublished: false, mediaSlots: [], imageFileKey: '', imageCleared: false } : null,
   );
-  const isDirty = useFormDirtyTracking(initialValues, { content, isPublished, mediaSlots });
+  const isDirty = useFormDirtyTracking(initialValues, {
+    content, isPublished, mediaSlots, imageFileKey, imageCleared,
+  });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -57,7 +67,7 @@ export function PostForm() {
 
   useEffect(() => {
     if (!isNew && id) {
-      Promise.all([getPost(id), getPostMedia(id)]).then(([post, media]) => {
+      Promise.all([getPost(id), getPostMedia(id), getPostImage(id)]).then(([post, media, image]) => {
         if (post) {
           setContent(post.content);
           setIsPublished(post.isPublished);
@@ -75,10 +85,19 @@ export function PostForm() {
           existingPosterMediaID: pm.posterMedia.id,
         }));
         setMediaSlots(slots);
+        if (image) {
+          setExistingImage({
+            linkID: image.link.id,
+            mediaID: image.media.id,
+            fileKey: image.media.fileKey,
+          });
+        }
         setInitialValues({
           content: post?.content ?? '',
           isPublished: post?.isPublished ?? false,
           mediaSlots: slots,
+          imageFileKey: '',
+          imageCleared: false,
         });
         setLoading(false);
       });
@@ -121,6 +140,16 @@ export function PostForm() {
 
   function updateSlotPoster(index: number, key: string) {
     setMediaSlots((prev) => prev.map((s, i) => (i === index ? { ...s, posterFileKey: key } : s)));
+  }
+
+  function handleImageUpload(key: string) {
+    if (key === '') {
+      setImageCleared(true);
+      setImageFileKey('');
+    } else {
+      setImageFileKey(key);
+      setImageCleared(false);
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -172,6 +201,13 @@ export function PostForm() {
         }
       }
 
+      // Handle image upload/clear
+      if (imageFileKey) {
+        await linkPostImage(postID, imageFileKey);
+      } else if (imageCleared && existingImage) {
+        await unlinkPostImage(existingImage.linkID, existingImage.mediaID);
+      }
+
       setDirty(false);
       navigate('/admin/posts');
     } finally {
@@ -197,6 +233,20 @@ export function PostForm() {
         <div>
           <label className="block text-base font-medium text-stone-200 mb-1.5">Innehåll</label>
           <PostContentEditor value={content} onChange={setContent} />
+        </div>
+
+        {/* Image */}
+        <div className="border-t border-stone-700/50 pt-6">
+          <h3 className="text-base font-medium text-stone-200 mb-4">Bild</h3>
+          <MediaUpload
+            label="Bild"
+            accept="image/jpeg,image/png,image/webp"
+            fileKeyPrefix="post_image/"
+            onUpload={handleImageUpload}
+            existingFileKey={
+              !imageFileKey && !imageCleared ? (existingImage?.fileKey ?? null) : null
+            }
+          />
         </div>
 
         {/* Publish toggle */}

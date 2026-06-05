@@ -55,15 +55,10 @@ describe('extractPlainText', () => {
     expect(extractPlainText('Old post body')).toBe('Old post body');
   });
 
-  it('joins headings, paragraphs and list items with spaces', () => {
+  it('joins paragraphs and list items with spaces', () => {
     const doc: TiptapDoc = {
       type: 'doc',
       content: [
-        {
-          type: 'heading',
-          attrs: { level: 1 },
-          content: [{ type: 'text', text: 'Title' }],
-        },
         {
           type: 'paragraph',
           content: [
@@ -97,7 +92,7 @@ describe('extractPlainText', () => {
       ],
     };
     expect(extractPlainText(JSON.stringify(doc))).toBe(
-      'Title Intro text Item A Item B',
+      'Intro text Item A Item B',
     );
   });
 

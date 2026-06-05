@@ -25,17 +25,6 @@ export function PostContentRenderer({ value, className }: PostContentRendererPro
 
 function RenderNode({ node }: { node: TiptapNode }) {
   switch (node.type) {
-    case 'heading': {
-      const level = Number((node.attrs as { level?: number } | undefined)?.level ?? 1);
-      const children = renderInline(node.content ?? []);
-      if (level === 1) {
-        return <h1 className="text-2xl font-bold mt-4 mb-2">{children}</h1>;
-      }
-      if (level === 2) {
-        return <h2 className="text-xl font-bold mt-3 mb-2">{children}</h2>;
-      }
-      return <h3 className="text-lg font-semibold mt-3 mb-1.5">{children}</h3>;
-    }
     case 'paragraph': {
       const children = renderInline(node.content ?? []);
       return <p className="my-2 leading-relaxed">{children}</p>;

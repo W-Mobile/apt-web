@@ -1,20 +1,14 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import { StarterKit } from '@tiptap/starter-kit';
 import { Image } from '@tiptap/extension-image';
 import {
   Bold,
   Italic,
-  Heading1,
-  Heading2,
-  Heading3,
   List,
   ListOrdered,
   Link2,
-  Image as ImageIcon,
-  X,
 } from 'lucide-react';
-import { MediaUpload } from '../components/MediaUpload';
 import { parseContent, emptyDoc } from './postContent';
 
 interface PostContentEditorProps {
@@ -25,13 +19,12 @@ interface PostContentEditorProps {
 const ACCENT = '#F24E1E';
 
 export function PostContentEditor({ value, onChange }: PostContentEditorProps) {
-  const [imageModalOpen, setImageModalOpen] = useState(false);
   const initialDocRef = useRef(parseContent(value));
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: { levels: [1, 2, 3] },
+        heading: false,
         link: {
           openOnClick: false,
           autolink: true,
@@ -48,7 +41,7 @@ export function PostContentEditor({ value, onChange }: PostContentEditorProps) {
     editorProps: {
       attributes: {
         class:
-          'min-h-[200px] px-4 py-3 bg-stone-800 text-white rounded-b-xl border border-t-0 border-stone-700 focus:outline-none focus:border-[#F24E1E] prose prose-invert max-w-none [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-3 [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1 [&_p]:my-2 [&_a]:text-[#F24E1E] [&_a]:underline',
+          'min-h-[200px] px-4 py-3 bg-stone-800 text-white rounded-b-xl border border-t-0 border-stone-700 focus:outline-none focus:border-[#F24E1E] prose prose-invert max-w-none [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1 [&_p]:my-2 [&_a]:text-[#F24E1E] [&_a]:underline',
       },
     },
     onUpdate: ({ editor }) => {
@@ -80,12 +73,6 @@ export function PostContentEditor({ value, onChange }: PostContentEditorProps) {
     );
   }
 
-  function handleImageInsert(fileKey: string) {
-    if (!fileKey || !editor) return;
-    editor.chain().focus().setImage({ src: fileKey }).run();
-    setImageModalOpen(false);
-  }
-
   function handleAddLink() {
     if (!editor) return;
     const previous = editor.getAttributes('link').href as string | undefined;
@@ -105,18 +92,8 @@ export function PostContentEditor({ value, onChange }: PostContentEditorProps) {
 
   return (
     <div>
-      <Toolbar
-        editor={editor}
-        onImageClick={() => setImageModalOpen(true)}
-        onLinkClick={handleAddLink}
-      />
+      <Toolbar editor={editor} onLinkClick={handleAddLink} />
       <EditorContent editor={editor} />
-      {imageModalOpen && (
-        <ImagePickerModal
-          onClose={() => setImageModalOpen(false)}
-          onUploaded={handleImageInsert}
-        />
-      )}
     </div>
   );
 }
@@ -137,39 +114,16 @@ function isEmptyDoc(json: unknown): boolean {
 
 interface ToolbarProps {
   editor: Editor;
-  onImageClick: () => void;
   onLinkClick: () => void;
 }
 
-function Toolbar({ editor, onImageClick, onLinkClick }: ToolbarProps) {
+function Toolbar({ editor, onLinkClick }: ToolbarProps) {
   return (
     <div
       className="flex flex-wrap items-center gap-1 px-2 py-1.5 bg-stone-900 border border-stone-700 rounded-t-xl"
       role="toolbar"
       aria-label="Textformatering"
     >
-      <ToolbarButton
-        label="Rubrik 1"
-        active={editor.isActive('heading', { level: 1 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-      >
-        <Heading1 className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        label="Rubrik 2"
-        active={editor.isActive('heading', { level: 2 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-      >
-        <Heading2 className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        label="Rubrik 3"
-        active={editor.isActive('heading', { level: 3 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-      >
-        <Heading3 className="w-4 h-4" />
-      </ToolbarButton>
-      <Separator />
       <ToolbarButton
         label="Fet"
         active={editor.isActive('bold')}
@@ -207,9 +161,6 @@ function Toolbar({ editor, onImageClick, onLinkClick }: ToolbarProps) {
       >
         <Link2 className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton label="Bild" active={false} onClick={onImageClick}>
-        <ImageIcon className="w-4 h-4" />
-      </ToolbarButton>
     </div>
   );
 }
@@ -242,49 +193,4 @@ function ToolbarButton({ label, active, onClick, children }: ToolbarButtonProps)
 
 function Separator() {
   return <span className="w-px h-5 bg-stone-700 mx-0.5" aria-hidden="true" />;
-}
-
-interface ImagePickerModalProps {
-  onClose: () => void;
-  onUploaded: (fileKey: string) => void;
-}
-
-function ImagePickerModal({ onClose, onUploaded }: ImagePickerModalProps) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Lägg till bild"
-      onClick={onClose}
-    >
-      <div
-        className="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-md"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-white">Lägg till bild</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-md text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
-            aria-label="Stäng"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <MediaUpload
-          label="Bild"
-          accept="image/*"
-          fileKeyPrefix="post_uploads/"
-          onUpload={(key) => {
-            if (key) onUploaded(key);
-          }}
-        />
-        <p className="text-xs text-stone-500 mt-3">
-          Bilden infogas i texten så snart uppladdningen är klar.
-        </p>
-      </div>
-    </div>
-  );
 }

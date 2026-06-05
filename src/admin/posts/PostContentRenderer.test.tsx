@@ -19,69 +19,6 @@ describe('PostContentRenderer', () => {
   });
 
   describe('block nodes', () => {
-    it('renders heading level 1 as <h1>', () => {
-      renderDoc({
-        type: 'doc',
-        content: [
-          {
-            type: 'heading',
-            attrs: { level: 1 },
-            content: [{ type: 'text', text: 'Title' }],
-          },
-        ],
-      });
-      const heading = screen.getByRole('heading', { level: 1 });
-      expect(heading).toHaveTextContent('Title');
-    });
-
-    it('renders heading level 2 as <h2>', () => {
-      renderDoc({
-        type: 'doc',
-        content: [
-          {
-            type: 'heading',
-            attrs: { level: 2 },
-            content: [{ type: 'text', text: 'Subtitle' }],
-          },
-        ],
-      });
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
-        'Subtitle',
-      );
-    });
-
-    it('renders heading level 3 as <h3>', () => {
-      renderDoc({
-        type: 'doc',
-        content: [
-          {
-            type: 'heading',
-            attrs: { level: 3 },
-            content: [{ type: 'text', text: 'Section' }],
-          },
-        ],
-      });
-      expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(
-        'Section',
-      );
-    });
-
-    it('defaults unknown heading level to <h3>', () => {
-      renderDoc({
-        type: 'doc',
-        content: [
-          {
-            type: 'heading',
-            attrs: { level: 7 },
-            content: [{ type: 'text', text: 'Weird' }],
-          },
-        ],
-      });
-      expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(
-        'Weird',
-      );
-    });
-
     it('renders a paragraph as <p>', () => {
       const { container } = renderDoc(paragraphDoc('Hello'));
       const p = container.querySelector('p');
