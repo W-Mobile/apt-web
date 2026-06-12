@@ -15,6 +15,7 @@ const navItems: NavItem[] = [
   { to: '/admin/programs', label: 'Program' },
   { to: '/admin/posts', label: 'Posts' },
   { to: '/admin/feedback', label: 'Feedback', requireGroup: 'ADMINS' },
+  { to: '/admin/users', label: 'Users', requireGroup: 'ADMINS' },
 ];
 
 function Sidebar() {
