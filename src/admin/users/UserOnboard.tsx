@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Undo2 } from 'lucide-react';
+import { Undo2, Trash2 } from 'lucide-react';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 import { createSubscriber } from './user-api';
@@ -56,9 +56,12 @@ export function UserOnboard() {
   const [syncDates, setSyncDates] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const idCounter = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const selectAllRef = useRef<HTMLInputElement>(null);
 
   // Navigation guard: keep an imported-but-not-yet-created list from being lost
   // on back navigation. Dirty while any row still needs creating.
@@ -146,14 +149,35 @@ export function UserOnboard() {
     setRows((prev) => prev.map((r) => (r.clientId === clientId ? { ...r, ...patch } : r)));
   }
 
-  // Soft-delete so an accidental ✕ can be undone; pendingDelete rows are excluded
-  // from creation and counts but stay in state until the user leaves the view.
-  function removeRow(clientId: string) {
-    updateRow(clientId, { pendingDelete: true });
+  function toggleSelect(clientId: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(clientId)) next.delete(clientId);
+      else next.add(clientId);
+      return next;
+    });
   }
 
-  function undoRemoveRow(clientId: string) {
-    updateRow(clientId, { pendingDelete: false });
+  // Select-all targets the currently visible, not-yet-removed rows.
+  function toggleSelectAll(ids: string[], allSelected: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allSelected) ids.forEach((id) => next.delete(id));
+      else ids.forEach((id) => next.add(id));
+      return next;
+    });
+  }
+
+  // Soft-delete so an accidental removal can be undone; pendingDelete rows are
+  // excluded from creation and counts but stay in state until the user leaves
+  // the view. Bulk-removing clears the selection afterwards.
+  function removeSelected() {
+    setRows((prev) => prev.map((r) => (selected.has(r.clientId) ? { ...r, pendingDelete: true } : r)));
+    setSelected(new Set());
+  }
+
+  function undoRemoved() {
+    setRows((prev) => prev.map((r) => (r.pendingDelete ? { ...r, pendingDelete: false } : r)));
   }
 
   async function handleCreateAll() {
@@ -208,12 +232,30 @@ export function UserOnboard() {
     }
   }
 
+  // View-only filter: narrows what the staging table renders. Never feeds the
+  // business logic — counts, create queue and date sync all keep using `rows`.
+  const visibleRows = rows.filter((r) =>
+    r.email.toLowerCase().includes(search.trim().toLowerCase())
+  );
+  // pendingDelete rows are hidden from the table; a single consolidated banner
+  // summarises them with one undo.
+  const tableRows = visibleRows.filter((r) => !r.pendingDelete);
+
   const active = rows.filter((r) => !r.pendingDelete);
   const pendingCount = active.filter((r) => r.status !== 'success').length;
   const createdCount = active.filter((r) => r.status === 'success').length;
   const errorCount = active.filter((r) => r.status === 'error').length;
   const existsCount = active.filter((r) => r.status === 'exists').length;
   const hasPasswords = active.some((r) => r.status === 'success' && r.tempPassword);
+  const removedCount = rows.filter((r) => r.pendingDelete).length;
+
+  const selectableIds = tableRows.map((r) => r.clientId);
+  const selectedCount = selected.size;
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
+  const someSelected = selectableIds.some((id) => selected.has(id));
+  useEffect(() => {
+    if (selectAllRef.current) selectAllRef.current.indeterminate = someSelected && !allSelected;
+  }, [someSelected, allSelected]);
 
   const inputClass =
     'w-full px-3 py-2 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-[#F24E1E] focus:outline-none transition-colors [color-scheme:dark]';
@@ -228,219 +270,281 @@ export function UserOnboard() {
         </p>
       </div>
 
-      {/* Quick add + import */}
-      <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-3">
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
-          <div className="flex-1">
-            <label className="block text-sm text-stone-300 mb-1" htmlFor="quick-email">
-              E-post
-            </label>
-            <input
-              id="quick-email"
-              type="email"
-              value={quickEmail}
-              onChange={(e) => setQuickEmail(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleQuickAdd();
-              }}
-              placeholder="namn@exempel.se"
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-stone-300 mb-1" htmlFor="quick-date">
-              Slutdatum
-            </label>
-            <input
-              id="quick-date"
-              type="date"
-              value={quickDate}
-              onChange={(e) => applySharedDate(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={handleQuickAdd}
-            className="px-4 py-2 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] transition-colors"
-          >
-            Lägg till
-          </button>
+      {/* Stat strip */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-2xl border border-stone-800 bg-stone-900/60 px-4 py-3">
+          <div className="text-2xl font-bold text-white tabular-nums">{pendingCount}</div>
+          <div className="text-xs uppercase tracking-wider text-stone-500 mt-0.5">Köade</div>
         </div>
-
-        <div className="flex items-center gap-3 pt-1 border-t border-stone-800">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="px-4 py-2 text-sm text-stone-300 bg-stone-800 border border-stone-700 rounded-xl hover:bg-stone-700 transition-colors"
-          >
-            Importera CSV
-          </button>
-          <span className="text-xs text-stone-500">
-            Filen behöver bara innehålla e-postadresser. De ärver slutdatumet ovan.
-          </span>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv,.txt"
-            onChange={onFileChange}
-            className="hidden"
-            data-testid="csv-input"
-          />
+        <div className="rounded-2xl border border-stone-800 bg-stone-900/60 px-4 py-3">
+          <div className="text-2xl font-bold text-green-400 tabular-nums">{createdCount}</div>
+          <div className="text-xs uppercase tracking-wider text-stone-500 mt-0.5">Skapade</div>
         </div>
-
-        <label className="flex items-center gap-2.5 text-sm text-stone-300 cursor-pointer w-fit pt-1">
-          <input
-            type="checkbox"
-            checked={syncDates}
-            onChange={(e) => {
-              const on = e.target.checked;
-              setSyncDates(on);
-              const date = quickDate || defaultUntil;
-              if (on && date) {
-                setRows((prev) =>
-                  prev.map((r) =>
-                    r.status === 'success' || r.pendingDelete
-                      ? r
-                      : { ...r, subscriberUntil: date, status: 'idle' }
-                  )
-                );
-              }
-            }}
-            className="w-4 h-4 accent-[#F24E1E]"
-          />
-          Samma slutdatum för alla
-        </label>
+        <div className="rounded-2xl border border-stone-800 bg-stone-900/60 px-4 py-3">
+          <div className="text-2xl font-bold text-red-400 tabular-nums">{errorCount}</div>
+          <div className="text-xs uppercase tracking-wider text-stone-500 mt-0.5">Fel</div>
+        </div>
       </div>
 
       {notice && <p className="text-sm text-stone-300 bg-stone-800/60 rounded-lg px-3 py-2">{notice}</p>}
 
-      {/* Staging table */}
-      {rows.length === 0 ? (
-        <p className="text-stone-500 text-sm">Inga användare tillagda ännu.</p>
-      ) : (
-        <div className="border border-stone-800 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-stone-900 text-stone-400">
-              <tr>
-                <th className="text-left font-medium px-4 py-2.5">E-post</th>
-                <th className="text-left font-medium px-4 py-2.5 w-44">Slutdatum</th>
-                <th className="text-left font-medium px-4 py-2.5 w-56">
-                  <span
-                    className="cursor-help border-b border-dotted border-stone-600"
-                    title="— = ej skapad ännu · Skapar… = pågår · Skapad = klar (lösenord visas) · Finns redan = e-posten finns i systemet · Fel = skapandet misslyckades"
-                  >
-                    Status
-                  </span>
-                </th>
-                <th className="px-4 py-2.5 w-12" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) =>
-                row.pendingDelete ? (
-                  <tr key={row.clientId} className="border-t border-stone-800 animate-fade-in">
-                    <td colSpan={4} className="px-4 py-2.5">
-                      <div className="flex items-center justify-between bg-stone-800/50 border border-dashed border-amber-600/40 px-3 py-2 rounded-xl">
-                        <span className="text-sm text-amber-500">
-                          {row.email} borttagen — tas inte med
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => undoRemoveRow(row.clientId)}
-                          disabled={running}
-                          className="flex items-center gap-1.5 text-[#F24E1E] font-medium text-sm hover:text-[#d93d0f] transition-colors disabled:opacity-40"
-                        >
-                          <Undo2 className="w-3.5 h-3.5" />
-                          Ångra
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                <tr key={row.clientId} className="border-t border-stone-800">
-                  <td className="px-4 py-2">
-                    <input
-                      type="email"
-                      aria-label="E-post"
-                      value={row.email}
-                      onChange={(e) => updateRow(row.clientId, { email: e.target.value, status: 'idle' })}
-                      disabled={running || row.status === 'success'}
-                      className={`${inputClass} disabled:opacity-60`}
-                    />
-                  </td>
-                  <td className="px-4 py-2">
-                    <input
-                      type="date"
-                      aria-label="Slutdatum"
-                      value={row.subscriberUntil}
-                      onChange={(e) => {
-                        const date = e.target.value;
-                        if (syncDates) applySharedDate(date);
-                        else updateRow(row.clientId, { subscriberUntil: date, status: 'idle' });
-                      }}
-                      disabled={running || row.status === 'success'}
-                      className={`${inputClass} disabled:opacity-60`}
-                    />
-                  </td>
-                  <td className="px-4 py-2">
-                    <div className="flex items-center gap-2">
-                      <StatusBadge row={row} />
-                      {row.status === 'success' && row.tempPassword && (
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(row.tempPassword as string)}
-                          className="text-xs text-stone-400 hover:text-white underline decoration-dotted"
-                        >
-                          Kopiera lösenord
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-2 text-right">
-                    <button
-                      type="button"
-                      aria-label="Ta bort rad"
-                      onClick={() => removeRow(row.clientId)}
-                      disabled={running}
-                      className="text-stone-500 hover:text-red-400 transition-colors disabled:opacity-40"
-                    >
-                      ✕
-                    </button>
-                  </td>
-                </tr>
-                )
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Footer actions */}
-      {rows.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={handleCreateAll}
-            disabled={running || pendingCount === 0}
-            className="px-5 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors"
-          >
-            {running ? 'Skapar…' : `Skapa alla (${pendingCount})`}
-          </button>
-          {hasPasswords && (
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4 items-start">
+        {/* Left dock: quick add + import */}
+        <aside className="bg-stone-900 border border-stone-800 rounded-2xl p-4 space-y-4 lg:sticky lg:top-6">
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm text-stone-300 mb-1" htmlFor="quick-email">
+                E-post
+              </label>
+              <input
+                id="quick-email"
+                type="email"
+                value={quickEmail}
+                onChange={(e) => setQuickEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleQuickAdd();
+                }}
+                placeholder="namn@exempel.se"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-stone-300 mb-1" htmlFor="quick-date">
+                Slutdatum
+              </label>
+              <input
+                id="quick-date"
+                type="date"
+                value={quickDate}
+                onChange={(e) => applySharedDate(e.target.value)}
+                className={inputClass}
+              />
+            </div>
             <button
               type="button"
-              onClick={copyAllPasswords}
-              className="px-4 py-2.5 text-sm text-stone-300 hover:text-white rounded-xl transition-colors"
+              onClick={handleQuickAdd}
+              className="w-full px-4 py-2 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] transition-colors"
             >
-              Kopiera alla lösenord
+              Lägg till
             </button>
-          )}
-          <span className="text-xs text-stone-500 ml-auto">
-            {createdCount} skapade · {existsCount} fanns redan · {errorCount} fel
-          </span>
-        </div>
-      )}
+          </div>
+
+          <div className="pt-4 border-t border-stone-800 space-y-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full px-4 py-2 text-sm text-stone-300 bg-stone-800 border border-stone-700 rounded-xl hover:bg-stone-700 transition-colors"
+            >
+              Importera CSV
+            </button>
+            <p className="text-xs text-stone-500">
+              Filen behöver bara innehålla e-postadresser. De ärver slutdatumet ovan.
+            </p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.txt"
+              onChange={onFileChange}
+              className="hidden"
+              data-testid="csv-input"
+            />
+          </div>
+
+          <label className="flex items-center gap-2.5 text-sm text-stone-300 cursor-pointer w-fit pt-4 border-t border-stone-800">
+            <input
+              type="checkbox"
+              checked={syncDates}
+              onChange={(e) => {
+                const on = e.target.checked;
+                setSyncDates(on);
+                const date = quickDate || defaultUntil;
+                if (on && date) {
+                  setRows((prev) =>
+                    prev.map((r) =>
+                      r.status === 'success' || r.pendingDelete
+                        ? r
+                        : { ...r, subscriberUntil: date, status: 'idle' }
+                    )
+                  );
+                }
+              }}
+              className="w-4 h-4 accent-[#F24E1E]"
+            />
+            Samma slutdatum för alla
+          </label>
+        </aside>
+
+        {/* Right: staging panel */}
+        {rows.length === 0 ? (
+          <div className="rounded-2xl border border-stone-800 bg-stone-900/40 px-4 py-10 text-center">
+            <p className="text-stone-500 text-sm">Inga användare tillagda ännu.</p>
+          </div>
+        ) : (
+          <section className="rounded-2xl border border-stone-800 bg-stone-900/60 overflow-hidden">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-stone-800">
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Sök e-post…"
+                aria-label="Sök e-post"
+                className={`${inputClass} max-w-xs`}
+              />
+              <span className="text-xs text-stone-500 whitespace-nowrap">
+                {tableRows.length} av {active.length}
+              </span>
+            </div>
+
+            {/* Bulk-action bar */}
+            {selectedCount > 0 && (
+              <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-stone-800/80 border-b border-stone-700">
+                <span className="text-sm font-semibold text-white">{selectedCount} markerade</span>
+                <button
+                  type="button"
+                  onClick={removeSelected}
+                  disabled={running}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-300 hover:text-white hover:bg-red-600/80 border border-red-700/60 transition-colors disabled:opacity-40"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Ta bort markerade
+                </button>
+              </div>
+            )}
+
+            {/* Consolidated undo banner */}
+            {removedCount > 0 && (
+              <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-amber-950/40 border-b border-amber-800/40">
+                <span className="text-sm text-amber-500">
+                  {removedCount} {removedCount === 1 ? 'rad' : 'rader'} borttagna — tas inte med
+                </span>
+                <button
+                  type="button"
+                  onClick={undoRemoved}
+                  disabled={running}
+                  className="flex items-center gap-1.5 text-[#F24E1E] font-medium text-sm hover:text-[#d93d0f] transition-colors disabled:opacity-40"
+                >
+                  <Undo2 className="w-3.5 h-3.5" />
+                  Ångra
+                </button>
+              </div>
+            )}
+
+            {tableRows.length === 0 ? (
+              <p className="text-stone-500 text-sm px-4 py-6">Inga träffar för ”{search}”.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="bg-stone-900 text-stone-400">
+                  <tr>
+                    <th className="w-12 pl-4 py-2.5">
+                      <input
+                        ref={selectAllRef}
+                        type="checkbox"
+                        aria-label="Markera alla"
+                        checked={allSelected}
+                        onChange={() => toggleSelectAll(selectableIds, allSelected)}
+                        disabled={running}
+                        className="w-4 h-4 accent-[#F24E1E] cursor-pointer disabled:opacity-40"
+                      />
+                    </th>
+                    <th className="text-left font-medium px-4 py-2.5">E-post</th>
+                    <th className="text-left font-medium px-4 py-2.5 w-44">Slutdatum</th>
+                    <th className="text-left font-medium px-4 py-2.5 w-56">
+                      <span
+                        className="cursor-help border-b border-dotted border-stone-600"
+                        title="— = ej skapad ännu · Skapar… = pågår · Skapad = klar (lösenord visas) · Finns redan = e-posten finns i systemet · Fel = skapandet misslyckades"
+                      >
+                        Status
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableRows.map((row) => (
+                    <tr
+                      key={row.clientId}
+                      className={`border-t border-stone-800 ${selected.has(row.clientId) ? 'bg-stone-800/40' : ''}`}
+                    >
+                      <td className="pl-4 py-2">
+                        <input
+                          type="checkbox"
+                          aria-label={`Markera ${row.email}`}
+                          checked={selected.has(row.clientId)}
+                          onChange={() => toggleSelect(row.clientId)}
+                          disabled={running}
+                          className="w-4 h-4 accent-[#F24E1E] cursor-pointer disabled:opacity-40"
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="email"
+                          aria-label="E-post"
+                          value={row.email}
+                          onChange={(e) => updateRow(row.clientId, { email: e.target.value, status: 'idle' })}
+                          disabled={running || row.status === 'success'}
+                          className={`${inputClass} disabled:opacity-60`}
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="date"
+                          aria-label="Slutdatum"
+                          value={row.subscriberUntil}
+                          onChange={(e) => {
+                            const date = e.target.value;
+                            if (syncDates) applySharedDate(date);
+                            else updateRow(row.clientId, { subscriberUntil: date, status: 'idle' });
+                          }}
+                          disabled={running || row.status === 'success'}
+                          className={`${inputClass} disabled:opacity-60`}
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <StatusBadge row={row} />
+                          {row.status === 'success' && row.tempPassword && (
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(row.tempPassword as string)}
+                              className="text-xs text-stone-400 hover:text-white underline decoration-dotted"
+                            >
+                              Kopiera lösenord
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* Footer actions */}
+            <div className="flex flex-wrap items-center gap-3 px-4 py-4 border-t border-stone-800">
+              <button
+                type="button"
+                onClick={handleCreateAll}
+                disabled={running || pendingCount === 0}
+                className="px-5 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors"
+              >
+                {running ? 'Skapar…' : `Skapa alla (${pendingCount})`}
+              </button>
+              {hasPasswords && (
+                <button
+                  type="button"
+                  onClick={copyAllPasswords}
+                  className="px-4 py-2.5 text-sm text-stone-300 hover:text-white rounded-xl transition-colors"
+                >
+                  Kopiera alla lösenord
+                </button>
+              )}
+              <span className="text-xs text-stone-500 ml-auto">
+                {createdCount} skapade · {existsCount} fanns redan · {errorCount} fel
+              </span>
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 }

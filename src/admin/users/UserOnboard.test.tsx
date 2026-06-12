@@ -128,31 +128,51 @@ describe('UserOnboard', () => {
     expect(screen.getAllByDisplayValue('2026-12-31').length).toBeGreaterThanOrEqual(3);
   });
 
-  it('soft-deletes a row and shows an undo affordance', async () => {
+  it('soft-deletes a selected row and shows an undo affordance', async () => {
     const user = userEvent.setup();
     render(<UserOnboard />);
 
     await addUser(user, 'anna@x.se');
     expect(screen.getByDisplayValue('anna@x.se')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /ta bort rad/i }));
+    await user.click(screen.getByRole('checkbox', { name: /markera anna@x\.se/i }));
+    await user.click(screen.getByRole('button', { name: /ta bort markerade/i }));
 
-    // The editable email field is gone; an undo affordance takes its place.
+    // The editable email field is gone; a consolidated undo banner takes its place.
     expect(screen.queryByDisplayValue('anna@x.se')).not.toBeInTheDocument();
-    expect(screen.getByText(/borttagen — tas inte med/i)).toBeInTheDocument();
+    expect(screen.getByText(/borttagna/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /ångra/i })).toBeInTheDocument();
   });
 
-  it('restores a removed row when undo is clicked', async () => {
+  it('restores removed rows when undo is clicked', async () => {
     const user = userEvent.setup();
     render(<UserOnboard />);
 
     await addUser(user, 'anna@x.se');
-    await user.click(screen.getByRole('button', { name: /ta bort rad/i }));
+    await user.click(screen.getByRole('checkbox', { name: /markera anna@x\.se/i }));
+    await user.click(screen.getByRole('button', { name: /ta bort markerade/i }));
     await user.click(screen.getByRole('button', { name: /ångra/i }));
 
     expect(screen.getByDisplayValue('anna@x.se')).toBeInTheDocument();
-    expect(screen.queryByText(/borttagen — tas inte med/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/borttagna/i)).not.toBeInTheDocument();
+  });
+
+  it('bulk-removes all rows via select-all and updates the create count', async () => {
+    const user = userEvent.setup();
+    render(<UserOnboard />);
+
+    await addUser(user, 'anna@x.se');
+    await addUser(user, 'erik@x.se');
+    expect(screen.getByRole('button', { name: /skapa alla \(2\)/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('checkbox', { name: /markera alla/i }));
+    // The bulk bar reflects the number of selected rows.
+    expect(screen.getByText(/2 markerade/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /ta bort markerade/i }));
+
+    expect(screen.getByRole('button', { name: /skapa alla \(0\)/i })).toBeInTheDocument();
+    expect(screen.getByText(/2 rader borttagna/i)).toBeInTheDocument();
   });
 
   it('excludes pending-delete rows from the create count', async () => {
@@ -163,8 +183,63 @@ describe('UserOnboard', () => {
     await addUser(user, 'erik@x.se');
     expect(screen.getByRole('button', { name: /skapa alla \(2\)/i })).toBeInTheDocument();
 
-    await user.click(screen.getAllByRole('button', { name: /ta bort rad/i })[0]);
+    await user.click(screen.getByRole('checkbox', { name: /markera anna@x\.se/i }));
+    await user.click(screen.getByRole('button', { name: /ta bort markerade/i }));
 
     expect(screen.getByRole('button', { name: /skapa alla \(1\)/i })).toBeInTheDocument();
+  });
+
+  it('filters the visible rows by email when typing in the search box', async () => {
+    const user = userEvent.setup();
+    render(<UserOnboard />);
+
+    await addUser(user, 'anna@x.se');
+    await addUser(user, 'erik@x.se');
+
+    await user.type(screen.getByLabelText(/sök e-post/i), 'anna');
+
+    expect(screen.getByDisplayValue('anna@x.se')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('erik@x.se')).not.toBeInTheDocument();
+  });
+
+  it('shows an empty-result message for a non-matching search', async () => {
+    const user = userEvent.setup();
+    render(<UserOnboard />);
+
+    await addUser(user, 'anna@x.se');
+    await user.type(screen.getByLabelText(/sök e-post/i), 'zzz');
+
+    expect(screen.getByText(/inga träffar/i)).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('anna@x.se')).not.toBeInTheDocument();
+  });
+
+  it('restores all rows when the search is cleared', async () => {
+    const user = userEvent.setup();
+    render(<UserOnboard />);
+
+    await addUser(user, 'anna@x.se');
+    await addUser(user, 'erik@x.se');
+
+    const searchBox = screen.getByLabelText(/sök e-post/i);
+    await user.type(searchBox, 'anna');
+    expect(screen.queryByDisplayValue('erik@x.se')).not.toBeInTheDocument();
+
+    await user.clear(searchBox);
+
+    expect(screen.getByDisplayValue('anna@x.se')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('erik@x.se')).toBeInTheDocument();
+  });
+
+  it('does not change the create count when filtering (view-only)', async () => {
+    const user = userEvent.setup();
+    render(<UserOnboard />);
+
+    await addUser(user, 'anna@x.se');
+    await addUser(user, 'erik@x.se');
+    expect(screen.getByRole('button', { name: /skapa alla \(2\)/i })).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText(/sök e-post/i), 'anna');
+
+    expect(screen.getByRole('button', { name: /skapa alla \(2\)/i })).toBeInTheDocument();
   });
 });
