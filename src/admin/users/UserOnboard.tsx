@@ -81,23 +81,22 @@ export function UserOnboard() {
   }
 
   function addRows(emails: string[], date: string): { added: number; skipped: number } {
-    let added = 0;
+    // Compute against the current render's rows synchronously so the returned
+    // counts are accurate — a setRows updater runs after this function returns.
+    const existing = new Set(rows.map((r) => r.email.toLowerCase()));
+    const fresh: Row[] = [];
     let skipped = 0;
-    setRows((prev) => {
-      const existing = new Set(prev.map((r) => r.email.toLowerCase()));
-      const next = [...prev];
-      for (const email of emails) {
-        if (existing.has(email.toLowerCase())) {
-          skipped += 1;
-          continue;
-        }
-        existing.add(email.toLowerCase());
-        next.push({ clientId: nextId(), email, subscriberUntil: date, status: 'idle' });
-        added += 1;
+    for (const email of emails) {
+      const lower = email.toLowerCase();
+      if (existing.has(lower)) {
+        skipped += 1;
+        continue;
       }
-      return next;
-    });
-    return { added, skipped };
+      existing.add(lower);
+      fresh.push({ clientId: nextId(), email, subscriberUntil: date, status: 'idle' });
+    }
+    if (fresh.length) setRows((prev) => [...prev, ...fresh]);
+    return { added: fresh.length, skipped };
   }
 
   function handleQuickAdd() {
@@ -303,7 +302,7 @@ export function UserOnboard() {
                       value={row.subscriberUntil}
                       onChange={(e) => {
                         rememberDefault(e.target.value);
-                        updateRow(row.clientId, { subscriberUntil: e.target.value });
+                        updateRow(row.clientId, { subscriberUntil: e.target.value, status: 'idle' });
                       }}
                       disabled={running || row.status === 'success'}
                       className={`${inputClass} disabled:opacity-60`}
