@@ -6453,7 +6453,77 @@
           ]
         }
       },
-      "nonModels": {}
+      "nonModels": {
+        "AdminCreateSubscriberReturnType": {
+          "name": "AdminCreateSubscriberReturnType",
+          "fields": {
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "tempPassword": {
+              "name": "tempPassword",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        }
+      },
+      "mutations": {
+        "adminCreateSubscriber": {
+          "name": "adminCreateSubscriber",
+          "isArray": false,
+          "type": {
+            "nonModel": "AdminCreateSubscriberReturnType"
+          },
+          "isRequired": false,
+          "arguments": {
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "firstName": {
+              "name": "firstName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "lastName": {
+              "name": "lastName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "subscriberUntil": {
+              "name": "subscriberUntil",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true
+            }
+          }
+        }
+      }
     }
   },
   "storage": {
