@@ -3,13 +3,15 @@ import { Undo2, Trash2 } from 'lucide-react';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 import { createSubscriber } from './user-api';
-import { parseCsvEmails, isValidEmail } from './parseCsvEmails';
+import { parseSubscriberCsv, parseSubscriberXlsx, isValidEmail, type SubscriberRow } from './parseSubscriberCsv';
 
 type RowStatus = 'idle' | 'pending' | 'success' | 'exists' | 'error';
 
 interface Row {
   clientId: string;
   email: string;
+  firstName: string;
+  lastName: string;
   subscriberUntil: string; // 'YYYY-MM-DD'
   status: RowStatus;
   message?: string;
@@ -51,6 +53,8 @@ function StatusBadge({ row }: { row: Row }) {
 export function UserOnboard() {
   const [rows, setRows] = useState<Row[]>([]);
   const [quickEmail, setQuickEmail] = useState('');
+  const [quickFirstName, setQuickFirstName] = useState('');
+  const [quickLastName, setQuickLastName] = useState('');
   const [quickDate, setQuickDate] = useState('');
   const [defaultUntil, setDefaultUntil] = useState('');
   const [syncDates, setSyncDates] = useState(true);
@@ -68,7 +72,12 @@ export function UserOnboard() {
   const [initialValues] = useState<Record<string, unknown>>({ rows: [] });
   const trackableRows = rows
     .filter((r) => r.status !== 'success' && !r.pendingDelete)
-    .map((r) => ({ email: r.email, subscriberUntil: r.subscriberUntil }));
+    .map((r) => ({
+      email: r.email,
+      firstName: r.firstName,
+      lastName: r.lastName,
+      subscriberUntil: r.subscriberUntil,
+    }));
   const isDirty = useFormDirtyTracking(initialValues, { rows: trackableRows });
   const { setDirty } = useNavigationGuard();
   useEffect(() => {
@@ -95,7 +104,7 @@ export function UserOnboard() {
     }
   }
 
-  function addRows(emails: string[], date: string): { added: number; skipped: number } {
+  function addRows(entries: SubscriberRow[], date: string): { added: number; skipped: number } {
     // Compute against the current render's rows synchronously so the returned
     // counts are accurate — a setRows updater runs after this function returns.
     const existing = new Set(
@@ -103,14 +112,21 @@ export function UserOnboard() {
     );
     const fresh: Row[] = [];
     let skipped = 0;
-    for (const email of emails) {
-      const lower = email.toLowerCase();
+    for (const entry of entries) {
+      const lower = entry.email.toLowerCase();
       if (existing.has(lower)) {
         skipped += 1;
         continue;
       }
       existing.add(lower);
-      fresh.push({ clientId: nextId(), email, subscriberUntil: date, status: 'idle' });
+      fresh.push({
+        clientId: nextId(),
+        email: entry.email,
+        firstName: entry.firstName,
+        lastName: entry.lastName,
+        subscriberUntil: date,
+        status: 'idle',
+      });
     }
     if (fresh.length) setRows((prev) => [...prev, ...fresh]);
     return { added: fresh.length, skipped };
@@ -118,21 +134,35 @@ export function UserOnboard() {
 
   function handleQuickAdd() {
     const email = quickEmail.trim().toLowerCase();
+    const firstName = quickFirstName.trim();
+    const lastName = quickLastName.trim();
     if (!isValidEmail(email)) {
       setNotice('Ogiltig e-postadress.');
       return;
     }
+    if (!firstName || !lastName) {
+      setNotice('Fyll i förnamn och efternamn.');
+      return;
+    }
     const date = quickDate || defaultUntil;
-    const { skipped } = addRows([email], date);
+    const { skipped } = addRows([{ email, firstName, lastName }], date);
     setNotice(skipped ? 'E-postadressen finns redan i listan.' : null);
     setQuickEmail('');
+    setQuickFirstName('');
+    setQuickLastName('');
   }
 
   async function handleFile(file: File) {
-    const text = await file.text();
-    const { valid, invalid } = parseCsvEmails(text);
+    const isExcel = /\.xlsx?$/i.test(file.name);
+    const { valid, invalid, error } = isExcel
+      ? await parseSubscriberXlsx(await file.arrayBuffer())
+      : parseSubscriberCsv(await file.text());
+    if (error) {
+      setNotice(error);
+      return;
+    }
     const { added, skipped } = addRows(valid, defaultUntil);
-    const parts: string[] = [`${added} e-post${added === 1 ? '' : 'adresser'} importerade`];
+    const parts: string[] = [`${added} ${added === 1 ? 'rad' : 'rader'} importerade`];
     if (skipped) parts.push(`${skipped} dubbletter hoppades över`);
     if (invalid.length) parts.push(`${invalid.length} ogiltiga rader ignorerades`);
     if (!defaultUntil && added) parts.push('sätt ett slutdatum innan du skapar');
@@ -202,8 +232,17 @@ export function UserOnboard() {
           updateRow(row.clientId, { status: 'error', message: 'Slutdatum saknas' });
           continue;
         }
+        if (!row.firstName.trim() || !row.lastName.trim()) {
+          updateRow(row.clientId, { status: 'error', message: 'Namn saknas' });
+          continue;
+        }
         try {
-          const result = await createSubscriber(row.email, toEndOfDayIso(row.subscriberUntil));
+          const result = await createSubscriber(
+            row.email,
+            row.firstName.trim(),
+            row.lastName.trim(),
+            toEndOfDayIso(row.subscriberUntil)
+          );
           updateRow(row.clientId, {
             status: result.status === 'created' ? 'success' : result.status,
             message: result.message ?? undefined,
@@ -309,6 +348,38 @@ export function UserOnboard() {
               />
             </div>
             <div>
+              <label className="block text-sm text-stone-300 mb-1" htmlFor="quick-first-name">
+                Förnamn
+              </label>
+              <input
+                id="quick-first-name"
+                type="text"
+                value={quickFirstName}
+                onChange={(e) => setQuickFirstName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleQuickAdd();
+                }}
+                placeholder="Anna"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-stone-300 mb-1" htmlFor="quick-last-name">
+                Efternamn
+              </label>
+              <input
+                id="quick-last-name"
+                type="text"
+                value={quickLastName}
+                onChange={(e) => setQuickLastName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleQuickAdd();
+                }}
+                placeholder="Andersson"
+                className={inputClass}
+              />
+            </div>
+            <div>
               <label className="block text-sm text-stone-300 mb-1" htmlFor="quick-date">
                 Slutdatum
               </label>
@@ -335,15 +406,16 @@ export function UserOnboard() {
               onClick={() => fileInputRef.current?.click()}
               className="w-full px-4 py-2 text-sm text-stone-300 bg-stone-800 border border-stone-700 rounded-xl hover:bg-stone-700 transition-colors"
             >
-              Importera CSV
+              Importera CSV/Excel
             </button>
             <p className="text-xs text-stone-500">
-              Filen behöver bara innehålla e-postadresser. De ärver slutdatumet ovan.
+              CSV- eller Excel-fil (.xlsx) med kolumnerna E-post, Förnamn och Efternamn (svenska eller
+              engelska rubriker). Slutdatumet ärvs från fältet ovan.
             </p>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".csv,.txt"
+              accept=".csv,.txt,.xlsx,.xls"
               onChange={onFileChange}
               className="hidden"
               data-testid="csv-input"
@@ -448,6 +520,8 @@ export function UserOnboard() {
                       />
                     </th>
                     <th className="text-left font-medium px-4 py-2.5">E-post</th>
+                    <th className="text-left font-medium px-4 py-2.5 w-40">Förnamn</th>
+                    <th className="text-left font-medium px-4 py-2.5 w-40">Efternamn</th>
                     <th className="text-left font-medium px-4 py-2.5 w-44">Slutdatum</th>
                     <th className="text-left font-medium px-4 py-2.5 w-56">
                       <span
@@ -481,6 +555,26 @@ export function UserOnboard() {
                           aria-label="E-post"
                           value={row.email}
                           onChange={(e) => updateRow(row.clientId, { email: e.target.value, status: 'idle' })}
+                          disabled={running || row.status === 'success'}
+                          className={`${inputClass} disabled:opacity-60`}
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="text"
+                          aria-label="Förnamn"
+                          value={row.firstName}
+                          onChange={(e) => updateRow(row.clientId, { firstName: e.target.value, status: 'idle' })}
+                          disabled={running || row.status === 'success'}
+                          className={`${inputClass} disabled:opacity-60`}
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="text"
+                          aria-label="Efternamn"
+                          value={row.lastName}
+                          onChange={(e) => updateRow(row.clientId, { lastName: e.target.value, status: 'idle' })}
                           disabled={running || row.status === 'success'}
                           className={`${inputClass} disabled:opacity-60`}
                         />

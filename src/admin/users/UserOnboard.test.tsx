@@ -22,36 +22,79 @@ describe('UserOnboard', () => {
     vi.clearAllMocks();
   });
 
+  // Fill the quick-add fields via placeholders so they stay distinct from the
+  // per-row inputs that share the same labels once a row exists.
+  async function fillQuickFields(
+    user: ReturnType<typeof userEvent.setup>,
+    email: string,
+    firstName = 'Anna',
+    lastName = 'Andersson'
+  ) {
+    await user.type(screen.getByPlaceholderText('namn@exempel.se'), email);
+    await user.type(screen.getByPlaceholderText('Anna'), firstName);
+    await user.type(screen.getByPlaceholderText('Andersson'), lastName);
+  }
+
   it('adds a manually entered user as a table row', async () => {
     const user = userEvent.setup();
     render(<UserOnboard />);
 
-    await user.type(screen.getByLabelText(/^e-post$/i), 'anna@x.se');
+    await fillQuickFields(user, 'anna@x.se');
     await user.click(screen.getByRole('button', { name: /lägg till/i }));
 
     expect(screen.getByDisplayValue('anna@x.se')).toBeInTheDocument();
   });
 
-  it('imports emails from a CSV file with the default end date', async () => {
+  it('does not add a row when the name fields are empty', async () => {
+    const user = userEvent.setup();
+    render(<UserOnboard />);
+
+    await user.type(screen.getByPlaceholderText('namn@exempel.se'), 'anna@x.se');
+    await user.click(screen.getByRole('button', { name: /lägg till/i }));
+
+    // No row is staged — the empty state and the validation notice both show.
+    expect(screen.getByText(/inga användare tillagda ännu/i)).toBeInTheDocument();
+    expect(screen.getByText(/fyll i förnamn och efternamn/i)).toBeInTheDocument();
+  });
+
+  it('imports subscribers from a CSV file with headers and the default end date', async () => {
     const user = userEvent.setup();
     render(<UserOnboard />);
 
     // Set a default end date via the quick-add row first.
-    const dateInput = screen.getByLabelText(/^slutdatum$/i);
-    await user.type(dateInput, '2026-12-31');
-    await user.type(screen.getByLabelText(/^e-post$/i), 'anna@x.se');
+    await user.type(screen.getByLabelText(/^slutdatum$/i), '2026-12-31');
+    await fillQuickFields(user, 'anna@x.se');
     await user.click(screen.getByRole('button', { name: /lägg till/i }));
 
-    const file = new File(['erik@x.se\nlisa@x.se'], 'users.csv', { type: 'text/csv' });
+    const file = new File(
+      ['E-post,Förnamn,Efternamn\nerik@x.se,Erik,Eriksson\nlisa@x.se,Lisa,Larsson'],
+      'users.csv',
+      { type: 'text/csv' }
+    );
     await user.upload(screen.getByTestId('csv-input'), file);
 
     await waitFor(() => {
       expect(screen.getByDisplayValue('erik@x.se')).toBeInTheDocument();
       expect(screen.getByDisplayValue('lisa@x.se')).toBeInTheDocument();
     });
+    expect(screen.getByDisplayValue('Erik')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Larsson')).toBeInTheDocument();
     // Imported rows inherit the default end date.
     const dates = screen.getAllByDisplayValue('2026-12-31');
     expect(dates.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('shows an error and imports nothing when a CSV column is missing', async () => {
+    const user = userEvent.setup();
+    render(<UserOnboard />);
+
+    const file = new File(['E-post,Förnamn\nerik@x.se,Erik'], 'users.csv', { type: 'text/csv' });
+    await user.upload(screen.getByTestId('csv-input'), file);
+
+    await waitFor(() => {
+      expect(screen.getByText(/saknar kolumnerna/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByDisplayValue('erik@x.se')).not.toBeInTheDocument();
   });
 
   it('creates all queued users and shows status per row', async () => {
@@ -64,7 +107,7 @@ describe('UserOnboard', () => {
 
     render(<UserOnboard />);
     await user.type(screen.getByLabelText(/^slutdatum$/i), '2026-12-31');
-    await user.type(screen.getByLabelText(/^e-post$/i), 'anna@x.se');
+    await fillQuickFields(user, 'anna@x.se');
     await user.click(screen.getByRole('button', { name: /lägg till/i }));
 
     await user.click(screen.getByRole('button', { name: /skapa alla/i }));
@@ -72,11 +115,16 @@ describe('UserOnboard', () => {
     await waitFor(() => {
       expect(screen.getByText('Skapad')).toBeInTheDocument();
     });
-    expect(mockCreateSubscriber).toHaveBeenCalledWith('anna@x.se', expect.stringContaining('2026-12-31'));
+    expect(mockCreateSubscriber).toHaveBeenCalledWith(
+      'anna@x.se',
+      'Anna',
+      'Andersson',
+      expect.stringContaining('2026-12-31')
+    );
   });
 
   async function addUser(user: ReturnType<typeof userEvent.setup>, email: string) {
-    await user.type(screen.getByPlaceholderText('namn@exempel.se'), email);
+    await fillQuickFields(user, email);
     await user.click(screen.getByRole('button', { name: /lägg till/i }));
   }
 
