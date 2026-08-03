@@ -23,6 +23,17 @@ describe('normalizeDate', () => {
     expect(normalizeDate('')).toBeUndefined();
     expect(normalizeDate('not a date')).toBeUndefined();
   });
+
+  it('rejects out-of-range months and days', () => {
+    expect(normalizeDate('2026-99-99')).toBeUndefined();
+    expect(normalizeDate('2026-13-31')).toBeUndefined();
+    expect(normalizeDate('31/13/2026')).toBeUndefined();
+    expect(normalizeDate('2026-02-30')).toBeUndefined();
+  });
+
+  it('rejects an ISO date with trailing non-time garbage', () => {
+    expect(normalizeDate('2026-12-31-not-a-date')).toBeUndefined();
+  });
 });
 
 describe('parseExtendCsv', () => {

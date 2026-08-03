@@ -297,6 +297,17 @@ export function ExtendSubscription() {
               currentUntil: result.subscriberUntil ?? toEndOfDayIso(row.subscriberUntil),
               message: undefined,
             });
+          } else if (result.status === 'too-early') {
+            // Backend rejected the date as not moving forward (a race: the lookup
+            // saw an older date than the backend). Re-arm the row as 'ready' with
+            // the authoritative current date so the existing isTooEarly() check
+            // re-shows the amber "För tidigt datum" badge and excludes it — the
+            // operator recovers by bumping the date past the current one.
+            updateRow(row.clientId, {
+              status: 'ready',
+              currentUntil: result.previousUntil ?? row.currentUntil,
+              message: undefined,
+            });
           } else if (result.status === 'not-found') {
             updateRow(row.clientId, {
               status: 'not-found',

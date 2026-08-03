@@ -178,6 +178,36 @@ describe('ExtendSubscription', () => {
     expect(mockExtendSubscriber).toHaveBeenCalledWith('anna@x.se', expect.stringContaining('2027-06-30'));
   });
 
+  it('re-arms a row as too-early when the backend rejects the date', async () => {
+    const user = userEvent.setup();
+    // Lookup sees no current end date, so the client-side guard passes and the
+    // row is 'ready'. The backend, however, has a later date and rejects it.
+    mockGetSubscriberByEmail.mockResolvedValue({ email: 'anna@x.se', subscriberUntil: null });
+    mockExtendSubscriber.mockResolvedValue({
+      email: 'anna@x.se',
+      status: 'too-early',
+      previousUntil: '2027-01-01T23:59:59.999Z',
+    });
+    render(<ExtendSubscription />);
+
+    fireEvent.change(screen.getByLabelText(/^nytt slutdatum$/i), { target: { value: '2026-12-20' } });
+    await addEmail(user, 'anna@x.se');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /förläng alla \(1\)/i })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /förläng alla/i }));
+
+    // The backend's current date is applied, so the row now reads as too-early
+    // (amber) and drops out of the extend queue instead of showing a generic error.
+    await waitFor(() => {
+      expect(screen.getByText('För tidigt datum')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: /förläng alla \(0\)/i })).toBeInTheDocument();
+    // The row shows the amber badge, not a red error status.
+    expect(screen.queryByText(/^Fel:/)).not.toBeInTheDocument();
+  });
+
   it('soft-deletes a selected row and restores it via undo', async () => {
     const user = userEvent.setup();
     render(<ExtendSubscription />);

@@ -1,6 +1,6 @@
 import { client } from '../amplify-config';
 
-export type ExtendStatus = 'extended' | 'not-found' | 'error';
+export type ExtendStatus = 'extended' | 'too-early' | 'not-found' | 'error';
 
 export interface ExtendResult {
   email: string;
