@@ -6486,6 +6486,46 @@
               "attributes": []
             }
           }
+        },
+        "AdminExtendSubscriberReturnType": {
+          "name": "AdminExtendSubscriberReturnType",
+          "fields": {
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "previousUntil": {
+              "name": "previousUntil",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "subscriberUntil": {
+              "name": "subscriberUntil",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
         }
       },
       "mutations": {
@@ -6511,6 +6551,28 @@
             },
             "lastName": {
               "name": "lastName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "subscriberUntil": {
+              "name": "subscriberUntil",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true
+            }
+          }
+        },
+        "adminExtendSubscriber": {
+          "name": "adminExtendSubscriber",
+          "isArray": false,
+          "type": {
+            "nonModel": "AdminExtendSubscriberReturnType"
+          },
+          "isRequired": false,
+          "arguments": {
+            "email": {
+              "name": "email",
               "isArray": false,
               "type": "String",
               "isRequired": true
