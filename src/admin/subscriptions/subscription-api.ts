@@ -18,14 +18,26 @@ export interface SubscriberLookup {
 // Look up an existing subscriber by email to read their current end date. Reads
 // the User model directly (ADMINS-authorised, same access path feedback-api uses
 // for listUsers). Returns null when no user matches the email.
+//
+// There is no secondary index on `email`, so this is a filtered scan. IMPORTANT:
+// Amplify's `limit` caps how many rows DynamoDB evaluates BEFORE the filter is
+// applied, not how many results come back — a `limit: 1` scan returns [] unless
+// the target happens to be the first row. We therefore omit `limit` and page
+// through `nextToken` until the match is found (or the table is exhausted).
 export async function getSubscriberByEmail(email: string): Promise<SubscriberLookup | null> {
-  const { data } = await client.models.User.list({
-    filter: { email: { eq: email.toLowerCase() } },
-    limit: 1,
-  });
-  const first = (data as unknown as SubscriberLookup[] | undefined)?.[0];
-  if (!first) return null;
-  return { email: first.email, subscriberUntil: first.subscriberUntil ?? null };
+  const target = email.trim().toLowerCase();
+  let nextToken: string | null = null;
+  do {
+    const { data, errors, nextToken: newToken } = await client.models.User.list({
+      filter: { email: { eq: target } },
+      nextToken: nextToken ?? undefined,
+    });
+    if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+    const first = (data as unknown as SubscriberLookup[] | undefined)?.[0];
+    if (first) return { email: first.email, subscriberUntil: first.subscriberUntil ?? null };
+    nextToken = newToken ?? null;
+  } while (nextToken);
+  return null;
 }
 
 // The `adminExtendSubscriber` mutation is implemented in the apt-backend repo.
