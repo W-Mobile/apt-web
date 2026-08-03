@@ -4,6 +4,7 @@ import {
   Dumbbell,
   ListChecks,
   CalendarRange,
+  CalendarClock,
   FileText,
   MessageSquare,
   UserPlus,
@@ -28,6 +29,7 @@ const navItems: NavItem[] = [
   { to: '/admin/posts', label: 'Posts', icon: FileText },
   { to: '/admin/feedback', label: 'Feedback', icon: MessageSquare, requireGroup: 'ADMINS' },
   { to: '/admin/users', label: 'Onboard users', icon: UserPlus, requireGroup: 'ADMINS' },
+  { to: '/admin/subscriptions', label: 'Extend subscription', icon: CalendarClock, requireGroup: 'ADMINS' },
 ];
 
 const COLLAPSED_STORAGE_KEY = 'admin:sidebar-collapsed';
