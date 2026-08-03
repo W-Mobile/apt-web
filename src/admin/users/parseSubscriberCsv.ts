@@ -1,3 +1,10 @@
+import {
+  EMAIL_ALIASES,
+  findColumn,
+  readCsvRows,
+  readXlsxRows,
+} from '../csv/csv-utils';
+
 export function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -15,41 +22,9 @@ export interface ParsedSubscribers {
 }
 
 // Header aliases per column, Swedish and English. Matched case-insensitively
-// against trimmed header cells.
-const EMAIL_ALIASES = new Set(['email', 'e-post', 'epost', 'e-postadress', 'e-mail', 'mail']);
+// against trimmed header cells. Email aliases are shared via csv-utils.
 const FIRST_NAME_ALIASES = new Set(['förnamn', 'fornamn', 'first name', 'firstname', 'given name']);
 const LAST_NAME_ALIASES = new Set(['efternamn', 'last name', 'lastname', 'surname', 'family name']);
-
-// Split a single CSV line on the given delimiter, honouring double-quoted
-// fields so a value containing the delimiter (e.g. a name with a comma) stays
-// intact. Minimal by design — no external CSV library (house rule).
-function splitLine(line: string, delimiter: string): string[] {
-  const cells: string[] = [];
-  let cell = '';
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        cell += '"'; // escaped quote
-        i += 1;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === delimiter && !inQuotes) {
-      cells.push(cell);
-      cell = '';
-    } else {
-      cell += char;
-    }
-  }
-  cells.push(cell);
-  return cells.map((c) => c.trim());
-}
-
-function findColumn(header: string[], aliases: Set<string>): number {
-  return header.findIndex((cell) => aliases.has(cell.toLowerCase()));
-}
 
 // Map already-split rows (header row first, then data rows) into subscriber
 // rows. The header must contain at least Email, First name and Last name columns
@@ -102,44 +77,24 @@ export function parseSubscriberRows(rows: string[][], rawRows?: string[]): Parse
 // delimiter, splits each line into cells and delegates the column mapping and
 // validation to parseSubscriberRows.
 export function parseSubscriberCsv(raw: string): ParsedSubscribers {
+  const rows = readCsvRows(raw);
+  if (rows.length === 0) {
+    return { valid: [], invalid: [], error: 'CSV-filen är tom.' };
+  }
+  // Pass the original lines so invalid rows report their exact source text.
   const lines = raw
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
-
-  if (lines.length === 0) {
-    return { valid: [], invalid: [], error: 'CSV-filen är tom.' };
-  }
-
-  // Pick whichever delimiter yields more header cells.
-  const delimiter = lines[0].split(';').length > lines[0].split(',').length ? ';' : ',';
-  const rows = lines.map((line) => splitLine(line, delimiter));
-
-  // Pass the original lines so invalid rows report their exact source text.
   return parseSubscriberRows(rows, lines);
 }
 
 // Parse an XLSX/XLS workbook (first sheet) into subscriber rows. Reuses the same
-// column mapping and validation as the CSV path. The xlsx library is imported
-// dynamically to keep it out of the initial bundle.
+// column mapping and validation as the CSV path.
 export async function parseSubscriberXlsx(data: ArrayBuffer): Promise<ParsedSubscribers> {
-  const XLSX = await import('xlsx');
-  const wb = XLSX.read(data, { type: 'array' });
-  const sheet = wb.Sheets[wb.SheetNames[0]];
-  if (!sheet) {
-    return { valid: [], invalid: [], error: 'Excel-filen är tom.' };
-  }
-
-  // header: 1 → array of arrays; raw: false → formatted strings (dates/numbers
-  // become text); defval: '' → fill gaps so cell indices stay aligned.
-  const raw = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: false, defval: '' });
-  const rows = raw
-    .map((r) => r.map((c) => String(c ?? '').trim()))
-    .filter((r) => r.some((c) => c.length > 0));
-
+  const rows = await readXlsxRows(data);
   if (rows.length === 0) {
     return { valid: [], invalid: [], error: 'Excel-filen är tom.' };
   }
-
   return parseSubscriberRows(rows);
 }
