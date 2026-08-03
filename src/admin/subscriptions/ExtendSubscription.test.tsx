@@ -73,6 +73,45 @@ describe('ExtendSubscription', () => {
     expect(screen.getByRole('button', { name: /förläng alla \(0\)/i })).toBeInTheDocument();
   });
 
+  it('blocks a new date that is not after the current end date', async () => {
+    const user = userEvent.setup();
+    mockGetSubscriberByEmail.mockResolvedValue({
+      email: 'anna@x.se',
+      subscriberUntil: '2027-01-01T23:59:59.999Z',
+    });
+    render(<ExtendSubscription />);
+
+    // New date earlier than the current end date → must be blocked.
+    fireEvent.change(screen.getByLabelText(/^nytt slutdatum$/i), { target: { value: '2026-12-20' } });
+    await addEmail(user, 'anna@x.se');
+
+    await waitFor(() => {
+      expect(screen.getByText('För tidigt datum')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: /förläng alla \(0\)/i })).toBeInTheDocument();
+  });
+
+  it('re-enables a row once its date is moved past the current end date', async () => {
+    const user = userEvent.setup();
+    mockGetSubscriberByEmail.mockResolvedValue({
+      email: 'anna@x.se',
+      subscriberUntil: '2027-01-01T23:59:59.999Z',
+    });
+    render(<ExtendSubscription />);
+
+    fireEvent.change(screen.getByLabelText(/^nytt slutdatum$/i), { target: { value: '2026-12-20' } });
+    await addEmail(user, 'anna@x.se');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /förläng alla \(0\)/i })).toBeInTheDocument();
+    });
+
+    // Bump the shared date past the current end date → row becomes eligible again.
+    fireEvent.change(screen.getAllByLabelText(/^nytt slutdatum$/i)[0], { target: { value: '2027-06-30' } });
+
+    expect(screen.getByRole('button', { name: /förläng alla \(1\)/i })).toBeInTheDocument();
+    expect(screen.queryByText('För tidigt datum')).not.toBeInTheDocument();
+  });
+
   it('imports emails from a CSV file with the default end date', async () => {
     const user = userEvent.setup();
     render(<ExtendSubscription />);

@@ -34,7 +34,27 @@ function currentUntilLabel(row: Row): string {
   return row.currentUntil.slice(0, 10);
 }
 
+// A ready row whose new end date is not strictly after the current end date is
+// blocked: extending must move the date forward, never shorten a subscription.
+// Rows without a known current end date have nothing to shorten, so they pass.
+// 'YYYY-MM-DD' strings compare chronologically, so a plain string compare works.
+function isTooEarly(row: Row): boolean {
+  if (row.status !== 'ready' || !row.subscriberUntil) return false;
+  if (row.currentUntil === null || row.currentUntil === undefined) return false;
+  return row.subscriberUntil <= row.currentUntil.slice(0, 10);
+}
+
 function StatusBadge({ row }: { row: Row }) {
+  if (isTooEarly(row)) {
+    return (
+      <span
+        className="text-amber-400 text-xs font-medium"
+        title="Det nya slutdatumet måste vara efter nuvarande slutdatum"
+      >
+        För tidigt datum
+      </span>
+    );
+  }
   switch (row.status) {
     case 'looking-up':
       return <span className="text-stone-400 text-xs">Söker…</span>;
@@ -246,14 +266,17 @@ export function ExtendSubscription() {
   }
 
   async function handleExtendAll() {
-    // Only rows resolved to an existing user are eligible.
-    const queue = rows.filter((r) => r.status === 'ready' && !r.pendingDelete);
+    // Only rows resolved to an existing user AND moving the date forward are
+    // eligible; too-early rows are blocked and stay put.
+    const queue = rows.filter((r) => r.status === 'ready' && !r.pendingDelete && !isTooEarly(r));
     if (!queue.length) return;
     setRunning(true);
     setNotice(null);
     setRows((prev) =>
       prev.map((r) =>
-        r.status === 'ready' && !r.pendingDelete ? { ...r, status: 'pending', message: undefined } : r
+        r.status === 'ready' && !r.pendingDelete && !isTooEarly(r)
+          ? { ...r, status: 'pending', message: undefined }
+          : r
       )
     );
 
@@ -301,7 +324,8 @@ export function ExtendSubscription() {
   const tableRows = visibleRows.filter((r) => !r.pendingDelete);
 
   const active = rows.filter((r) => !r.pendingDelete);
-  const readyCount = active.filter((r) => r.status === 'ready').length;
+  const readyCount = active.filter((r) => r.status === 'ready' && !isTooEarly(r)).length;
+  const tooEarlyCount = active.filter((r) => isTooEarly(r)).length;
   const successCount = active.filter((r) => r.status === 'success').length;
   const errorCount = active.filter((r) => r.status === 'error').length;
   const notFoundCount = active.filter((r) => r.status === 'not-found').length;
@@ -589,7 +613,8 @@ export function ExtendSubscription() {
                 {running ? 'Förlänger…' : `Förläng alla (${readyCount})`}
               </button>
               <span className="text-xs text-stone-500 ml-auto">
-                {successCount} förlängda · {notFoundCount} hittades inte · {errorCount} fel
+                {successCount} förlängda · {tooEarlyCount} för tidigt datum · {notFoundCount} hittades inte ·{' '}
+                {errorCount} fel
               </span>
             </div>
           </section>
