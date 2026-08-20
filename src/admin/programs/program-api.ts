@@ -7,6 +7,8 @@ export interface Program {
   equipment: string;
   marketingText: string;
   warmupWorkoutID: string | null;
+  categoryID: string | null;
+  coachID: string | null;
   createdAt: string;
   updatedAt: string;
 }

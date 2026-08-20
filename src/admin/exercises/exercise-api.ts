@@ -8,6 +8,7 @@ export interface Exercise {
   equipment: string;
   tags: string[] | null;
   isVisibleInDiscover: boolean | null;
+  categoryID: string | null;
   createdAt: string;
   updatedAt: string;
 }

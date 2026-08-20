@@ -14,6 +14,8 @@ import { WorkoutList } from "./admin/workouts/WorkoutList";
 import { WorkoutForm } from "./admin/workouts/WorkoutForm";
 import { ProgramList } from "./admin/programs/ProgramList";
 import { ProgramForm } from "./admin/programs/ProgramForm";
+import { CategoryList } from "./admin/categories/CategoryList";
+import { CoachList } from "./admin/coaches/CoachList";
 import { PostList } from "./admin/posts/PostList";
 import { PostForm } from "./admin/posts/PostForm";
 import { FeedbackList } from "./admin/feedback/FeedbackList";
@@ -47,6 +49,8 @@ createRoot(document.getElementById("app") as HTMLElement).render(
                   <Route path="workouts/:id" element={<WorkoutForm />} />
                   <Route path="programs" element={<ProgramList />} />
                   <Route path="programs/:id" element={<ProgramForm />} />
+                  <Route path="categories" element={<CategoryList />} />
+                  <Route path="coaches" element={<CoachList />} />
                   <Route path="posts" element={<PostList />} />
                   <Route path="posts/:id" element={<PostForm />} />
                   <Route path="feedback" element={<ProtectedRoute requireGroup="ADMINS"><FeedbackList /></ProtectedRoute>} />

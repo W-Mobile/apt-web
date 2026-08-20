@@ -4,6 +4,7 @@ export interface Workout {
   id: string;
   name: string;
   description: string;
+  categoryID: string | null;
   createdAt: string;
   updatedAt: string;
 }

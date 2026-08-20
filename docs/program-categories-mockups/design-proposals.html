@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>APT Admin · Program Categories & Coaches · 3 designförslag</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Sora', 'system-ui', 'sans-serif'],
+          mono: ['Geist Mono', 'monospace'],
+        },
+        colors: { accent: '#F24E1E', 'accent-hover': '#d93d0f', 'accent-2': '#FF7262' },
+        keyframes: {
+          shimmer: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(100%)' } },
+        },
+        animation: { shimmer: 'shimmer 1.6s infinite' },
+      },
+    },
+  };
+</script>
+<style>
+  :root { --accent: #F24E1E; --accent-2: #FF7262; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #0a0a09;
+    background-image:
+      radial-gradient(circle at 100% 0%, rgba(242,78,30,0.06), transparent 45%),
+      radial-gradient(circle at 0% 100%, rgba(255,114,98,0.03), transparent 45%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.011em;
+  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #292524; border-radius: 6px; border: 2px solid #0a0a09; }
+  ::-webkit-scrollbar-thumb:hover { background: #44403c; }
+  .surface-frame { box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 20px 40px -30px rgba(0,0,0,0.8); }
+  [data-proposal].hidden { display: none; }
+  .fade-in { animation: fadeIn .35s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body class="font-sans text-white">
+
+<div class="min-h-screen flex">
+
+  <!-- ============ SHARED ADMIN SIDEBAR (apt-web AdminLayout) ============ -->
+  <aside class="w-64 shrink-0 bg-stone-900 border-r border-stone-800 hidden lg:flex flex-col sticky top-0 h-screen">
+    <div class="p-5 border-b border-stone-800 flex items-center justify-between">
+      <h1 class="text-lg font-bold tracking-wide">APT Admin</h1>
+      <span class="text-[10px] font-mono text-stone-600">mockup</span>
+    </div>
+    <nav class="flex-1 p-4 space-y-1 text-sm">
+      <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-stone-300 hover:bg-stone-800 transition-colors cursor-default">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7"/></svg>Exercises</div>
+      <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-stone-300 hover:bg-stone-800 transition-colors cursor-default">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 12H3m8 6H3m18-12H3m18 6h-8"/></svg>Workouts</div>
+      <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-stone-300 hover:bg-stone-800 transition-colors cursor-default">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Program</div>
+      <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-stone-300 hover:bg-stone-800 transition-colors cursor-default">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/></svg>Posts</div>
+      <!-- NEW -->
+      <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-accent text-white font-medium transition-colors cursor-default shadow-sm shadow-accent/30">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.5 3H4a1 1 0 0 0-1 1v3.5a1 1 0 0 0 .3.7l9.5 9.5a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4L9.2 3.3A1 1 0 0 0 8.5 3z"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>Categories <span class="ml-auto text-[9px] font-mono bg-black/25 rounded px-1.5 py-0.5">NY</span></div>
+      <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-stone-300 hover:bg-stone-800 transition-colors cursor-default">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Coaches <span class="ml-auto text-[9px] font-mono bg-stone-700 text-stone-300 rounded px-1.5 py-0.5">NY</span></div>
+      <div class="mt-2 pt-2 border-t border-stone-800/70 space-y-1">
+        <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-stone-300 hover:bg-stone-800 transition-colors cursor-default">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Feedback</div>
+      </div>
+    </nav>
+    <div class="p-4 border-t border-stone-800">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-sm font-bold">AP</div>
+        <div class="text-xs leading-tight"><div class="text-stone-200">Amir</div><div class="text-stone-500">ADMINS</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ RIGHT SIDE ============ -->
+  <div class="flex-1 min-w-0 flex flex-col">
+
+    <!-- top switcher -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-stone-950/80 border-b border-stone-800">
+      <div class="px-6 py-3 flex items-center gap-4 flex-wrap">
+        <div>
+          <div class="text-sm font-semibold">Program Categories &amp; Coaches</div>
+          <div class="text-[11px] text-stone-500">Designförslag för admin-UI · matchar apt-webs stil</div>
+        </div>
+        <div class="ml-auto flex items-center gap-3">
+          <span class="text-[11px] text-stone-600 hidden sm:inline font-mono">tangenter 1·2·3</span>
+          <div class="bg-stone-900 border border-stone-800 rounded-xl p-1 flex gap-1">
+            <button data-proposal-btn="a" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors">A · Native Tables</button>
+            <button data-proposal-btn="b" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors">B · Dashboard</button>
+            <button data-proposal-btn="c" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors">C · Master-detail</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="p-6 md:p-8 max-w-6xl w-full mx-auto">
+
+      <!-- ================================================================= -->
+      <!-- PROPOSAL A — NATIVE TABLES                                         -->
+      <!-- ================================================================= -->
+      <div data-proposal="a" class="fade-in">
+        <div class="mb-10">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-accent">Förslag A</span>
+          </div>
+          <h2 class="text-2xl font-bold mb-2">Native Tables — konservativ, lägst risk</h2>
+          <p class="text-sm text-stone-400 max-w-2xl leading-relaxed">Återanvänder exakt befintlig <span class="text-stone-200">DataTable</span>, pill-filter och SearchInput. Kategorier och coacher blir två vanliga list+form-sidor, identiska i känsla med Exercises/Workouts. Snabbast att bygga, "osynlig" för teamet — känns redan bekant.</p>
+        </div>
+
+        <!-- A1: Kategorihantering -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Kategorihantering</span>
+            <span class="h-px flex-1 bg-stone-800"></span>
+            <span class="text-[11px] text-stone-600 font-mono">krav A · F</span>
+          </div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold">Categories</h3>
+              <div class="flex items-center gap-2">
+                <button class="px-3 py-2 text-xs font-medium text-stone-300 border border-stone-700 rounded-xl hover:bg-stone-800 transition-colors inline-flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Kör migration</button>
+                <button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Ny kategori</button>
+              </div>
+            </div>
+            <!-- counter strip -->
+            <div class="flex gap-3 mb-4 text-xs">
+              <div class="px-3 py-2 rounded-xl bg-stone-900 border border-stone-800"><span class="text-stone-500">Totalt program</span> <span class="font-semibold ml-1">12</span></div>
+              <div class="px-3 py-2 rounded-xl bg-stone-900 border border-stone-800"><span class="text-stone-500">Workouts</span> <span class="font-semibold ml-1">48</span></div>
+              <div class="px-3 py-2 rounded-xl bg-stone-900 border border-stone-800"><span class="text-stone-500">Exercises</span> <span class="font-semibold ml-1">210</span></div>
+            </div>
+            <table class="w-full text-sm text-left">
+              <thead class="text-stone-400 border-b border-stone-800">
+                <tr>
+                  <th class="px-4 py-3 font-medium">Namn</th>
+                  <th class="px-4 py-3 font-medium">Slug</th>
+                  <th class="px-4 py-3 font-medium">Sort</th>
+                  <th class="px-4 py-3 font-medium">Länkat innehåll</th>
+                  <th class="px-4 py-3 font-medium">Status</th>
+                  <th class="px-4 py-3 font-medium text-right"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer">
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-medium">Performance</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-mono text-xs text-stone-500">performance</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50">1</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">12 program · 48 workouts · 210 exercises</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-2.5 py-0.5 text-xs font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Aktiv</span></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-right"><span class="text-xs text-stone-600" title="Har länkat innehåll — kan bara inaktiveras">🔒 ej borttagbar</span></td>
+                </tr>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer">
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-medium">On the court</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-mono text-xs text-stone-500">on_court</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50">2</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-500">0 program · 0 workouts · 0 exercises</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-stone-400 bg-stone-700/50 border border-stone-600/30 rounded-full px-2.5 py-0.5 text-xs font-medium"><span class="w-1.5 h-1.5 rounded-full bg-stone-500"></span>Inaktiv</span></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-right"><button class="text-xs text-red-400/70 hover:text-red-400">Ta bort</button></td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="text-[11px] text-stone-600 mt-3">Sortordning ändras genom att öppna raden (samma som övriga admin-formulär). Kategori med innehåll visar 🔒 istället för Ta bort.</p>
+          </div>
+        </section>
+
+        <!-- A2: Coachhantering -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Coachhantering</span>
+            <span class="h-px flex-1 bg-stone-800"></span>
+            <span class="text-[11px] text-stone-600 font-mono">krav B</span>
+          </div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold">Coaches</h3>
+              <button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Ny coach</button>
+            </div>
+            <table class="w-full text-sm text-left">
+              <thead class="text-stone-400 border-b border-stone-800">
+                <tr><th class="px-4 py-3 font-medium">Bild</th><th class="px-4 py-3 font-medium">Namn</th><th class="px-4 py-3 font-medium">Program</th><th class="px-4 py-3 font-medium">Skapad</th></tr>
+              </thead>
+              <tbody>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer">
+                  <td class="px-4 py-3 border-b border-stone-800/50"><div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-xs font-bold">AP</div></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-medium">Amir Performance <span class="ml-1 text-[10px] font-mono text-stone-500 border border-stone-700 rounded px-1 py-0.5">default</span></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">10</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-500">2026-01-04</td>
+                </tr>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer">
+                  <td class="px-4 py-3 border-b border-stone-800/50"><div class="w-9 h-9 rounded-lg bg-stone-700 flex items-center justify-center text-xs font-bold text-stone-300">JH</div></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-medium">Jordan Hayes</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">2</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-500">2026-06-12</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- A3: Content form fields -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Innehållsformulär — kategori/coach-fält</span>
+            <span class="h-px flex-1 bg-stone-800"></span>
+            <span class="text-[11px] text-stone-600 font-mono">krav C · D</span>
+          </div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <h3 class="text-2xl font-bold mb-1">Nytt program</h3>
+            <div class="w-12 h-0.5 bg-accent mb-6 rounded-full"></div>
+            <div class="space-y-5 max-w-xl">
+              <!-- new fields at top -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm text-stone-300 mb-1">Kategori <span class="text-accent">*</span></label>
+                  <select class="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none appearance-none">
+                    <option>Performance</option><option>On the court</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm text-stone-300 mb-1">Coach</label>
+                  <div class="flex gap-2">
+                    <select class="flex-1 px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none appearance-none">
+                      <option>Amir Performance</option><option>Jordan Hayes</option>
+                    </select>
+                    <button class="px-3 py-2.5 text-sm text-accent border border-accent/30 rounded-xl hover:bg-accent/10 transition-colors" title="Lägg till ny coach inline">+ Ny</button>
+                  </div>
+                </div>
+              </div>
+              <div class="border-t border-stone-700/50 pt-5">
+                <label class="block text-sm text-stone-300 mb-1">Namn</label>
+                <input value="12 Week Power Plan" class="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-sm text-stone-300 mb-1">Beskrivning</label>
+                <textarea rows="3" class="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none resize-y">Bygg explosiv styrka över 12 veckor…</textarea>
+              </div>
+              <p class="text-[11px] text-stone-600">Kategori/coach ligger överst — resten av formuläret (perioder, uppvärmning, poster) är helt oförändrat. Vid <em>ändrad</em> kategori på befintligt program visas en ConfirmDialog: "Flytta även programmets workouts &amp; exercises till Performance?"</p>
+              <div class="flex gap-3 pt-2">
+                <button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Spara</button>
+                <button class="px-4 py-2.5 text-sm text-stone-300 hover:text-white rounded-xl transition-colors">Avbryt</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- A4: Content lists -->
+        <section class="mb-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Innehållslistor — kolumn · filter · varning</span>
+            <span class="h-px flex-1 bg-stone-800"></span>
+            <span class="text-[11px] text-stone-600 font-mono">krav E</span>
+          </div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold">Program</h3>
+              <button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Nytt program</button>
+            </div>
+            <div class="flex flex-col gap-3 mb-4">
+              <input placeholder="Sök program…" class="px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none text-sm w-full max-w-xs" />
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs uppercase tracking-wider text-stone-500 mr-1">Kategori</span>
+                <button class="px-3 py-1 text-xs rounded-full bg-accent text-white">Alla</button>
+                <button class="px-3 py-1 text-xs rounded-full bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700">Performance</button>
+                <button class="px-3 py-1 text-xs rounded-full bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700">On the court</button>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs uppercase tracking-wider text-stone-500 mr-1">Status</span>
+                <button class="px-3 py-1 text-xs rounded-full bg-accent text-white">Alla</button>
+                <button class="px-3 py-1 text-xs rounded-full bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700">Publicerade</button>
+                <button class="px-3 py-1 text-xs rounded-full bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700">Utkast</button>
+              </div>
+            </div>
+            <table class="w-full text-sm text-left">
+              <thead class="text-stone-400 border-b border-stone-800">
+                <tr><th class="px-4 py-3 font-medium">Namn</th><th class="px-4 py-3 font-medium">Kategori</th><th class="px-4 py-3 font-medium">Coach</th><th class="px-4 py-3 font-medium">Status</th></tr>
+              </thead>
+              <tbody>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer">
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-medium">12 Week Power Plan</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-2.5 py-0.5 text-xs font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Performance</span></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">Amir Performance</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-2.5 py-0.5 text-xs font-medium">Publicerad</span></td>
+                </tr>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer">
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-medium">Ball Handling Basics</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-stone-400 bg-stone-700/50 border border-stone-600/30 rounded-full px-2.5 py-0.5 text-xs font-medium"><span class="w-1.5 h-1.5 rounded-full bg-stone-500"></span>On the court</span></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">Jordan Hayes</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-full px-2.5 py-0.5 text-xs font-medium">Utkast</span></td>
+                </tr>
+                <!-- WARNING ROWS -->
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer bg-amber-400/[0.03]">
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-medium">Untitled draft <span class="ml-1.5 inline-flex items-center gap-1 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-full px-2 py-0.5 text-[11px] font-medium"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>Saknar kategori</span></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-600">—</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-500">Amir Performance</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-full px-2.5 py-0.5 text-xs font-medium">Utkast</span></td>
+                </tr>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer bg-amber-400/[0.03]">
+                  <td class="px-4 py-3 border-b border-stone-800/50 font-medium">Shooting Fundamentals <span class="ml-1.5 inline-flex items-center gap-1 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-full px-2 py-0.5 text-[11px] font-medium"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>Workout i annan kategori</span></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-stone-400 bg-stone-700/50 border border-stone-600/30 rounded-full px-2.5 py-0.5 text-xs font-medium"><span class="w-1.5 h-1.5 rounded-full bg-stone-500"></span>On the court</span></td>
+                  <td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">Jordan Hayes</td>
+                  <td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-2.5 py-0.5 text-xs font-medium">Publicerad</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="text-[11px] text-stone-600 mt-3">Varningar = amber-badge inline (samma badge-mönster som FeedbackList). Rad får svag amber-bakgrund. Filter kombineras client-side (inga GSIs).</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- PROPOSAL B — DASHBOARD / CARDS                                     -->
+      <!-- ================================================================= -->
+      <div data-proposal="b" class="hidden">
+        <div class="mb-10">
+          <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-accent">Förslag B</span>
+          <h2 class="text-2xl font-bold mb-2 mt-2">Dashboard — överblick först</h2>
+          <p class="text-sm text-stone-400 max-w-2xl leading-relaxed">Kategorier och coacher som <span class="text-stone-200">kort</span> med inbyggda räknare, statustoggle och sortOrder-pilar. Bäst för att i en blick se hälsan per kategori (räknare + varningar) — svarar direkt mot kraven om counters och split-content-varning.</p>
+        </div>
+
+        <!-- B1: Kategori-kort -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Kategorihantering</span>
+            <span class="h-px flex-1 bg-stone-800"></span><span class="text-[11px] text-stone-600 font-mono">krav A · F</span>
+          </div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="text-xl font-bold">Categories</h3>
+              <div class="flex gap-2">
+                <button class="px-3 py-2 text-xs font-medium text-stone-300 border border-stone-700 rounded-xl hover:bg-stone-800 transition-colors inline-flex items-center gap-1.5"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Kör migration</button>
+                <button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Ny kategori</button>
+              </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <!-- Performance card -->
+              <div class="rounded-2xl border border-stone-800 bg-stone-900 p-5 hover:border-stone-700 transition-colors">
+                <div class="flex items-start justify-between mb-4">
+                  <div>
+                    <div class="flex items-center gap-2"><h4 class="text-lg font-bold">Performance</h4><span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-2.5 py-0.5 text-xs font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Aktiv</span></div>
+                    <div class="font-mono text-[11px] text-stone-500 mt-1">performance · sort 1</div>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <button class="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-400 flex items-center justify-center text-xs">▲</button>
+                    <button class="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-400 flex items-center justify-center text-xs">▼</button>
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                  <div class="rounded-xl bg-stone-950/60 border border-stone-800 p-3 text-center"><div class="text-xl font-bold">12</div><div class="text-[10px] uppercase tracking-wide text-stone-500">Program</div></div>
+                  <div class="rounded-xl bg-stone-950/60 border border-stone-800 p-3 text-center"><div class="text-xl font-bold">48</div><div class="text-[10px] uppercase tracking-wide text-stone-500">Workouts</div></div>
+                  <div class="rounded-xl bg-stone-950/60 border border-stone-800 p-3 text-center"><div class="text-xl font-bold">210</div><div class="text-[10px] uppercase tracking-wide text-stone-500">Exercises</div></div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-stone-600">🔒 Har innehåll — kan ej tas bort</span>
+                  <label class="inline-flex items-center gap-2 cursor-pointer"><span class="text-xs text-stone-400">Aktiv</span><span class="w-9 h-5 rounded-full bg-accent relative"><span class="absolute right-0.5 top-0.5 w-4 h-4 rounded-full bg-white"></span></span></label>
+                </div>
+              </div>
+              <!-- On the court card WITH split warning -->
+              <div class="rounded-2xl border border-amber-500/25 bg-stone-900 p-5">
+                <div class="flex items-center gap-2 mb-3 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-lg px-3 py-1.5 text-xs font-medium"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>2 workouts i annan kategori än sitt program</div>
+                <div class="flex items-start justify-between mb-4">
+                  <div>
+                    <div class="flex items-center gap-2"><h4 class="text-lg font-bold">On the court</h4><span class="inline-flex items-center gap-1.5 text-stone-400 bg-stone-700/50 border border-stone-600/30 rounded-full px-2.5 py-0.5 text-xs font-medium"><span class="w-1.5 h-1.5 rounded-full bg-stone-500"></span>Inaktiv</span></div>
+                    <div class="font-mono text-[11px] text-stone-500 mt-1">on_court · sort 2</div>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <button class="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-400 flex items-center justify-center text-xs">▲</button>
+                    <button class="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-400 flex items-center justify-center text-xs">▼</button>
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                  <div class="rounded-xl bg-stone-950/60 border border-stone-800 p-3 text-center"><div class="text-xl font-bold">3</div><div class="text-[10px] uppercase tracking-wide text-stone-500">Program</div></div>
+                  <div class="rounded-xl bg-stone-950/60 border border-stone-800 p-3 text-center"><div class="text-xl font-bold">6</div><div class="text-[10px] uppercase tracking-wide text-stone-500">Workouts</div></div>
+                  <div class="rounded-xl bg-stone-950/60 border border-stone-800 p-3 text-center"><div class="text-xl font-bold">18</div><div class="text-[10px] uppercase tracking-wide text-stone-500">Exercises</div></div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <button class="text-xs text-red-400/70 hover:text-red-400">Ta bort</button>
+                  <label class="inline-flex items-center gap-2 cursor-pointer"><span class="text-xs text-stone-400">Aktiv</span><span class="w-9 h-5 rounded-full bg-stone-700 relative"><span class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-stone-400"></span></span></label>
+                </div>
+              </div>
+              <!-- add new tile -->
+              <button class="rounded-2xl border border-dashed border-stone-700 hover:border-accent hover:bg-accent/[0.03] transition-colors p-5 flex items-center justify-center gap-2 text-stone-400 hover:text-accent min-h-[120px]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span class="text-sm font-medium">Ny kategori</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- B2: Coach cards -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3"><span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Coachhantering</span><span class="h-px flex-1 bg-stone-800"></span><span class="text-[11px] text-stone-600 font-mono">krav B</span></div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <div class="flex items-center justify-between mb-5"><h3 class="text-xl font-bold">Coaches</h3><button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Ny coach</button></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="rounded-2xl border border-stone-800 bg-stone-900 p-4 text-center hover:border-stone-700 transition-colors">
+                <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-lg font-bold mb-3">AP</div>
+                <div class="font-medium text-sm">Amir Performance</div>
+                <div class="text-[10px] font-mono text-stone-500 mt-0.5">default · 10 program</div>
+              </div>
+              <div class="rounded-2xl border border-stone-800 bg-stone-900 p-4 text-center hover:border-stone-700 transition-colors">
+                <div class="w-16 h-16 mx-auto rounded-full bg-stone-700 flex items-center justify-center text-lg font-bold text-stone-300 mb-3">JH</div>
+                <div class="font-medium text-sm">Jordan Hayes</div>
+                <div class="text-[10px] font-mono text-stone-500 mt-0.5">2 program</div>
+              </div>
+              <div class="rounded-2xl border border-stone-800 bg-stone-900 p-4 text-center hover:border-stone-700 transition-colors">
+                <div class="w-16 h-16 mx-auto rounded-full bg-stone-700 flex items-center justify-center text-lg font-bold text-stone-300 mb-3">ML</div>
+                <div class="font-medium text-sm">Maya Lindqvist</div>
+                <div class="text-[10px] font-mono text-stone-500 mt-0.5">0 program</div>
+              </div>
+              <!-- add w. media upload -->
+              <div class="rounded-2xl border border-dashed border-stone-700 p-4 flex flex-col items-center justify-center gap-2 text-center">
+                <div class="w-16 h-16 rounded-full border-2 border-dashed border-stone-700 flex items-center justify-center text-stone-500"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+                <span class="text-xs text-stone-400">Dra bild eller <span class="text-accent">bläddra</span></span>
+                <span class="text-[10px] text-stone-600">via MediaUpload-mönstret</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- B3: Form with context header band -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3"><span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Innehållsformulär — kontextband</span><span class="h-px flex-1 bg-stone-800"></span><span class="text-[11px] text-stone-600 font-mono">krav C · D</span></div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <h3 class="text-2xl font-bold mb-4">Nytt program</h3>
+            <!-- context band -->
+            <div class="rounded-2xl border border-stone-800 bg-gradient-to-r from-stone-900 to-stone-900/40 p-4 mb-6">
+              <div class="flex flex-wrap items-center gap-6">
+                <div>
+                  <div class="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Kategori <span class="text-accent">*</span></div>
+                  <div class="inline-flex bg-stone-950 border border-stone-800 rounded-xl p-1 gap-1">
+                    <button class="px-4 py-1.5 rounded-lg text-sm font-medium bg-accent text-white">Performance</button>
+                    <button class="px-4 py-1.5 rounded-lg text-sm font-medium text-stone-400 hover:text-white">On the court</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Coach</div>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-2 bg-stone-950 border border-stone-800 rounded-full pl-1 pr-3 py-1"><span class="w-6 h-6 rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-[10px] font-bold">AP</span><span class="text-sm">Amir Performance</span></span>
+                    <button class="text-xs text-accent border border-accent/30 rounded-full px-3 py-1.5 hover:bg-accent/10 transition-colors">+ Ny coach</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-5 max-w-xl">
+              <div><label class="block text-sm text-stone-300 mb-1">Namn</label><input value="12 Week Power Plan" class="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none" /></div>
+              <div><label class="block text-sm text-stone-300 mb-1">Beskrivning</label><textarea rows="3" class="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none resize-y">Bygg explosiv styrka…</textarea></div>
+              <p class="text-[11px] text-stone-600">Kontextbandet sitter kvar (sticky) medan man scrollar formuläret så kategori/coach alltid syns. Ändrad kategori → ConfirmDialog om att flytta workouts/exercises.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- B4: lists with counter strip + dropdown filters -->
+        <section class="mb-6">
+          <div class="flex items-center gap-3 mb-3"><span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Innehållslistor — räknarstrip + filter</span><span class="h-px flex-1 bg-stone-800"></span><span class="text-[11px] text-stone-600 font-mono">krav E</span></div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold">Program</h3><button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Nytt program</button></div>
+            <!-- per-category counter strip -->
+            <div class="flex gap-3 mb-4">
+              <div class="flex-1 rounded-xl bg-stone-900 border border-stone-800 p-3 flex items-center justify-between"><span class="inline-flex items-center gap-2 text-sm"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>Performance</span><span class="font-mono text-sm text-stone-400">12 prog · 48 wo · 210 ex</span></div>
+              <div class="flex-1 rounded-xl bg-stone-900 border border-stone-800 p-3 flex items-center justify-between"><span class="inline-flex items-center gap-2 text-sm"><span class="w-2 h-2 rounded-full bg-stone-500"></span>On the court</span><span class="font-mono text-sm text-stone-400">3 prog · 6 wo · 18 ex</span></div>
+            </div>
+            <div class="flex items-center gap-2 mb-4">
+              <select class="px-3 py-2 bg-stone-800 text-white text-sm rounded-xl border border-stone-700 focus:border-accent focus:outline-none appearance-none"><option>Alla kategorier</option><option>Performance</option><option>On the court</option></select>
+              <select class="px-3 py-2 bg-stone-800 text-white text-sm rounded-xl border border-stone-700 focus:border-accent focus:outline-none appearance-none"><option>Alla statusar</option><option>Publicerade</option><option>Utkast</option></select>
+              <span class="ml-auto inline-flex items-center gap-1.5 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-full px-3 py-1.5 text-xs font-medium"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>2 att åtgärda</span>
+            </div>
+            <table class="w-full text-sm text-left">
+              <thead class="text-stone-400 border-b border-stone-800"><tr><th class="px-4 py-3 font-medium">Namn</th><th class="px-4 py-3 font-medium">Kategori</th><th class="px-4 py-3 font-medium">Status</th></tr></thead>
+              <tbody>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer"><td class="px-4 py-3 border-b border-stone-800/50 font-medium">12 Week Power Plan</td><td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-2.5 py-0.5 text-xs font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Performance</span></td><td class="px-4 py-3 border-b border-stone-800/50"><span class="text-emerald-400 text-xs">● Publicerad</span></td></tr>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer bg-amber-400/[0.03]"><td class="px-4 py-3 border-b border-stone-800/50 font-medium">Untitled draft</td><td class="px-4 py-3 border-b border-stone-800/50"><span class="inline-flex items-center gap-1 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-full px-2.5 py-0.5 text-xs font-medium"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>Saknar kategori</span></td><td class="px-4 py-3 border-b border-stone-800/50"><span class="text-amber-300 text-xs">● Utkast</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- PROPOSAL C — MASTER-DETAIL                                         -->
+      <!-- ================================================================= -->
+      <div data-proposal="c" class="hidden">
+        <div class="mb-10">
+          <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-accent">Förslag C</span>
+          <h2 class="text-2xl font-bold mb-2 mt-2">Master-detail workspace — power-admin</h2>
+          <p class="text-sm text-stone-400 max-w-2xl leading-relaxed">Tvåpanelsvy: välj kategori i vänsterlistan, hantera allt i högerpanelen — byt namn, dra för sortOrder, se innehållsbreakdown och kategorins innehåll direkt. Listfiltret speglar appens egna <span class="text-stone-200">Performance | On the court</span>-toggle (produktparitet). Tätast, effektivast vid många kategorier.</p>
+        </div>
+
+        <!-- C1: master-detail categories -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3"><span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Kategorihantering</span><span class="h-px flex-1 bg-stone-800"></span><span class="text-[11px] text-stone-600 font-mono">krav A · F</span></div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 overflow-hidden">
+            <div class="flex items-center justify-between p-5 border-b border-stone-800">
+              <h3 class="text-xl font-bold">Categories</h3>
+              <button class="px-3 py-2 text-xs font-medium text-stone-300 border border-stone-700 rounded-xl hover:bg-stone-800 transition-colors inline-flex items-center gap-1.5"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Kör migration</button>
+            </div>
+            <div class="grid md:grid-cols-[260px_1fr]">
+              <!-- left rail -->
+              <div class="border-r border-stone-800 p-3 space-y-1">
+                <button class="w-full text-left px-3 py-2.5 rounded-xl bg-accent/10 border border-accent/30 flex items-center gap-3">
+                  <span class="w-6 h-6 rounded-lg bg-stone-800 flex items-center justify-center text-xs cursor-grab text-stone-500">⠿</span>
+                  <span class="flex-1"><span class="block text-sm font-medium">Performance</span><span class="block text-[10px] font-mono text-stone-500">12 · 48 · 210</span></span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                </button>
+                <button class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-stone-800 flex items-center gap-3">
+                  <span class="w-6 h-6 rounded-lg bg-stone-800 flex items-center justify-center text-xs cursor-grab text-stone-500">⠿</span>
+                  <span class="flex-1"><span class="block text-sm font-medium">On the court</span><span class="block text-[10px] font-mono text-stone-500">3 · 6 · 18</span></span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-stone-500"></span>
+                </button>
+                <button class="w-full text-left px-3 py-2.5 rounded-xl border border-dashed border-stone-700 text-stone-400 hover:text-accent hover:border-accent text-sm mt-2">+ Ny kategori</button>
+              </div>
+              <!-- detail -->
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-1">
+                  <input value="Performance" class="text-xl font-bold bg-transparent border-b border-transparent hover:border-stone-700 focus:border-accent focus:outline-none pb-1" />
+                  <label class="inline-flex items-center gap-2 cursor-pointer"><span class="text-xs text-stone-400">Aktiv i appen</span><span class="w-9 h-5 rounded-full bg-accent relative"><span class="absolute right-0.5 top-0.5 w-4 h-4 rounded-full bg-white"></span></span></label>
+                </div>
+                <div class="font-mono text-[11px] text-stone-500 mb-5">slug: performance <span class="text-stone-700">(oföränderlig)</span> · sortOrder: 1</div>
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                  <div class="rounded-xl bg-stone-900 border border-stone-800 p-4"><div class="text-2xl font-bold">12</div><div class="text-[11px] text-stone-500">Program</div></div>
+                  <div class="rounded-xl bg-stone-900 border border-stone-800 p-4"><div class="text-2xl font-bold">48</div><div class="text-[11px] text-stone-500">Workouts</div></div>
+                  <div class="rounded-xl bg-stone-900 border border-stone-800 p-4"><div class="text-2xl font-bold">210</div><div class="text-[11px] text-stone-500">Exercises</div></div>
+                </div>
+                <div class="rounded-xl bg-stone-900/60 border border-stone-800 p-3 flex items-center gap-2 text-xs text-stone-500">
+                  🔒 Kategori med länkat innehåll kan inte tas bort — inaktivera istället.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- C2: coaches master-detail (compact) -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3"><span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Coachhantering</span><span class="h-px flex-1 bg-stone-800"></span><span class="text-[11px] text-stone-600 font-mono">krav B</span></div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 overflow-hidden">
+            <div class="grid md:grid-cols-[260px_1fr]">
+              <div class="border-r border-stone-800 p-3 space-y-1">
+                <button class="w-full text-left px-3 py-2.5 rounded-xl bg-accent/10 border border-accent/30 flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-[10px] font-bold">AP</span><span class="flex-1 text-sm font-medium">Amir Performance</span><span class="text-[10px] font-mono text-stone-500">10</span></button>
+                <button class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-stone-800 flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center text-[10px] font-bold text-stone-300">JH</span><span class="flex-1 text-sm font-medium">Jordan Hayes</span><span class="text-[10px] font-mono text-stone-500">2</span></button>
+                <button class="w-full text-left px-3 py-2.5 rounded-xl border border-dashed border-stone-700 text-stone-400 hover:text-accent hover:border-accent text-sm mt-2">+ Ny coach</button>
+              </div>
+              <div class="p-6 flex gap-6 items-start">
+                <div class="relative">
+                  <div class="w-28 h-28 rounded-2xl bg-gradient-to-br from-accent to-accent-2 flex items-center justify-center text-3xl font-bold">AP</div>
+                  <button class="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-stone-800 border border-stone-700 flex items-center justify-center text-stone-300 hover:text-white" title="Byt bild via MediaUpload"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></button>
+                </div>
+                <div class="flex-1 space-y-4 max-w-sm">
+                  <div><label class="block text-sm text-stone-300 mb-1">Namn</label><input value="Amir Performance" class="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none" /></div>
+                  <div class="text-[11px] text-stone-600">Coacher återanvänds över program. Profilbild via samma MediaUpload-mönster som program-poster.</div>
+                  <button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Spara</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- C3: form taxonomy bar -->
+        <section class="mb-14">
+          <div class="flex items-center gap-3 mb-3"><span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Innehållsformulär — taxonomy bar</span><span class="h-px flex-1 bg-stone-800"></span><span class="text-[11px] text-stone-600 font-mono">krav C · D</span></div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <!-- sticky taxonomy bar -->
+            <div class="rounded-xl bg-stone-900 border border-stone-800 px-4 py-3 mb-6 flex flex-wrap items-center gap-3">
+              <span class="text-[11px] uppercase tracking-wide text-stone-500">Taxonomy</span>
+              <div class="inline-flex bg-stone-950 border border-stone-800 rounded-lg p-0.5 gap-0.5">
+                <button class="px-3 py-1 rounded-md text-xs font-medium bg-accent text-white">Performance</button>
+                <button class="px-3 py-1 rounded-md text-xs font-medium text-stone-400 hover:text-white">On the court</button>
+              </div>
+              <span class="text-stone-700">·</span>
+              <select class="px-3 py-1.5 bg-stone-950 text-white text-xs rounded-lg border border-stone-800 focus:border-accent focus:outline-none appearance-none"><option>Coach: Amir Performance</option><option>Jordan Hayes</option><option>+ Ny coach…</option></select>
+              <span class="ml-auto text-[11px] text-accent font-medium">Obligatoriskt *</span>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">Nytt program</h3>
+            <div class="space-y-5 max-w-xl">
+              <div><label class="block text-sm text-stone-300 mb-1">Namn</label><input value="12 Week Power Plan" class="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none" /></div>
+              <div><label class="block text-sm text-stone-300 mb-1">Beskrivning</label><textarea rows="3" class="w-full px-4 py-2.5 bg-stone-800 text-white rounded-xl border border-stone-700 focus:border-accent focus:outline-none resize-y">Bygg explosiv styrka…</textarea></div>
+              <p class="text-[11px] text-stone-600">Taxonomy-baren är sticky och gäller hela formuläret. Vid ändrad kategori: ConfirmDialog "Flytta även 6 workouts &amp; 18 exercises till On the court?".</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- C4: lists with app-parity toggle -->
+        <section class="mb-6">
+          <div class="flex items-center gap-3 mb-3"><span class="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Innehållslistor — app-paritetstoggle</span><span class="h-px flex-1 bg-stone-800"></span><span class="text-[11px] text-stone-600 font-mono">krav E</span></div>
+          <div class="surface-frame rounded-2xl border border-stone-800 bg-stone-950/50 p-6">
+            <div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold">Program</h3><button class="px-4 py-2.5 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-hover transition-colors">Nytt program</button></div>
+            <div class="flex items-center gap-3 mb-4 flex-wrap">
+              <!-- app-parity segmented -->
+              <div class="inline-flex bg-stone-900 border border-stone-800 rounded-xl p-1 gap-1">
+                <button class="px-4 py-1.5 rounded-lg text-sm font-medium bg-accent text-white">Performance</button>
+                <button class="px-4 py-1.5 rounded-lg text-sm font-medium text-stone-400 hover:text-white">On the court</button>
+              </div>
+              <div class="inline-flex bg-stone-900 border border-stone-800 rounded-xl p-1 gap-1 text-xs">
+                <button class="px-3 py-1.5 rounded-lg bg-stone-800 text-white font-medium">Alla</button>
+                <button class="px-3 py-1.5 rounded-lg text-stone-500 hover:text-stone-300">Publicerade</button>
+                <button class="px-3 py-1.5 rounded-lg text-stone-500 hover:text-stone-300">Utkast</button>
+              </div>
+            </div>
+            <table class="w-full text-sm text-left">
+              <thead class="text-stone-400 border-b border-stone-800"><tr><th class="px-4 py-3 font-medium">Namn</th><th class="px-4 py-3 font-medium">Coach</th><th class="px-4 py-3 font-medium">Status</th><th class="px-4 py-3 font-medium"></th></tr></thead>
+              <tbody>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer"><td class="px-4 py-3 border-b border-stone-800/50 font-medium">12 Week Power Plan</td><td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">Amir Performance</td><td class="px-4 py-3 border-b border-stone-800/50"><span class="text-emerald-400 text-xs">● Publicerad</span></td><td class="px-4 py-3 border-b border-stone-800/50"></td></tr>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer"><td class="px-4 py-3 border-b border-stone-800/50 font-medium">Vertical Jump System</td><td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">Amir Performance</td><td class="px-4 py-3 border-b border-stone-800/50"><span class="text-amber-300 text-xs">● Utkast</span></td><td class="px-4 py-3 border-b border-stone-800/50"></td></tr>
+                <tr class="hover:bg-stone-800/70 transition-colors cursor-pointer bg-amber-400/[0.03]"><td class="px-4 py-3 border-b border-stone-800/50 font-medium">Shooting Fundamentals</td><td class="px-4 py-3 border-b border-stone-800/50 text-stone-300">Jordan Hayes</td><td class="px-4 py-3 border-b border-stone-800/50"><span class="text-emerald-400 text-xs">● Publicerad</span></td><td class="px-4 py-3 border-b border-stone-800/50 text-right"><span class="inline-flex items-center gap-1 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-full px-2 py-0.5 text-[11px] font-medium"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></svg>Split innehåll</span></td></tr>
+              </tbody>
+            </table>
+            <p class="text-[11px] text-stone-600 mt-3">Toggle-mönstret är identiskt med appens Programs-vy → admin och app talar samma språk. Varningar visas som badge i högerkant.</p>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <footer class="px-8 py-6 text-center text-[11px] text-stone-600 border-t border-stone-800/60">
+      Statisk mockup · dummydata · matchar apt-web admin (stone + #F24E1E + Sora). Ingen React-kod ännu — väntar på val av riktning.
+    </footer>
+  </div>
+</div>
+
+<script>
+  const btns = document.querySelectorAll('[data-proposal-btn]');
+  const panels = document.querySelectorAll('[data-proposal]');
+  function show(id) {
+    panels.forEach(p => {
+      const on = p.dataset.proposal === id;
+      p.classList.toggle('hidden', !on);
+      if (on) { p.classList.remove('fade-in'); void p.offsetWidth; p.classList.add('fade-in'); }
+    });
+    btns.forEach(b => {
+      const on = b.dataset.proposalBtn === id;
+      b.classList.toggle('bg-accent', on);
+      b.classList.toggle('text-white', on);
+      b.classList.toggle('text-stone-400', !on);
+      b.classList.toggle('hover:text-white', !on);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  btns.forEach(b => b.addEventListener('click', () => show(b.dataset.proposalBtn)));
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === '1') show('a');
+    if (e.key === '2') show('b');
+    if (e.key === '3') show('c');
+  });
+  show('a');
+</script>
+</body>
+</html>
