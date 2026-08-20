@@ -8,6 +8,7 @@ import {
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
 import { TagSelect } from '../components/TagSelect';
+import { CategorySelect } from '../components/CategorySelect';
 import { normalizeTags, sortTagsForCompare } from '../utils/tags';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
@@ -23,6 +24,7 @@ export function ExerciseForm() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [equipment, setEquipment] = useState('');
+  const [categoryID, setCategoryID] = useState<string | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(!isNew);
@@ -36,8 +38,8 @@ export function ExerciseForm() {
   const [autoPosterPreviewUrl, setAutoPosterPreviewUrl] = useState<string | null>(null);
   const [generatingPoster, setGeneratingPoster] = useState(false);
 
-  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', videoFileKey: null, posterFileKey: null, tags: [] } : null);
-  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, videoFileKey, posterFileKey: posterFileKey || autoPosterKey, tags: sortTagsForCompare(tags) });
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', categoryID: null, videoFileKey: null, posterFileKey: null, tags: [] } : null);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, categoryID, videoFileKey, posterFileKey: posterFileKey || autoPosterKey, tags: sortTagsForCompare(tags) });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -56,8 +58,9 @@ export function ExerciseForm() {
           setName(exercise.name);
           setDescription(exercise.description ?? '');
           setEquipment(exercise.equipment);
+          setCategoryID(exercise.categoryID);
           setTags(normalizedTags);
-          setInitialValues({ name: exercise.name, description: exercise.description ?? '', equipment: exercise.equipment, videoFileKey: null, posterFileKey: null, tags: sortTagsForCompare(normalizedTags) });
+          setInitialValues({ name: exercise.name, description: exercise.description ?? '', equipment: exercise.equipment, categoryID: exercise.categoryID, videoFileKey: null, posterFileKey: null, tags: sortTagsForCompare(normalizedTags) });
         }
         setLoading(false);
       });
@@ -72,15 +75,16 @@ export function ExerciseForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!categoryID) return;
     setSaving(true);
     try {
       let exerciseID = id!;
       const normalizedTags = normalizeTags(tags);
       if (isNew) {
-        const created = await createExercise({ name, description, equipment, tags: normalizedTags });
+        const created = await createExercise({ name, description, equipment, tags: normalizedTags, categoryID });
         exerciseID = created.id;
       } else {
-        await updateExercise({ id: exerciseID, name, description, equipment, tags: normalizedTags });
+        await updateExercise({ id: exerciseID, name, description, equipment, tags: normalizedTags, categoryID });
       }
       if (videoFileKey) await linkExerciseVideo(exerciseID, videoFileKey);
       const effectivePosterKey = posterFileKey || autoPosterKey;
@@ -128,6 +132,11 @@ export function ExerciseForm() {
       <h2 className="text-xl font-bold mb-4">{isNew ? 'Ny exercise' : 'Redigera exercise'}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="rounded-2xl border border-stone-800 bg-gradient-to-r from-stone-900 to-stone-900/40 p-4">
+          <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Kategori <span className="text-[#F24E1E]">*</span></div>
+          <CategorySelect value={categoryID} onChange={setCategoryID} />
+        </div>
+
         <div>
           <label htmlFor="name" className="block text-sm text-stone-300 mb-1">Namn</label>
           <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required
@@ -179,7 +188,8 @@ export function ExerciseForm() {
         </div>
 
         <div className="flex gap-3">
-          <button type="submit" disabled={saving}
+          <button type="submit" disabled={saving || !categoryID}
+            title={!categoryID ? 'Välj en kategori först' : undefined}
             className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors">
             {saving ? 'Sparar...' : 'Spara'}
           </button>

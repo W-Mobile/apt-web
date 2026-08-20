@@ -22,6 +22,7 @@ export interface WorkoutExercise {
 export interface CreateWorkoutInput {
   name: string;
   description: string;
+  categoryID: string;
 }
 
 export interface CreateWorkoutExerciseInput {
@@ -57,7 +58,7 @@ export async function createWorkout(input: CreateWorkoutInput): Promise<Workout>
   return data as unknown as Workout;
 }
 
-export async function updateWorkout(input: { id: string; name?: string; description?: string }): Promise<Workout> {
+export async function updateWorkout(input: { id: string; name?: string; description?: string; categoryID?: string | null }): Promise<Workout> {
   const { data, errors } = await client.models.Workout.update(input);
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
   return data as unknown as Workout;

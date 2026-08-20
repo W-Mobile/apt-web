@@ -19,6 +19,7 @@ export interface CreateExerciseInput {
   equipment: string;
   tags?: string[];
   isVisibleInDiscover?: boolean;
+  categoryID: string;
 }
 
 export interface UpdateExerciseInput {
@@ -28,6 +29,7 @@ export interface UpdateExerciseInput {
   equipment?: string;
   tags?: string[];
   isVisibleInDiscover?: boolean;
+  categoryID?: string | null;
 }
 
 export async function listExercises(): Promise<Exercise[]> {
