@@ -15,6 +15,10 @@ vi.mock('./exercise-api', () => ({
   listAllTags: vi.fn(() => Promise.resolve(['back', 'core', 'legs'])),
 }));
 
+vi.mock('../categories/category-api', () => ({
+  listCategories: vi.fn(() => Promise.resolve([])),
+}));
+
 describe('ExerciseList', () => {
   beforeEach(() => {
     vi.clearAllMocks();

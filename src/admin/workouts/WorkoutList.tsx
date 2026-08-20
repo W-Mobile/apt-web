@@ -1,42 +1,85 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 import { listWorkouts, Workout } from './workout-api';
+import { listCategories, Category } from '../categories/category-api';
+import { computeMismatchedWorkoutIDs } from '../categories/content-health';
+import { CategoryBadge } from '../categories/CategoryBadge';
+import { CategoryFilterBar, CategoryFilterValue } from '../categories/CategoryFilterBar';
 import { DataTable } from '../components/DataTable';
 import { SearchInput } from '../components/SearchInput';
 
-const columns = [
-  { key: 'name' as const, header: 'Namn' },
-  { key: 'description' as const, header: 'Beskrivning' },
-  {
-    key: 'createdAt' as const,
-    header: 'Skapad',
-    sortable: true,
-    render: (value: string | null) => {
-      if (!value) return '';
-      const d = new Date(value);
-      return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
-    },
-  },
-];
-
 export function WorkoutList() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [mismatched, setMismatched] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
+  const [catFilter, setCatFilter] = useState<CategoryFilterValue>('all');
   const [loading, setLoading] = useState(true);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
 
   useEffect(() => {
-    listWorkouts()
-      .then(setWorkouts)
+    Promise.all([listWorkouts(), listCategories()])
+      .then(([w, c]) => { setWorkouts(w); setCategories(c); })
       .finally(() => setLoading(false));
+    computeMismatchedWorkoutIDs().then(setMismatched).catch(() => setMismatched(new Set()));
   }, []);
 
+  const categoriesById = new Map(categories.map((c) => [c.id, c]));
+
+  const counts = new Map<string | null, number>();
+  for (const w of workouts) {
+    const key = w.categoryID ?? null;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const isWarning = (w: Workout) => !w.categoryID || mismatched.has(w.id);
+  const warningCount = workouts.filter(isWarning).length;
+
+  const columns = [
+    {
+      key: 'name' as const,
+      header: 'Namn',
+      render: (value: string, row: Workout) => (
+        <span className="inline-flex items-center gap-1.5">
+          {value}
+          {mismatched.has(row.id) && (
+            <span className="inline-flex items-center gap-1 text-amber-300 bg-amber-300/10 border border-amber-300/20 rounded-full px-2 py-0.5 text-[11px] font-medium" title="Workout i annan kategori än sitt program">
+              <AlertTriangle className="w-3 h-3" />Delad kategori
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      key: 'categoryID' as const,
+      header: 'Kategori',
+      render: (_value: string | null, row: Workout) => (
+        <CategoryBadge category={(row.categoryID && categoriesById.get(row.categoryID)) || null} />
+      ),
+    },
+    { key: 'description' as const, header: 'Beskrivning' },
+    {
+      key: 'createdAt' as const,
+      header: 'Skapad',
+      sortable: true,
+      render: (value: string | null) => {
+        if (!value) return '';
+        const d = new Date(value);
+        return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
+      },
+    },
+  ];
+
   const filtered = workouts
-    .filter((w) =>
-      w.name.toLowerCase().includes(search.toLowerCase()) ||
-      w.description.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter((w) => {
+      if (catFilter === 'uncategorized' && w.categoryID) return false;
+      if (catFilter !== 'all' && catFilter !== 'uncategorized' && w.categoryID !== catFilter) return false;
+      return (
+        w.name.toLowerCase().includes(search.toLowerCase()) ||
+        w.description.toLowerCase().includes(search.toLowerCase())
+      );
+    })
     .sort((a, b) => {
       const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       return sortDirection === 'asc' ? diff : -diff;
@@ -56,6 +99,7 @@ export function WorkoutList() {
         </button>
       </div>
       <SearchInput value={search} onChange={setSearch} placeholder="Sök workouts..." />
+      <CategoryFilterBar categories={categories} counts={counts} value={catFilter} onChange={setCatFilter} warningCount={warningCount} />
       <DataTable
         columns={columns}
         rows={filtered}
@@ -64,6 +108,7 @@ export function WorkoutList() {
         sortKey="createdAt"
         sortDirection={sortDirection}
         onSort={() => setSortDirection((d) => d === 'asc' ? 'desc' : 'asc')}
+        rowClassName={(row) => (isWarning(row) ? 'bg-amber-400/[0.03]' : '')}
       />
     </div>
   );

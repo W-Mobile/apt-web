@@ -1,7 +1,8 @@
 import { client } from '../amplify-config';
-import { listPrograms } from '../programs/program-api';
+import { listPrograms, listAllPeriods, listAllPeriodWorkouts } from '../programs/program-api';
 import { listWorkouts } from '../workouts/workout-api';
 import { listExercises } from '../exercises/exercise-api';
+import { computeMismatchedFrom } from './content-health';
 
 export interface Category {
   id: string;
@@ -85,31 +86,37 @@ export function computeCategoryCounts(
   programs: { id: string; categoryID: string | null }[],
   workouts: { id: string; categoryID: string | null }[],
   exercises: { id: string; categoryID: string | null }[],
+  mismatchedWorkoutIDs: Set<string> = new Set(),
 ): Map<string, CategoryCounts> {
   const result = new Map<string, CategoryCounts>();
   for (const cat of categories) {
     const programCount = programs.filter((p) => p.categoryID === cat.id).length;
     const workoutCount = workouts.filter((w) => w.categoryID === cat.id).length;
     const exerciseCount = exercises.filter((e) => e.categoryID === cat.id).length;
+    // Split = workouts tagged to this category that sit under a program of another category.
+    const splitContent = workouts.filter((w) => w.categoryID === cat.id && mismatchedWorkoutIDs.has(w.id)).length;
     result.set(cat.id, {
       programs: programCount,
       workouts: workoutCount,
       exercises: exerciseCount,
       total: programCount + workoutCount + exerciseCount,
-      splitContent: 0,
+      splitContent,
     });
   }
   return result;
 }
 
 export async function listCategoriesWithCounts(): Promise<CategoryWithCounts[]> {
-  const [categories, programs, workouts, exercises] = await Promise.all([
+  const [categories, programs, workouts, exercises, periods, periodWorkouts] = await Promise.all([
     listCategories(),
     listPrograms(),
     listWorkouts(),
     listExercises(),
+    listAllPeriods(),
+    listAllPeriodWorkouts(),
   ]);
-  const counts = computeCategoryCounts(categories, programs, workouts, exercises);
+  const mismatched = computeMismatchedFrom(programs, periods, periodWorkouts, workouts);
+  const counts = computeCategoryCounts(categories, programs, workouts, exercises, mismatched);
   return categories.map((cat) => ({
     ...cat,
     counts: counts.get(cat.id) ?? { programs: 0, workouts: 0, exercises: 0, total: 0, splitContent: 0 },

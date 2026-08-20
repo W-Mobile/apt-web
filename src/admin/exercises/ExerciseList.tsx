@@ -1,45 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listExercises, listAllTags, Exercise } from './exercise-api';
+import { listCategories, Category } from '../categories/category-api';
+import { CategoryBadge } from '../categories/CategoryBadge';
+import { CategoryFilterBar, CategoryFilterValue } from '../categories/CategoryFilterBar';
 import { DataTable } from '../components/DataTable';
 import { SearchInput } from '../components/SearchInput';
 import { tagToTitleCase } from '../utils/tags';
 
-const columns = [
-  { key: 'name' as const, header: 'Namn' },
-  { key: 'equipment' as const, header: 'Utrustning' },
-  { key: 'description' as const, header: 'Beskrivning' },
-  {
-    key: 'tags' as const,
-    header: 'Taggar',
-    render: (value: string[] | null) =>
-      value && value.length ? (
-        <div className="flex flex-wrap gap-1">
-          {value.map((t) => (
-            <span key={t} className="bg-stone-700 text-stone-200 text-xs rounded-lg px-2 py-0.5">
-              {tagToTitleCase(t)}
-            </span>
-          ))}
-        </div>
-      ) : (
-        <span className="text-stone-600">—</span>
-      ),
-  },
-  {
-    key: 'createdAt' as const,
-    header: 'Skapad',
-    sortable: true,
-    render: (value: string | null) => {
-      if (!value) return '';
-      const d = new Date(value);
-      return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
-    },
-  },
-];
-
 export function ExerciseList() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
+  const [catFilter, setCatFilter] = useState<CategoryFilterValue>('all');
   const [loading, setLoading] = useState(true);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
@@ -47,11 +20,20 @@ export function ExerciseList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    listExercises()
-      .then(setExercises)
+    Promise.all([listExercises(), listCategories()])
+      .then(([e, c]) => { setExercises(e); setCategories(c); })
       .finally(() => setLoading(false));
     listAllTags().then(setAvailableTags).catch(() => setAvailableTags([]));
   }, []);
+
+  const categoriesById = new Map(categories.map((c) => [c.id, c]));
+
+  const counts = new Map<string | null, number>();
+  for (const e of exercises) {
+    const key = e.categoryID ?? null;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const warningCount = exercises.filter((e) => !e.categoryID).length;
 
   function toggleTag(tag: string) {
     setSelectedTags((prev) => {
@@ -62,9 +44,49 @@ export function ExerciseList() {
     });
   }
 
+  const columns = [
+    { key: 'name' as const, header: 'Namn' },
+    {
+      key: 'categoryID' as const,
+      header: 'Kategori',
+      render: (_value: string | null, row: Exercise) => (
+        <CategoryBadge category={(row.categoryID && categoriesById.get(row.categoryID)) || null} />
+      ),
+    },
+    { key: 'equipment' as const, header: 'Utrustning' },
+    {
+      key: 'tags' as const,
+      header: 'Taggar',
+      render: (value: string[] | null) =>
+        value && value.length ? (
+          <div className="flex flex-wrap gap-1">
+            {value.map((t) => (
+              <span key={t} className="bg-stone-700 text-stone-200 text-xs rounded-lg px-2 py-0.5">
+                {tagToTitleCase(t)}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <span className="text-stone-600">—</span>
+        ),
+    },
+    {
+      key: 'createdAt' as const,
+      header: 'Skapad',
+      sortable: true,
+      render: (value: string | null) => {
+        if (!value) return '';
+        const d = new Date(value);
+        return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
+      },
+    },
+  ];
+
   const selectedLower = [...selectedTags];
   const filtered = exercises
     .filter((e) => {
+      if (catFilter === 'uncategorized' && e.categoryID) return false;
+      if (catFilter !== 'all' && catFilter !== 'uncategorized' && e.categoryID !== catFilter) return false;
       const q = search.toLowerCase();
       const matchesSearch =
         e.name.toLowerCase().includes(q) ||
@@ -95,8 +117,11 @@ export function ExerciseList() {
 
       <SearchInput value={search} onChange={setSearch} placeholder="Sök exercises..." />
 
+      <CategoryFilterBar categories={categories} counts={counts} value={catFilter} onChange={setCatFilter} warningCount={warningCount} />
+
       {availableTags.length > 0 && (
         <div className="flex flex-wrap gap-2">
+          <span className="text-xs uppercase tracking-wider text-stone-500 mr-1 self-center">Taggar</span>
           <button
             type="button"
             onClick={() => setSelectedTags(new Set())}
@@ -133,6 +158,7 @@ export function ExerciseList() {
         sortKey="createdAt"
         sortDirection={sortDirection}
         onSort={() => setSortDirection((d) => d === 'asc' ? 'desc' : 'asc')}
+        rowClassName={(row) => (!row.categoryID ? 'bg-amber-400/[0.03]' : '')}
       />
     </div>
   );

@@ -13,6 +13,14 @@ vi.mock('./workout-api', () => ({
   listWorkouts: vi.fn(() => Promise.resolve(mockWorkouts)),
 }));
 
+vi.mock('../categories/category-api', () => ({
+  listCategories: vi.fn(() => Promise.resolve([])),
+}));
+
+vi.mock('../categories/content-health', () => ({
+  computeMismatchedWorkoutIDs: vi.fn(() => Promise.resolve(new Set())),
+}));
+
 describe('WorkoutList', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 

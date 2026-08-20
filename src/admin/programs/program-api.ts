@@ -115,6 +115,34 @@ export async function deleteProgram(id: string): Promise<void> {
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
 }
 
+/** Every period across all programs (unfiltered) — for cross-program content-health checks. */
+export async function listAllPeriods(): Promise<Period[]> {
+  const all: Period[] = [];
+  let nextToken: string | null = null;
+  do {
+    const { data, nextToken: newToken } = await client.models.Period.list({
+      nextToken: nextToken ?? undefined,
+    });
+    all.push(...(data as unknown as Period[]));
+    nextToken = newToken ?? null;
+  } while (nextToken);
+  return all;
+}
+
+/** Every period-workout link across all programs (unfiltered). */
+export async function listAllPeriodWorkouts(): Promise<PeriodWorkout[]> {
+  const all: PeriodWorkout[] = [];
+  let nextToken: string | null = null;
+  do {
+    const { data, nextToken: newToken } = await client.models.PeriodWorkout.list({
+      nextToken: nextToken ?? undefined,
+    });
+    all.push(...(data as unknown as PeriodWorkout[]));
+    nextToken = newToken ?? null;
+  } while (nextToken);
+  return all;
+}
+
 export async function getPeriods(programID: string): Promise<Period[]> {
   const all: Period[] = [];
   let nextToken: string | null = null;
