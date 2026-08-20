@@ -13,6 +13,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
 import { SearchableSelect } from '../components/SearchableSelect';
 import { CategorySelect } from '../components/CategorySelect';
+import { PublishToggle } from '../components/PublishControls';
 import { CoachSelect } from '../coaches/CoachSelect';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
@@ -55,11 +56,12 @@ export function ProgramForm() {
   const [warmupWorkoutID, setWarmupWorkoutID] = useState<string | null>(null);
   const [categoryID, setCategoryID] = useState<string | null>(null);
   const [coachID, setCoachID] = useState<string | null>(null);
+  const [isPublished, setIsPublished] = useState(false);
   const [initialCategoryID, setInitialCategoryID] = useState<string | null>(null);
   const [cascade, setCascade] = useState<{ workoutCount: number; exerciseCount: number } | null>(null);
 
-  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', posterFileKey: null, warmupWorkoutID: null, categoryID: null, coachID: null, periods: [] } : null);
-  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, posterFileKey, warmupWorkoutID, categoryID, coachID, periods });
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', posterFileKey: null, warmupWorkoutID: null, categoryID: null, coachID: null, isPublished: false, periods: [] } : null);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, posterFileKey, warmupWorkoutID, categoryID, coachID, isPublished, periods });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -83,6 +85,7 @@ export function ProgramForm() {
           setWarmupWorkoutID(program.warmupWorkoutID);
           setCategoryID(program.categoryID);
           setCoachID(program.coachID);
+          setIsPublished(program.isPublished ?? false);
           setInitialCategoryID(program.categoryID);
         }
         const periodRows: PeriodRow[] = await Promise.all(
@@ -110,6 +113,7 @@ export function ProgramForm() {
           warmupWorkoutID: program?.warmupWorkoutID ?? null,
           categoryID: program?.categoryID ?? null,
           coachID: program?.coachID ?? null,
+          isPublished: program?.isPublished ?? false,
           periods: periodRows,
         });
         setLoading(false);
@@ -162,12 +166,13 @@ export function ProgramForm() {
           description,
           equipment,
           categoryID,
+          isPublished,
           ...(coachID ? { coachID } : {}),
           ...(warmupWorkoutID ? { warmupWorkoutID } : {}),
         });
         programID = created.id;
       } else {
-        await updateProgram({ id: programID, name, description, equipment, warmupWorkoutID, categoryID, coachID });
+        await updateProgram({ id: programID, name, description, equipment, warmupWorkoutID, categoryID, coachID, isPublished });
         const existingPeriods = await getPeriods(programID);
         for (const p of existingPeriods) {
           const pws = await getPeriodWorkouts(p.id);
@@ -247,6 +252,10 @@ export function ProgramForm() {
             <div>
               <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Coach</div>
               <CoachSelect value={coachID} onChange={setCoachID} />
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Publicering</div>
+              <PublishToggle value={isPublished} onChange={setIsPublished} />
             </div>
           </div>
         </div>

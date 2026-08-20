@@ -6,6 +6,7 @@ import { listCategories, Category } from '../categories/category-api';
 import { computeMismatchedWorkoutIDs } from '../categories/content-health';
 import { CategoryBadge } from '../categories/CategoryBadge';
 import { CategoryFilterBar, CategoryFilterValue } from '../categories/CategoryFilterBar';
+import { PublishBadge, PublishFilterPills, PublishFilterValue, matchesPublishFilter } from '../components/PublishControls';
 import { DataTable } from '../components/DataTable';
 import { SearchInput } from '../components/SearchInput';
 
@@ -15,6 +16,7 @@ export function WorkoutList() {
   const [mismatched, setMismatched] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState<CategoryFilterValue>('all');
+  const [pubFilter, setPubFilter] = useState<PublishFilterValue>('all');
   const [loading, setLoading] = useState(true);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
@@ -58,6 +60,11 @@ export function WorkoutList() {
         <CategoryBadge category={(row.categoryID && categoriesById.get(row.categoryID)) || null} />
       ),
     },
+    {
+      key: 'isPublished' as const,
+      header: 'Status',
+      render: (_value: boolean | null, row: Workout) => <PublishBadge isPublished={row.isPublished} />,
+    },
     { key: 'description' as const, header: 'Beskrivning' },
     {
       key: 'createdAt' as const,
@@ -75,6 +82,7 @@ export function WorkoutList() {
     .filter((w) => {
       if (catFilter === 'uncategorized' && w.categoryID) return false;
       if (catFilter !== 'all' && catFilter !== 'uncategorized' && w.categoryID !== catFilter) return false;
+      if (!matchesPublishFilter(w.isPublished, pubFilter)) return false;
       return (
         w.name.toLowerCase().includes(search.toLowerCase()) ||
         w.description.toLowerCase().includes(search.toLowerCase())
@@ -100,6 +108,7 @@ export function WorkoutList() {
       </div>
       <SearchInput value={search} onChange={setSearch} placeholder="Sök workouts..." />
       <CategoryFilterBar categories={categories} counts={counts} value={catFilter} onChange={setCatFilter} warningCount={warningCount} />
+      <PublishFilterPills value={pubFilter} onChange={setPubFilter} />
       <DataTable
         columns={columns}
         rows={filtered}

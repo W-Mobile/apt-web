@@ -4,6 +4,7 @@ import { listExercises, listAllTags, Exercise } from './exercise-api';
 import { listCategories, Category } from '../categories/category-api';
 import { CategoryBadge } from '../categories/CategoryBadge';
 import { CategoryFilterBar, CategoryFilterValue } from '../categories/CategoryFilterBar';
+import { PublishBadge, PublishFilterPills, PublishFilterValue, matchesPublishFilter } from '../components/PublishControls';
 import { DataTable } from '../components/DataTable';
 import { SearchInput } from '../components/SearchInput';
 import { tagToTitleCase } from '../utils/tags';
@@ -13,6 +14,7 @@ export function ExerciseList() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState<CategoryFilterValue>('all');
+  const [pubFilter, setPubFilter] = useState<PublishFilterValue>('all');
   const [loading, setLoading] = useState(true);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
@@ -53,6 +55,11 @@ export function ExerciseList() {
         <CategoryBadge category={(row.categoryID && categoriesById.get(row.categoryID)) || null} />
       ),
     },
+    {
+      key: 'isPublished' as const,
+      header: 'Status',
+      render: (_value: boolean | null, row: Exercise) => <PublishBadge isPublished={row.isPublished} />,
+    },
     { key: 'equipment' as const, header: 'Utrustning' },
     {
       key: 'tags' as const,
@@ -87,6 +94,7 @@ export function ExerciseList() {
     .filter((e) => {
       if (catFilter === 'uncategorized' && e.categoryID) return false;
       if (catFilter !== 'all' && catFilter !== 'uncategorized' && e.categoryID !== catFilter) return false;
+      if (!matchesPublishFilter(e.isPublished, pubFilter)) return false;
       const q = search.toLowerCase();
       const matchesSearch =
         e.name.toLowerCase().includes(q) ||
@@ -119,11 +127,14 @@ export function ExerciseList() {
 
       <CategoryFilterBar categories={categories} counts={counts} value={catFilter} onChange={setCatFilter} warningCount={warningCount} />
 
+      <PublishFilterPills value={pubFilter} onChange={setPubFilter} />
+
       {availableTags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           <span className="text-xs uppercase tracking-wider text-stone-500 mr-1 self-center">Taggar</span>
           <button
             type="button"
+            aria-label="Alla taggar"
             onClick={() => setSelectedTags(new Set())}
             className={`px-3 py-1 text-xs rounded-lg transition-colors ${
               selectedTags.size === 0

@@ -26,6 +26,7 @@ import { listExercises } from '../exercises/exercise-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SearchableSelect } from '../components/SearchableSelect';
 import { CategorySelect } from '../components/CategorySelect';
+import { PublishToggle } from '../components/PublishControls';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 import { SortableExerciseRow, ExerciseRowDragOverlay } from './SortableExerciseRow';
@@ -58,6 +59,7 @@ export function WorkoutForm() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [categoryID, setCategoryID] = useState<string | null>(null);
+  const [isPublished, setIsPublished] = useState(false);
   const [exercises, setExercises] = useState<WorkoutExerciseRow[]>([]);
   const [availableExercises, setAvailableExercises] = useState<ExerciseOption[]>([]);
   const [loading, setLoading] = useState(!isNew);
@@ -71,10 +73,10 @@ export function WorkoutForm() {
   );
 
   const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(
-    isNew ? { name: '', description: '', categoryID: null, exercises: [] } : null
+    isNew ? { name: '', description: '', categoryID: null, isPublished: false, exercises: [] } : null
   );
   const trackableExercises = exercises.map(({ exerciseName, clientId, ...rest }) => rest);
-  const isDirty = useFormDirtyTracking(initialValues, { name, description, categoryID, exercises: trackableExercises });
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, categoryID, isPublished, exercises: trackableExercises });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -94,6 +96,7 @@ export function WorkoutForm() {
           setName(workout.name);
           setDescription(workout.description);
           setCategoryID(workout.categoryID);
+          setIsPublished(workout.isPublished ?? false);
         }
         const loadedExercises: WorkoutExerciseRow[] = wExercises.map((we) => ({
           clientId: crypto.randomUUID(),
@@ -110,6 +113,7 @@ export function WorkoutForm() {
           name: workout?.name ?? '',
           description: workout?.description ?? '',
           categoryID: workout?.categoryID ?? null,
+          isPublished: workout?.isPublished ?? false,
           exercises: loadedExercises.map(({ exerciseName, clientId, ...rest }) => rest),
         });
         setLoading(false);
@@ -174,10 +178,10 @@ export function WorkoutForm() {
     try {
       let workoutID = id!;
       if (isNew) {
-        const created = await createWorkout({ name, description, categoryID });
+        const created = await createWorkout({ name, description, categoryID, isPublished });
         workoutID = created.id;
       } else {
-        await updateWorkout({ id: workoutID, name, description, categoryID });
+        await updateWorkout({ id: workoutID, name, description, categoryID, isPublished });
         const existing = await getWorkoutExercises(workoutID);
         await Promise.all(existing.map((we) => deleteWorkoutExercise(we.id)));
       }
@@ -224,8 +228,16 @@ export function WorkoutForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="rounded-2xl border border-stone-800 bg-gradient-to-r from-stone-900 to-stone-900/40 p-4">
-          <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Kategori <span className="text-[#F24E1E]">*</span></div>
-          <CategorySelect value={categoryID} onChange={setCategoryID} />
+          <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Kategori <span className="text-[#F24E1E]">*</span></div>
+              <CategorySelect value={categoryID} onChange={setCategoryID} />
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Publicering</div>
+              <PublishToggle value={isPublished} onChange={setIsPublished} />
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">

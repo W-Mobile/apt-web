@@ -4,6 +4,7 @@ import { listPrograms, Program } from './program-api';
 import { listCategories, Category } from '../categories/category-api';
 import { CategoryBadge } from '../categories/CategoryBadge';
 import { CategoryFilterBar, CategoryFilterValue } from '../categories/CategoryFilterBar';
+import { PublishBadge, PublishFilterPills, PublishFilterValue, matchesPublishFilter } from '../components/PublishControls';
 import { DataTable } from '../components/DataTable';
 import { SearchInput } from '../components/SearchInput';
 
@@ -12,6 +13,7 @@ export function ProgramList() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState<CategoryFilterValue>('all');
+  const [pubFilter, setPubFilter] = useState<PublishFilterValue>('all');
   const [loading, setLoading] = useState(true);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
@@ -40,6 +42,11 @@ export function ProgramList() {
         <CategoryBadge category={(row.categoryID && categoriesById.get(row.categoryID)) || null} />
       ),
     },
+    {
+      key: 'isPublished' as const,
+      header: 'Status',
+      render: (_value: boolean | null, row: Program) => <PublishBadge isPublished={row.isPublished} />,
+    },
     { key: 'equipment' as const, header: 'Utrustning' },
     {
       key: 'createdAt' as const,
@@ -57,6 +64,7 @@ export function ProgramList() {
     .filter((p) => {
       if (catFilter === 'uncategorized' && p.categoryID) return false;
       if (catFilter !== 'all' && catFilter !== 'uncategorized' && p.categoryID !== catFilter) return false;
+      if (!matchesPublishFilter(p.isPublished, pubFilter)) return false;
       return (
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.equipment.toLowerCase().includes(search.toLowerCase())
@@ -82,6 +90,7 @@ export function ProgramList() {
       </div>
       <SearchInput value={search} onChange={setSearch} placeholder="Sök program..." />
       <CategoryFilterBar categories={categories} counts={counts} value={catFilter} onChange={setCatFilter} warningCount={warningCount} />
+      <PublishFilterPills value={pubFilter} onChange={setPubFilter} />
       <DataTable
         columns={columns}
         rows={filtered}

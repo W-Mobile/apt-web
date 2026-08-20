@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
 import { TagSelect } from '../components/TagSelect';
 import { CategorySelect } from '../components/CategorySelect';
+import { PublishToggle } from '../components/PublishControls';
 import { normalizeTags, sortTagsForCompare } from '../utils/tags';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
@@ -25,6 +26,7 @@ export function ExerciseForm() {
   const [description, setDescription] = useState('');
   const [equipment, setEquipment] = useState('');
   const [categoryID, setCategoryID] = useState<string | null>(null);
+  const [isPublished, setIsPublished] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(!isNew);
@@ -38,8 +40,8 @@ export function ExerciseForm() {
   const [autoPosterPreviewUrl, setAutoPosterPreviewUrl] = useState<string | null>(null);
   const [generatingPoster, setGeneratingPoster] = useState(false);
 
-  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', categoryID: null, videoFileKey: null, posterFileKey: null, tags: [] } : null);
-  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, categoryID, videoFileKey, posterFileKey: posterFileKey || autoPosterKey, tags: sortTagsForCompare(tags) });
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', categoryID: null, isPublished: false, videoFileKey: null, posterFileKey: null, tags: [] } : null);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, categoryID, isPublished, videoFileKey, posterFileKey: posterFileKey || autoPosterKey, tags: sortTagsForCompare(tags) });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -59,8 +61,9 @@ export function ExerciseForm() {
           setDescription(exercise.description ?? '');
           setEquipment(exercise.equipment);
           setCategoryID(exercise.categoryID);
+          setIsPublished(exercise.isPublished ?? false);
           setTags(normalizedTags);
-          setInitialValues({ name: exercise.name, description: exercise.description ?? '', equipment: exercise.equipment, categoryID: exercise.categoryID, videoFileKey: null, posterFileKey: null, tags: sortTagsForCompare(normalizedTags) });
+          setInitialValues({ name: exercise.name, description: exercise.description ?? '', equipment: exercise.equipment, categoryID: exercise.categoryID, isPublished: exercise.isPublished ?? false, videoFileKey: null, posterFileKey: null, tags: sortTagsForCompare(normalizedTags) });
         }
         setLoading(false);
       });
@@ -81,10 +84,10 @@ export function ExerciseForm() {
       let exerciseID = id!;
       const normalizedTags = normalizeTags(tags);
       if (isNew) {
-        const created = await createExercise({ name, description, equipment, tags: normalizedTags, categoryID });
+        const created = await createExercise({ name, description, equipment, tags: normalizedTags, categoryID, isPublished });
         exerciseID = created.id;
       } else {
-        await updateExercise({ id: exerciseID, name, description, equipment, tags: normalizedTags, categoryID });
+        await updateExercise({ id: exerciseID, name, description, equipment, tags: normalizedTags, categoryID, isPublished });
       }
       if (videoFileKey) await linkExerciseVideo(exerciseID, videoFileKey);
       const effectivePosterKey = posterFileKey || autoPosterKey;
@@ -133,8 +136,16 @@ export function ExerciseForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="rounded-2xl border border-stone-800 bg-gradient-to-r from-stone-900 to-stone-900/40 p-4">
-          <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Kategori <span className="text-[#F24E1E]">*</span></div>
-          <CategorySelect value={categoryID} onChange={setCategoryID} />
+          <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Kategori <span className="text-[#F24E1E]">*</span></div>
+              <CategorySelect value={categoryID} onChange={setCategoryID} />
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Publicering</div>
+              <PublishToggle value={isPublished} onChange={setIsPublished} />
+            </div>
+          </div>
         </div>
 
         <div>

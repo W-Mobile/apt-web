@@ -11,6 +11,7 @@ export interface Program {
   warmupWorkoutID: string | null;
   categoryID: string | null;
   coachID: string | null;
+  isPublished: boolean | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,6 +39,7 @@ export interface CreateProgramInput {
   warmupWorkoutID?: string;
   categoryID: string;
   coachID?: string;
+  isPublished?: boolean;
 }
 
 export async function listPrograms(): Promise<Program[]> {
@@ -64,7 +66,7 @@ export async function createProgram(input: CreateProgramInput): Promise<Program>
   return data as unknown as Program;
 }
 
-export async function updateProgram(input: { id: string; name?: string; description?: string; equipment?: string; marketingText?: string; warmupWorkoutID?: string | null; categoryID?: string | null; coachID?: string | null }): Promise<Program> {
+export async function updateProgram(input: { id: string; name?: string; description?: string; equipment?: string; marketingText?: string; warmupWorkoutID?: string | null; categoryID?: string | null; coachID?: string | null; isPublished?: boolean }): Promise<Program> {
   const { data, errors } = await client.models.Program.update(input);
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
   return data as unknown as Program;

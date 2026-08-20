@@ -48,7 +48,7 @@ export function CategoryFilterBar({ categories, counts, value, onChange, warning
       {/* Category filter pills */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs uppercase tracking-wider text-stone-500 mr-1">Kategori</span>
-        <button type="button" onClick={() => onChange('all')} className={pillClass(value === 'all')}>Alla</button>
+        <button type="button" aria-label="Alla kategorier" onClick={() => onChange('all')} className={pillClass(value === 'all')}>Alla</button>
         {categories.map((cat) => (
           <button key={cat.id} type="button" onClick={() => onChange(cat.id)} className={pillClass(value === cat.id)}>
             {cat.name}
