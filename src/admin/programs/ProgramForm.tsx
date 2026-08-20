@@ -204,10 +204,17 @@ export function ProgramForm() {
   async function handleCascade(move: boolean) {
     const target = categoryID;
     setCascade(null);
-    if (move && target && id) {
-      await moveProgramContentToCategory(id, target, warmupWorkoutID);
+    try {
+      if (move && target && id) {
+        await moveProgramContentToCategory(id, target, warmupWorkoutID);
+      }
+    } catch {
+      // The program itself is already saved; a failed content move will surface
+      // later as a split-content warning in the list. Don't trap the user on a
+      // frozen form with no way forward.
+    } finally {
+      navigate('/admin/programs');
     }
-    navigate('/admin/programs');
   }
 
   async function handleDelete() {
