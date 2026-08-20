@@ -237,6 +237,13 @@
                 ]
               }
             },
+            "isPublished": {
+              "name": "isPublished",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
             "createdAt": {
               "name": "createdAt",
               "isArray": false,
@@ -2544,6 +2551,13 @@
                 ]
               }
             },
+            "isPublished": {
+              "name": "isPublished",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
             "createdAt": {
               "name": "createdAt",
               "isArray": false,
@@ -2848,6 +2862,13 @@
                   "categoryID"
                 ]
               }
+            },
+            "isPublished": {
+              "name": "isPublished",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
             },
             "createdAt": {
               "name": "createdAt",
@@ -7032,6 +7053,27 @@
             },
             "exercisesBackfilled": {
               "name": "exercisesBackfilled",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "programsPublished": {
+              "name": "programsPublished",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "workoutsPublished": {
+              "name": "workoutsPublished",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "exercisesPublished": {
+              "name": "exercisesPublished",
               "isArray": false,
               "type": "Int",
               "isRequired": false,
