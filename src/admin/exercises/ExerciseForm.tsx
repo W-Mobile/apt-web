@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
 import { TagSelect } from '../components/TagSelect';
 import { CategorySelect } from '../components/CategorySelect';
+import { getDefaultCategoryId } from '../categories/category-api';
 import { PublishToggle } from '../components/PublishControls';
 import { normalizeTags, sortTagsForCompare } from '../utils/tags';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
@@ -51,6 +52,17 @@ export function ExerciseForm() {
   useEffect(() => {
     listAllTags().then(setAvailableTags).catch(() => setAvailableTags([]));
   }, []);
+
+  // Pre-select the default category (Performance) when creating new content.
+  // Seed initialValues too so the default doesn't mark the pristine form dirty.
+  useEffect(() => {
+    if (!isNew) return;
+    getDefaultCategoryId().then((defaultID) => {
+      if (!defaultID) return;
+      setCategoryID(defaultID);
+      setInitialValues((v) => (v ? { ...v, categoryID: defaultID } : v));
+    });
+  }, [isNew]);
 
   useEffect(() => {
     if (!isNew && id) {

@@ -26,6 +26,7 @@ import { listExercises } from '../exercises/exercise-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SearchableSelect } from '../components/SearchableSelect';
 import { CategorySelect } from '../components/CategorySelect';
+import { getDefaultCategoryId } from '../categories/category-api';
 import { PublishToggle } from '../components/PublishControls';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
@@ -88,6 +89,17 @@ export function WorkoutForm() {
       setAvailableExercises(exs.map((e) => ({ id: e.id, name: e.name, equipment: e.equipment })))
     );
   }, []);
+
+  // Pre-select the default category (Performance) when creating new content.
+  // Seed initialValues too so the default doesn't mark the pristine form dirty.
+  useEffect(() => {
+    if (!isNew) return;
+    getDefaultCategoryId().then((defaultID) => {
+      if (!defaultID) return;
+      setCategoryID(defaultID);
+      setInitialValues((v) => (v ? { ...v, categoryID: defaultID } : v));
+    });
+  }, [isNew]);
 
   useEffect(() => {
     if (!isNew && id) {

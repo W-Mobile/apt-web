@@ -54,6 +54,22 @@ export async function listCategories(): Promise<Category[]> {
   return all.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
+/**
+ * The category to pre-select when creating new content: Performance by slug,
+ * falling back to the first active category (lowest sortOrder), then the first
+ * of any. Returns null if none exist or the fetch fails.
+ */
+export async function getDefaultCategoryId(): Promise<string | null> {
+  try {
+    const all = await listCategories(); // already sorted by sortOrder
+    const performance = all.find((c) => c.slug.toLowerCase() === 'performance');
+    const firstActive = all.find((c) => c.isActive);
+    return (performance ?? firstActive ?? all[0])?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getCategory(id: string): Promise<Category | null> {
   const { data } = await client.models.Category.get({ id });
   return data as unknown as Category | null;
