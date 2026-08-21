@@ -33,6 +33,26 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
+vi.mock('../contexts/NavigationGuardContext', () => ({
+  useNavigationGuard: () => ({ navigate: mockNavigate, setDirty: vi.fn() }),
+}));
+
+vi.mock('../hooks/useFormDirtyTracking', () => ({
+  useFormDirtyTracking: vi.fn(() => false),
+}));
+
+// Stub the mandatory category picker and auto-select a category so the
+// mandatory-category guard passes, mirroring a user picking one.
+vi.mock('../components/CategorySelect', async () => {
+  const { useEffect } = await vi.importActual<typeof import('react')>('react');
+  return {
+    CategorySelect: ({ value, onChange }: { value: string | null; onChange: (id: string) => void }) => {
+      useEffect(() => { if (!value) onChange('cat-1'); }, [value, onChange]);
+      return <div data-testid="category-select" />;
+    },
+  };
+});
+
 describe('WorkoutForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();

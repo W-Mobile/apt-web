@@ -52,6 +52,31 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
+vi.mock('../contexts/NavigationGuardContext', () => ({
+  useNavigationGuard: () => ({ navigate: mockNavigate, setDirty: vi.fn() }),
+}));
+
+vi.mock('../hooks/useFormDirtyTracking', () => ({
+  useFormDirtyTracking: vi.fn(() => false),
+}));
+
+// Stub the mandatory category picker and auto-select a category so the
+// mandatory-category guard passes, mirroring a user picking one.
+vi.mock('../components/CategorySelect', async () => {
+  const { useEffect } = await vi.importActual<typeof import('react')>('react');
+  return {
+    CategorySelect: ({ value, onChange }: { value: string | null; onChange: (id: string) => void }) => {
+      useEffect(() => { if (!value) onChange('cat-1'); }, [value, onChange]);
+      return <div data-testid="category-select" />;
+    },
+  };
+});
+
+// Coach is optional; stub to a static node so its coach-list fetch doesn't run.
+vi.mock('../coaches/CoachSelect', () => ({
+  CoachSelect: () => <div data-testid="coach-select" />,
+}));
+
 describe('ProgramForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
