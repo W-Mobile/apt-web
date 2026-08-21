@@ -148,15 +148,3 @@ export async function swapCategorySortOrder(a: Category, b: Category): Promise<v
     updateCategory({ id: b.id, sortOrder: a.sortOrder }),
   ]);
 }
-
-/**
- * Trigger the idempotent backend migration that seeds default categories and backfills
- * existing content to "Performance" (and publishes it). Admin-only.
- */
-export async function runSeedMigration(): Promise<void> {
-  const mutations = client.mutations as unknown as {
-    seedProgramCategories: () => Promise<{ errors?: { message: string }[] }>;
-  };
-  const { errors } = await mutations.seedProgramCategories();
-  if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
-}

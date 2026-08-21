@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronUp, ChevronDown, Plus, RefreshCw, AlertTriangle, Lock } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, AlertTriangle, Lock } from 'lucide-react';
 import {
   CategoryWithCounts,
   Category,
@@ -7,11 +7,9 @@ import {
   updateCategory,
   deleteCategory,
   swapCategorySortOrder,
-  runSeedMigration,
 } from './category-api';
 import { CategoryFormModal } from './CategoryFormModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { useAdminAuth } from '../auth/AdminAuthProvider';
 
 function StatBlock({ label, value }: { label: string; value: number }) {
   return (
@@ -124,15 +122,10 @@ function CategoryCard({
 }
 
 export function CategoryList() {
-  const { isInGroup } = useAdminAuth();
-  const isAdmin = isInGroup('ADMINS');
-
   const [categories, setCategories] = useState<CategoryWithCounts[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<{ category: Category | null } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CategoryWithCounts | null>(null);
-  const [showMigrate, setShowMigrate] = useState(false);
-  const [migrating, setMigrating] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -162,17 +155,6 @@ export function CategoryList() {
     load();
   }
 
-  async function handleMigrate() {
-    setMigrating(true);
-    try {
-      await runSeedMigration();
-      setShowMigrate(false);
-      load();
-    } finally {
-      setMigrating(false);
-    }
-  }
-
   const nextSortOrder = categories.length ? Math.max(...categories.map((c) => c.sortOrder)) + 1 : 1;
 
   if (loading) return <p className="text-stone-400">Laddar kategorier...</p>;
@@ -181,22 +163,12 @@ export function CategoryList() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Categories</h2>
-        <div className="flex items-center gap-2">
-          {isAdmin && (
-            <button
-              onClick={() => setShowMigrate(true)}
-              className="px-3 py-2 text-xs font-medium text-stone-300 border border-stone-700 rounded-xl hover:bg-stone-800 transition-colors inline-flex items-center gap-1.5"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />Kör migration
-            </button>
-          )}
-          <button
-            onClick={() => setEditing({ category: null })}
-            className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] transition-colors"
-          >
-            Ny kategori
-          </button>
-        </div>
+        <button
+          onClick={() => setEditing({ category: null })}
+          className="px-4 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] transition-colors"
+        >
+          Ny kategori
+        </button>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
@@ -236,16 +208,6 @@ export function CategoryList() {
         message={deleteTarget ? `Vill du verkligen ta bort "${deleteTarget.name}"?` : undefined}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
-      />
-
-      <ConfirmDialog
-        open={showMigrate}
-        title="Kör migration?"
-        message="Seedar standardkategorier och sätter befintligt innehåll till Performance + publicerat. Idempotent — säker att köra flera gånger."
-        confirmLabel={migrating ? 'Kör...' : 'Ja, kör migration'}
-        cancelLabel="Avbryt"
-        onConfirm={handleMigrate}
-        onCancel={() => setShowMigrate(false)}
       />
     </div>
   );
