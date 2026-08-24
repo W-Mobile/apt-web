@@ -27,7 +27,14 @@ function CoachAvatar({ fileKey, name }: { fileKey: string | null; name: string }
   }, [fileKey]);
 
   if (url) {
-    return <img src={url} alt={name} className="w-16 h-16 mx-auto rounded-full object-cover mb-3" />;
+    return (
+      <img
+        src={url}
+        alt={name}
+        onError={() => setUrl(null)}
+        className="w-16 h-16 mx-auto rounded-full object-cover mb-3"
+      />
+    );
   }
   return (
     <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-[#F24E1E] to-[#FF7262] flex items-center justify-center text-lg font-bold mb-3">

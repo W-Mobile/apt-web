@@ -20,7 +20,7 @@ function Avatar({ fileKey, name }: { fileKey: string | null; name: string }) {
     getUrl({ path: fileKey }).then(({ url }) => { if (!cancelled) setUrl(url.toString()); }).catch(() => { if (!cancelled) setUrl(null); });
     return () => { cancelled = true; };
   }, [fileKey]);
-  if (url) return <img src={url} alt={name} className="w-6 h-6 rounded-full object-cover" />;
+  if (url) return <img src={url} alt={name} onError={() => setUrl(null)} className="w-6 h-6 rounded-full object-cover" />;
   return <span className="w-6 h-6 rounded-full bg-gradient-to-br from-[#F24E1E] to-[#FF7262] flex items-center justify-center text-[10px] font-bold">{initials(name) || '?'}</span>;
 }
 
