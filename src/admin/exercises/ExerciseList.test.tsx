@@ -15,6 +15,10 @@ vi.mock('./exercise-api', () => ({
   listAllTags: vi.fn(() => Promise.resolve(['back', 'core', 'legs'])),
 }));
 
+vi.mock('../categories/category-api', () => ({
+  listCategories: vi.fn(() => Promise.resolve([])),
+}));
+
 describe('ExerciseList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -77,7 +81,7 @@ describe('ExerciseList', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Core' }));
     expect(within(screen.getByRole('table')).queryByText('Squat')).not.toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: /alla/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Alla taggar' }));
     const table = screen.getByRole('table');
     expect(within(table).getByText('Squat')).toBeInTheDocument();
     expect(within(table).getByText('Push-up')).toBeInTheDocument();

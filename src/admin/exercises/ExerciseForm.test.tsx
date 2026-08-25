@@ -68,6 +68,18 @@ vi.mock('../hooks/useFormDirtyTracking', () => ({
   useFormDirtyTracking: vi.fn(() => false),
 }));
 
+// Stub the category picker and auto-select a category so the mandatory-category
+// guard passes, mirroring a user picking one from the segmented control.
+vi.mock('../components/CategorySelect', async () => {
+  const { useEffect } = await vi.importActual<typeof import('react')>('react');
+  return {
+    CategorySelect: ({ value, onChange }: { value: string | null; onChange: (id: string) => void }) => {
+      useEffect(() => { if (!value) onChange('cat-1'); }, [value, onChange]);
+      return <div data-testid="category-select" />;
+    },
+  };
+});
+
 describe('ExerciseForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();

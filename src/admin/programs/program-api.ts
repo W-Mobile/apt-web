@@ -1,4 +1,6 @@
 import { client } from '../amplify-config';
+import { updateWorkout, getWorkoutExercises } from '../workouts/workout-api';
+import { updateExercise } from '../exercises/exercise-api';
 
 export interface Program {
   id: string;
@@ -7,6 +9,9 @@ export interface Program {
   equipment: string;
   marketingText: string;
   warmupWorkoutID: string | null;
+  categoryID: string | null;
+  coachID: string | null;
+  isPublished: boolean | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +37,9 @@ export interface CreateProgramInput {
   equipment: string;
   marketingText?: string;
   warmupWorkoutID?: string;
+  categoryID: string;
+  coachID?: string;
+  isPublished?: boolean;
 }
 
 export async function listPrograms(): Promise<Program[]> {
@@ -58,15 +66,83 @@ export async function createProgram(input: CreateProgramInput): Promise<Program>
   return data as unknown as Program;
 }
 
-export async function updateProgram(input: { id: string; name?: string; description?: string; equipment?: string; marketingText?: string; warmupWorkoutID?: string | null }): Promise<Program> {
+export async function updateProgram(input: { id: string; name?: string; description?: string; equipment?: string; marketingText?: string; warmupWorkoutID?: string | null; categoryID?: string | null; coachID?: string | null; isPublished?: boolean }): Promise<Program> {
   const { data, errors } = await client.models.Program.update(input);
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
   return data as unknown as Program;
 }
 
+/**
+ * Collect every workout (incl. warmup) and exercise reachable from a program,
+ * following periods -> periodWorkouts -> workout -> workoutExercises -> exercise.
+ * Note: workouts can be shared across programs, so moving them affects those programs too.
+ */
+export async function getProgramContentIds(
+  programID: string,
+  warmupWorkoutID: string | null,
+): Promise<{ workoutIDs: string[]; exerciseIDs: string[] }> {
+  const periods = await getPeriods(programID);
+  const workoutIDs = new Set<string>();
+  if (warmupWorkoutID) workoutIDs.add(warmupWorkoutID);
+  for (const p of periods) {
+    const pws = await getPeriodWorkouts(p.id);
+    pws.forEach((pw) => workoutIDs.add(pw.workoutID));
+  }
+  const exerciseIDs = new Set<string>();
+  for (const wid of workoutIDs) {
+    const wes = await getWorkoutExercises(wid);
+    wes.forEach((we) => exerciseIDs.add(we.exerciseID));
+  }
+  return { workoutIDs: [...workoutIDs], exerciseIDs: [...exerciseIDs] };
+}
+
+/**
+ * Move a program's workouts and their exercises to the given category, so content
+ * doesn't end up split across categories when the program's category changes.
+ */
+export async function moveProgramContentToCategory(
+  programID: string,
+  categoryID: string,
+  warmupWorkoutID: string | null,
+): Promise<void> {
+  const { workoutIDs, exerciseIDs } = await getProgramContentIds(programID, warmupWorkoutID);
+  await Promise.all([
+    ...workoutIDs.map((id) => updateWorkout({ id, categoryID })),
+    ...exerciseIDs.map((id) => updateExercise({ id, categoryID })),
+  ]);
+}
+
 export async function deleteProgram(id: string): Promise<void> {
   const { errors } = await client.models.Program.delete({ id });
   if (errors?.length) throw new Error(errors.map((e) => e.message).join(', '));
+}
+
+/** Every period across all programs (unfiltered) — for cross-program content-health checks. */
+export async function listAllPeriods(): Promise<Period[]> {
+  const all: Period[] = [];
+  let nextToken: string | null = null;
+  do {
+    const { data, nextToken: newToken } = await client.models.Period.list({
+      nextToken: nextToken ?? undefined,
+    });
+    all.push(...(data as unknown as Period[]));
+    nextToken = newToken ?? null;
+  } while (nextToken);
+  return all;
+}
+
+/** Every period-workout link across all programs (unfiltered). */
+export async function listAllPeriodWorkouts(): Promise<PeriodWorkout[]> {
+  const all: PeriodWorkout[] = [];
+  let nextToken: string | null = null;
+  do {
+    const { data, nextToken: newToken } = await client.models.PeriodWorkout.list({
+      nextToken: nextToken ?? undefined,
+    });
+    all.push(...(data as unknown as PeriodWorkout[]));
+    nextToken = newToken ?? null;
+  } while (nextToken);
+  return all;
 }
 
 export async function getPeriods(programID: string): Promise<Period[]> {

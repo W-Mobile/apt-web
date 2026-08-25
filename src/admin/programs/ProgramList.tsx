@@ -1,49 +1,75 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listPrograms, Program } from './program-api';
+import { listCategories, Category } from '../categories/category-api';
+import { CategoryBadge } from '../categories/CategoryBadge';
+import { CategoryFilterBar, CategoryFilterValue } from '../categories/CategoryFilterBar';
+import { PublishBadge, PublishFilterPills, PublishFilterValue, matchesPublishFilter } from '../components/PublishControls';
 import { DataTable } from '../components/DataTable';
 import { SearchInput } from '../components/SearchInput';
 
-const columns = [
-  { key: 'name' as const, header: 'Namn' },
-  { key: 'equipment' as const, header: 'Utrustning' },
-  {
-    key: 'description' as const,
-    header: 'Beskrivning',
-    render: (value: string) => (
-      <div className="max-w-xs line-clamp-4">{value}</div>
-    ),
-  },
-  {
-    key: 'createdAt' as const,
-    header: 'Skapad',
-    sortable: true,
-    render: (value: string | null) => {
-      if (!value) return '';
-      const d = new Date(value);
-      return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
-    },
-  },
-];
-
 export function ProgramList() {
   const [programs, setPrograms] = useState<Program[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
+  const [catFilter, setCatFilter] = useState<CategoryFilterValue>('all');
+  const [pubFilter, setPubFilter] = useState<PublishFilterValue>('all');
   const [loading, setLoading] = useState(true);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
 
   useEffect(() => {
-    listPrograms()
-      .then(setPrograms)
+    Promise.all([listPrograms(), listCategories()])
+      .then(([p, c]) => { setPrograms(p); setCategories(c); })
       .finally(() => setLoading(false));
   }, []);
 
+  const categoriesById = new Map(categories.map((c) => [c.id, c]));
+
+  const counts = new Map<string | null, number>();
+  for (const p of programs) {
+    const key = p.categoryID ?? null;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const warningCount = programs.filter((p) => !p.categoryID).length;
+
+  const columns = [
+    { key: 'name' as const, header: 'Namn' },
+    {
+      key: 'categoryID' as const,
+      header: 'Kategori',
+      render: (_value: string | null, row: Program) => (
+        <CategoryBadge category={(row.categoryID && categoriesById.get(row.categoryID)) || null} />
+      ),
+    },
+    {
+      key: 'isPublished' as const,
+      header: 'Status',
+      render: (_value: boolean | null, row: Program) => <PublishBadge isPublished={row.isPublished} />,
+    },
+    { key: 'equipment' as const, header: 'Utrustning' },
+    {
+      key: 'createdAt' as const,
+      header: 'Skapad',
+      sortable: true,
+      render: (value: string | null) => {
+        if (!value) return '';
+        const d = new Date(value);
+        return `${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`;
+      },
+    },
+  ];
+
   const filtered = programs
-    .filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.equipment.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter((p) => {
+      if (catFilter === 'uncategorized' && p.categoryID) return false;
+      if (catFilter !== 'all' && catFilter !== 'uncategorized' && p.categoryID !== catFilter) return false;
+      if (!matchesPublishFilter(p.isPublished, pubFilter)) return false;
+      return (
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.equipment.toLowerCase().includes(search.toLowerCase())
+      );
+    })
     .sort((a, b) => {
       const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       return sortDirection === 'asc' ? diff : -diff;
@@ -63,6 +89,8 @@ export function ProgramList() {
         </button>
       </div>
       <SearchInput value={search} onChange={setSearch} placeholder="Sök program..." />
+      <CategoryFilterBar categories={categories} counts={counts} value={catFilter} onChange={setCatFilter} warningCount={warningCount} />
+      <PublishFilterPills value={pubFilter} onChange={setPubFilter} />
       <DataTable
         columns={columns}
         rows={filtered}
@@ -71,6 +99,7 @@ export function ProgramList() {
         sortKey="createdAt"
         sortDirection={sortDirection}
         onSort={() => setSortDirection((d) => d === 'asc' ? 'desc' : 'asc')}
+        rowClassName={(row) => (!row.categoryID ? 'bg-amber-400/[0.03]' : '')}
       />
     </div>
   );

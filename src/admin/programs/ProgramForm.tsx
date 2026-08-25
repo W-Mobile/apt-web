@@ -5,12 +5,17 @@ import {
   getPeriods, createPeriod, deletePeriod,
   getPeriodWorkouts, createPeriodWorkout, deletePeriodWorkout,
   getProgramPosterMedia, linkProgramPoster,
+  getProgramContentIds, moveProgramContentToCategory,
   Period, PeriodWorkout,
 } from './program-api';
 import { listWorkouts } from '../workouts/workout-api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MediaUpload } from '../components/MediaUpload';
 import { SearchableSelect } from '../components/SearchableSelect';
+import { CategorySelect } from '../components/CategorySelect';
+import { getDefaultCategoryId } from '../categories/category-api';
+import { PublishToggle } from '../components/PublishControls';
+import { CoachSelect } from '../coaches/CoachSelect';
 import { useNavigationGuard } from '../contexts/NavigationGuardContext';
 import { useFormDirtyTracking } from '../hooks/useFormDirtyTracking';
 
@@ -50,9 +55,14 @@ export function ProgramForm() {
   const [posterFileKey, setPosterFileKey] = useState<string | null>(null);
   const [existingPosterKey, setExistingPosterKey] = useState<string | null>(null);
   const [warmupWorkoutID, setWarmupWorkoutID] = useState<string | null>(null);
+  const [categoryID, setCategoryID] = useState<string | null>(null);
+  const [coachID, setCoachID] = useState<string | null>(null);
+  const [isPublished, setIsPublished] = useState(false);
+  const [initialCategoryID, setInitialCategoryID] = useState<string | null>(null);
+  const [cascade, setCascade] = useState<{ workoutCount: number; exerciseCount: number } | null>(null);
 
-  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', posterFileKey: null, warmupWorkoutID: null, periods: [] } : null);
-  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, posterFileKey, warmupWorkoutID, periods });
+  const [initialValues, setInitialValues] = useState<Record<string, unknown> | null>(isNew ? { name: '', description: '', equipment: '', posterFileKey: null, warmupWorkoutID: null, categoryID: null, coachID: null, isPublished: false, periods: [] } : null);
+  const isDirty = useFormDirtyTracking(initialValues, { name, description, equipment, posterFileKey, warmupWorkoutID, categoryID, coachID, isPublished, periods });
 
   useEffect(() => {
     setDirty(isDirty);
@@ -62,6 +72,17 @@ export function ProgramForm() {
   useEffect(() => {
     listWorkouts().then((ws) => setAvailableWorkouts(ws.map((w) => ({ id: w.id, name: w.name }))));
   }, []);
+
+  // Pre-select the default category (Performance) when creating new content.
+  // Seed initialValues too so the default doesn't mark the pristine form dirty.
+  useEffect(() => {
+    if (!isNew) return;
+    getDefaultCategoryId().then((defaultID) => {
+      if (!defaultID) return;
+      setCategoryID(defaultID);
+      setInitialValues((v) => (v ? { ...v, categoryID: defaultID } : v));
+    });
+  }, [isNew]);
 
   useEffect(() => {
     if (!isNew && id) {
@@ -74,6 +95,10 @@ export function ProgramForm() {
           setDescription(program.description);
           setEquipment(program.equipment);
           setWarmupWorkoutID(program.warmupWorkoutID);
+          setCategoryID(program.categoryID);
+          setCoachID(program.coachID);
+          setIsPublished(program.isPublished ?? false);
+          setInitialCategoryID(program.categoryID);
         }
         const periodRows: PeriodRow[] = await Promise.all(
           programPeriods.map(async (p) => {
@@ -98,6 +123,9 @@ export function ProgramForm() {
           equipment: program?.equipment ?? '',
           posterFileKey: null,
           warmupWorkoutID: program?.warmupWorkoutID ?? null,
+          categoryID: program?.categoryID ?? null,
+          coachID: program?.coachID ?? null,
+          isPublished: program?.isPublished ?? false,
           periods: periodRows,
         });
         setLoading(false);
@@ -140,6 +168,7 @@ export function ProgramForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!categoryID) return;
     setSaving(true);
     try {
       let programID = id!;
@@ -148,11 +177,14 @@ export function ProgramForm() {
           name,
           description,
           equipment,
+          categoryID,
+          isPublished,
+          ...(coachID ? { coachID } : {}),
           ...(warmupWorkoutID ? { warmupWorkoutID } : {}),
         });
         programID = created.id;
       } else {
-        await updateProgram({ id: programID, name, description, equipment, warmupWorkoutID });
+        await updateProgram({ id: programID, name, description, equipment, warmupWorkoutID, categoryID, coachID, isPublished });
         const existingPeriods = await getPeriods(programID);
         for (const p of existingPeriods) {
           const pws = await getPeriodWorkouts(p.id);
@@ -170,9 +202,35 @@ export function ProgramForm() {
       }
       if (posterFileKey) await linkProgramPoster(programID, posterFileKey);
       setDirty(false);
+
+      // Offer to move linked content when an existing program's category changed,
+      // so workouts/exercises don't end up split across categories.
+      if (!isNew && categoryID !== initialCategoryID) {
+        const { workoutIDs, exerciseIDs } = await getProgramContentIds(programID, warmupWorkoutID);
+        if (workoutIDs.length || exerciseIDs.length) {
+          setCascade({ workoutCount: workoutIDs.length, exerciseCount: exerciseIDs.length });
+          return;
+        }
+      }
       navigate('/admin/programs');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleCascade(move: boolean) {
+    const target = categoryID;
+    setCascade(null);
+    try {
+      if (move && target && id) {
+        await moveProgramContentToCategory(id, target, warmupWorkoutID);
+      }
+    } catch {
+      // The program itself is already saved; a failed content move will surface
+      // later as a split-content warning in the list. Don't trap the user on a
+      // frozen form with no way forward.
+    } finally {
+      navigate('/admin/programs');
     }
   }
 
@@ -196,6 +254,24 @@ export function ProgramForm() {
       <div className="w-12 h-0.5 bg-[#F24E1E] mb-8 rounded-full" />
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Category & coach context band */}
+        <div className="rounded-2xl border border-stone-800 bg-gradient-to-r from-stone-900 to-stone-900/40 p-4">
+          <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Kategori <span className="text-[#F24E1E]">*</span></div>
+              <CategorySelect value={categoryID} onChange={setCategoryID} />
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Coach</div>
+              <CoachSelect value={coachID} onChange={setCoachID} />
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-stone-500 mb-1.5">Publicering</div>
+              <PublishToggle value={isPublished} onChange={setIsPublished} />
+            </div>
+          </div>
+        </div>
+
         {/* Basic info section */}
         <div className="space-y-7">
           <div>
@@ -313,7 +389,8 @@ export function ProgramForm() {
         </div>
 
         <div className="flex gap-3 pt-2 border-t border-stone-700/50">
-          <button type="submit" disabled={saving}
+          <button type="submit" disabled={saving || !categoryID}
+            title={!categoryID ? 'Välj en kategori först' : undefined}
             className="px-5 py-2.5 bg-[#F24E1E] text-white text-sm font-medium rounded-xl hover:bg-[#d93d0f] disabled:opacity-50 transition-colors">
             {saving ? 'Sparar...' : 'Spara'}
           </button>
@@ -336,6 +413,16 @@ export function ProgramForm() {
         message={`Vill du verkligen ta bort "${name}"?`}
         onConfirm={handleDelete}
         onCancel={() => setShowDelete(false)}
+      />
+
+      <ConfirmDialog
+        open={cascade !== null}
+        title="Flytta programmets innehåll?"
+        message={cascade ? `Programmet flyttades till en ny kategori. Vill du även flytta ${cascade.workoutCount} workouts och ${cascade.exerciseCount} exercises till samma kategori? (Workouts kan delas med andra program.)` : undefined}
+        confirmLabel="Ja, flytta allt"
+        cancelLabel="Nej, bara programmet"
+        onConfirm={() => handleCascade(true)}
+        onCancel={() => handleCascade(false)}
       />
     </div>
   );

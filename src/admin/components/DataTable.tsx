@@ -20,9 +20,11 @@ interface DataTableProps<T> {
   sortDirection?: SortDirection;
   onSort?: (key: keyof T) => void;
   pageSize?: number;
+  /** Optional extra classes per row, e.g. to highlight a warning state. */
+  rowClassName?: (row: T) => string;
 }
 
-export function DataTable<T extends { id: string }>({ columns, rows, onRowClick, emptyMessage, sortKey, sortDirection, onSort, pageSize = PAGE_SIZE }: DataTableProps<T>) {
+export function DataTable<T extends { id: string }>({ columns, rows, onRowClick, emptyMessage, sortKey, sortDirection, onSort, pageSize = PAGE_SIZE, rowClassName }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
   const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
 
@@ -66,7 +68,7 @@ export function DataTable<T extends { id: string }>({ columns, rows, onRowClick,
             <tr
               key={row.id}
               onClick={() => onRowClick?.(row)}
-              className={onRowClick ? 'cursor-pointer hover:bg-stone-800/70 transition-colors' : ''}
+              className={`${onRowClick ? 'cursor-pointer hover:bg-stone-800/70 transition-colors' : ''} ${rowClassName?.(row) ?? ''}`}
             >
               {columns.map((col) => (
                 <td key={String(col.key)} className="px-4 py-3 border-b border-stone-800/50">

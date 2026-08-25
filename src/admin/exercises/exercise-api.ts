@@ -8,6 +8,8 @@ export interface Exercise {
   equipment: string;
   tags: string[] | null;
   isVisibleInDiscover: boolean | null;
+  categoryID: string | null;
+  isPublished: boolean | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +20,8 @@ export interface CreateExerciseInput {
   equipment: string;
   tags?: string[];
   isVisibleInDiscover?: boolean;
+  categoryID: string;
+  isPublished?: boolean;
 }
 
 export interface UpdateExerciseInput {
@@ -27,6 +31,8 @@ export interface UpdateExerciseInput {
   equipment?: string;
   tags?: string[];
   isVisibleInDiscover?: boolean;
+  categoryID?: string | null;
+  isPublished?: boolean;
 }
 
 export async function listExercises(): Promise<Exercise[]> {

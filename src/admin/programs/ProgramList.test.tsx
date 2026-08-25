@@ -13,6 +13,10 @@ vi.mock('./program-api', () => ({
   listPrograms: vi.fn(() => Promise.resolve(mockPrograms)),
 }));
 
+vi.mock('../categories/category-api', () => ({
+  listCategories: vi.fn(() => Promise.resolve([])),
+}));
+
 describe('ProgramList', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
