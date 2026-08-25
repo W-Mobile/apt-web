@@ -7275,6 +7275,24 @@
               "list"
             ]
           },
+          "coach_image/*": {
+            "groupsADMINS": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsAMIR": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ],
+            "groupsSUBSCRIBERS": [
+              "get",
+              "list"
+            ]
+          },
           "exercise_poster/*": {
             "groupsADMINS": [
               "get",
