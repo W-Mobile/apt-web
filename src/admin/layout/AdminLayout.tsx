@@ -24,16 +24,36 @@ interface NavItem {
   requireGroup?: string;
 }
 
-const navItems: NavItem[] = [
-  { to: '/admin/exercises', label: 'Exercises', icon: Dumbbell },
-  { to: '/admin/workouts', label: 'Workouts', icon: ListChecks },
-  { to: '/admin/programs', label: 'Program', icon: CalendarRange },
-  { to: '/admin/categories', label: 'Categories', icon: Tags },
-  { to: '/admin/coaches', label: 'Coaches', icon: Users },
-  { to: '/admin/posts', label: 'Posts', icon: FileText },
-  { to: '/admin/feedback', label: 'Feedback', icon: MessageSquare, requireGroup: 'ADMINS' },
-  { to: '/admin/users', label: 'Onboard users', icon: UserPlus, requireGroup: 'ADMINS' },
-  { to: '/admin/subscriptions', label: 'Extend subscription', icon: CalendarClock, requireGroup: 'ADMINS' },
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    label: 'Bygg träning',
+    items: [
+      { to: '/admin/exercises', label: 'Exercises', icon: Dumbbell },
+      { to: '/admin/workouts', label: 'Workouts', icon: ListChecks },
+      { to: '/admin/programs', label: 'Program', icon: CalendarRange },
+    ],
+  },
+  {
+    label: 'Publicera & community',
+    items: [
+      { to: '/admin/categories', label: 'Categories', icon: Tags },
+      { to: '/admin/coaches', label: 'Coaches', icon: Users },
+      { to: '/admin/posts', label: 'Posts', icon: FileText },
+    ],
+  },
+  {
+    label: 'Användare & support',
+    items: [
+      { to: '/admin/users', label: 'Onboard users', icon: UserPlus, requireGroup: 'ADMINS' },
+      { to: '/admin/subscriptions', label: 'Extend subscription', icon: CalendarClock, requireGroup: 'ADMINS' },
+      { to: '/admin/feedback', label: 'Feedback', icon: MessageSquare, requireGroup: 'ADMINS' },
+    ],
+  },
 ];
 
 const COLLAPSED_STORAGE_KEY = 'admin:sidebar-collapsed';
@@ -41,7 +61,6 @@ const COLLAPSED_STORAGE_KEY = 'admin:sidebar-collapsed';
 function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const { user, logout, isInGroup } = useAdminAuth();
   const { navigate } = useNavigationGuard();
-  const visibleNavItems = navItems.filter((item) => !item.requireGroup || isInGroup(item.requireGroup));
 
   return (
     <aside
@@ -59,21 +78,43 @@ function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => 
         </button>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
-        {visibleNavItems.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            onClick={(e) => { e.preventDefault(); navigate(to); }}
-            title={collapsed ? label : undefined}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${collapsed ? 'justify-center' : ''} ${isActive ? 'bg-[#F24E1E] text-white' : 'text-stone-300 hover:bg-stone-800'}`
-            }
-          >
-            <Icon className="w-5 h-5 shrink-0" />
-            {!collapsed && <span>{label}</span>}
-          </NavLink>
-        ))}
+      <nav className="flex-1 p-4">
+        {navGroups.map((group, groupIndex) => {
+          const visibleItems = group.items.filter(
+            (item) => !item.requireGroup || isInGroup(item.requireGroup)
+          );
+          if (visibleItems.length === 0) return null;
+
+          return (
+            <div key={group.label}>
+              {collapsed
+                ? groupIndex > 0 && <div className="h-px bg-stone-800 mx-1 my-2" />
+                : (
+                  <p
+                    className={`text-[10px] font-semibold uppercase tracking-wider text-stone-500 px-3 pb-1 ${groupIndex === 0 ? 'pt-1' : 'pt-4'}`}
+                  >
+                    {group.label}
+                  </p>
+                )}
+              <div className="space-y-1">
+                {visibleItems.map(({ to, label, icon: Icon }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    onClick={(e) => { e.preventDefault(); navigate(to); }}
+                    title={collapsed ? label : undefined}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${collapsed ? 'justify-center' : ''} ${isActive ? 'bg-[#F24E1E] text-white' : 'text-stone-300 hover:bg-stone-800'}`
+                    }
+                  >
+                    <Icon className="w-5 h-5 shrink-0" />
+                    {!collapsed && <span>{label}</span>}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </nav>
 
       <div className="p-4 border-t border-stone-800">
