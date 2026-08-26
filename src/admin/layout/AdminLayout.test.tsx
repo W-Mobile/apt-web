@@ -60,4 +60,27 @@ describe('AdminLayout', () => {
     expect(screen.queryByText('Feedback')).not.toBeInTheDocument();
     expect(screen.getByText('Exercises')).toBeInTheDocument();
   });
+
+  it('renders group section labels', () => {
+    mockAuth(['ADMINS']);
+    render(
+      <MemoryRouter>
+        <AdminLayout><p>x</p></AdminLayout>
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Bygg träning')).toBeInTheDocument();
+    expect(screen.getByText('Publicera & community')).toBeInTheDocument();
+    expect(screen.getByText('Användare & support')).toBeInTheDocument();
+  });
+
+  it('hides the "Användare & support" group entirely for non-admins', () => {
+    mockAuth(['AMIR']);
+    render(
+      <MemoryRouter>
+        <AdminLayout><p>x</p></AdminLayout>
+      </MemoryRouter>
+    );
+    expect(screen.queryByText('Användare & support')).not.toBeInTheDocument();
+    expect(screen.getByText('Bygg träning')).toBeInTheDocument();
+  });
 });
