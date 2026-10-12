@@ -23,8 +23,8 @@ export interface ParsedSubscribers {
 
 // Header aliases per column, Swedish and English. Matched case-insensitively
 // against trimmed header cells. Email aliases are shared via csv-utils.
-const FIRST_NAME_ALIASES = new Set(['förnamn', 'fornamn', 'first name', 'firstname', 'given name']);
-const LAST_NAME_ALIASES = new Set(['efternamn', 'last name', 'lastname', 'surname', 'family name']);
+export const FIRST_NAME_ALIASES = new Set(['förnamn', 'fornamn', 'first name', 'firstname', 'first_name', 'given name']);
+export const LAST_NAME_ALIASES = new Set(['efternamn', 'last name', 'lastname', 'last_name', 'surname', 'family name']);
 
 // Map already-split rows (header row first, then data rows) into subscriber
 // rows. The header must contain at least Email, First name and Last name columns

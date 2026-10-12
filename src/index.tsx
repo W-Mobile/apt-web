@@ -22,6 +22,8 @@ import { FeedbackList } from "./admin/feedback/FeedbackList";
 import { FeedbackDetail } from "./admin/feedback/FeedbackDetail";
 import { UserOnboard } from "./admin/users/UserOnboard";
 import { ExtendSubscription } from "./admin/subscriptions/ExtendSubscription";
+import { ClubList } from "./admin/clubs/ClubList";
+import { ClubDetail } from "./admin/clubs/ClubDetail";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -56,6 +58,8 @@ createRoot(document.getElementById("app") as HTMLElement).render(
                   <Route path="feedback" element={<ProtectedRoute requireGroup="ADMINS"><FeedbackList /></ProtectedRoute>} />
                   <Route path="feedback/:id" element={<ProtectedRoute requireGroup="ADMINS"><FeedbackDetail /></ProtectedRoute>} />
                   <Route path="users" element={<ProtectedRoute requireGroup="ADMINS"><UserOnboard /></ProtectedRoute>} />
+                  <Route path="clubs" element={<ProtectedRoute requireGroup="ADMINS"><ClubList /></ProtectedRoute>} />
+                  <Route path="clubs/:id" element={<ProtectedRoute requireGroup="ADMINS"><ClubDetail /></ProtectedRoute>} />
                   <Route path="subscriptions" element={<ProtectedRoute requireGroup="ADMINS"><ExtendSubscription /></ProtectedRoute>} />
                   <Route index element={<Navigate to="/admin/exercises" replace />} />
                 </Routes>
