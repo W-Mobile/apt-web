@@ -178,6 +178,25 @@ describe('ClubDraftsTab', () => {
     expect(within(dialog).getByRole('button', { name: 'Skicka' })).toBeDisabled();
   });
 
+  it('warns over the licence total but still lets APT admin send', async () => {
+    const coach = member({ role: 'COACH', status: 'JOINED' });
+    const p1 = member({ coachMemberID: coach.id });
+    mockSendInvitations.mockResolvedValue({ status: 'ok', results: [] });
+    const user = userEvent.setup();
+    render(
+      <ClubDraftsTab club={{ ...club, licenseLimit: 80 }} members={[coach, ...joinedPlayers(80), p1]} initialRole="PLAYER" onChanged={vi.fn().mockResolvedValue(undefined)} />,
+    );
+    const send = screen.getByRole('button', { name: /skicka inbjudningar/i });
+    await waitFor(() => expect(send).toBeEnabled());
+    await user.click(send);
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByText(/Detta ger 81 \/ 80 spelare/)).toBeInTheDocument();
+    const confirm = within(dialog).getByRole('button', { name: 'Skicka' });
+    expect(confirm).toBeEnabled();
+    await user.click(confirm);
+    await waitFor(() => expect(mockSendInvitations).toHaveBeenCalledWith('c1', [p1.id]));
+  });
+
   it('never shows an over-limit warning for an unlimited club', async () => {
     const coach = member({ role: 'COACH', status: 'JOINED' });
     const p1 = member({ coachMemberID: coach.id });
