@@ -525,6 +525,13 @@
               "isRequired": false,
               "attributes": []
             },
+            "sourceWorkoutId": {
+              "name": "sourceWorkoutId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "exercises": {
               "name": "exercises",
               "isArray": true,
@@ -3330,6 +3337,20 @@
               "name": "preferredViewMode",
               "isArray": false,
               "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "mustChangePassword": {
+              "name": "mustChangePassword",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "tempPasswordExpiresAt": {
+              "name": "tempPasswordExpiresAt",
+              "isArray": false,
+              "type": "AWSDateTime",
               "isRequired": false,
               "attributes": []
             },
@@ -6976,6 +6997,797 @@
             "primaryKeyFieldName": "id",
             "sortKeyFieldNames": []
           }
+        },
+        "Club": {
+          "name": "Club",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "contactName": {
+              "name": "contactName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "contactEmail": {
+              "name": "contactEmail",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licenseLimit": {
+              "name": "licenseLimit",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "startDate": {
+              "name": "startDate",
+              "isArray": false,
+              "type": "AWSDate",
+              "isRequired": true,
+              "attributes": []
+            },
+            "endDate": {
+              "name": "endDate",
+              "isArray": false,
+              "type": "AWSDate",
+              "isRequired": true,
+              "attributes": []
+            },
+            "members": {
+              "name": "members",
+              "isArray": true,
+              "type": {
+                "model": "ClubMember"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "clubID"
+                ]
+              }
+            },
+            "assignments": {
+              "name": "assignments",
+              "isArray": true,
+              "type": {
+                "model": "Assignment"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "clubID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Clubs",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ClubMember": {
+          "name": "ClubMember",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "clubID": {
+              "name": "clubID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "club": {
+              "name": "club",
+              "isArray": false,
+              "type": {
+                "model": "Club"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "clubID"
+                ]
+              }
+            },
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "firstName": {
+              "name": "firstName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "lastName": {
+              "name": "lastName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "role": {
+              "name": "role",
+              "isArray": false,
+              "type": {
+                "enum": "ClubMemberRole"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": {
+                "enum": "ClubMemberStatus"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "coachMemberID": {
+              "name": "coachMemberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "coachEmail": {
+              "name": "coachEmail",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "invitedByMemberID": {
+              "name": "invitedByMemberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "invitedAt": {
+              "name": "invitedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "joinedAt": {
+              "name": "joinedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "removedAt": {
+              "name": "removedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "lastActiveAt": {
+              "name": "lastActiveAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "hadPreviousAccount": {
+              "name": "hadPreviousAccount",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "previousSubscriberUntil": {
+              "name": "previousSubscriberUntil",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ClubMembers",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubMembersByClubID",
+                "queryField": "listClubMemberByClubID",
+                "fields": [
+                  "clubID"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubMembersByEmail",
+                "queryField": "listClubMemberByEmail",
+                "fields": [
+                  "email"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubMembersByCoachMemberID",
+                "queryField": "listClubMemberByCoachMemberID",
+                "fields": [
+                  "coachMemberID"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "clubMembersByUserID",
+                "queryField": "listClubMemberByUserID",
+                "fields": [
+                  "userID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "Assignment": {
+          "name": "Assignment",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "clubID": {
+              "name": "clubID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "club": {
+              "name": "club",
+              "isArray": false,
+              "type": {
+                "model": "Club"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "clubID"
+                ]
+              }
+            },
+            "coachMemberID": {
+              "name": "coachMemberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "coachUserID": {
+              "name": "coachUserID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "type": {
+              "name": "type",
+              "isArray": false,
+              "type": {
+                "enum": "AssignmentType"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "refID": {
+              "name": "refID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "title": {
+              "name": "title",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "sentAt": {
+              "name": "sentAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": true,
+              "attributes": []
+            },
+            "withdrawnAt": {
+              "name": "withdrawnAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "recipients": {
+              "name": "recipients",
+              "isArray": true,
+              "type": {
+                "model": "AssignmentRecipient"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "assignmentID"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Assignments",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "assignmentsByCoachMemberID",
+                "queryField": "listAssignmentByCoachMemberID",
+                "fields": [
+                  "coachMemberID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "AssignmentRecipient": {
+          "name": "AssignmentRecipient",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "assignmentID": {
+              "name": "assignmentID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "assignment": {
+              "name": "assignment",
+              "isArray": false,
+              "type": {
+                "model": "Assignment"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "assignmentID"
+                ]
+              }
+            },
+            "playerMemberID": {
+              "name": "playerMemberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "playerUserID": {
+              "name": "playerUserID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": {
+                "enum": "AssignmentRecipientStatus"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "startedAt": {
+              "name": "startedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completedAt": {
+              "name": "completedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "AssignmentRecipients",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "assignmentRecipientsByAssignmentID",
+                "queryField": "listAssignmentRecipientByAssignmentID",
+                "fields": [
+                  "assignmentID"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "assignmentRecipientsByPlayerMemberID",
+                "queryField": "listAssignmentRecipientByPlayerMemberID",
+                "fields": [
+                  "playerMemberID"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "assignmentRecipientsByPlayerUserID",
+                "queryField": "listAssignmentRecipientByPlayerUserID",
+                "fields": [
+                  "playerUserID"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "DeviceToken": {
+          "name": "DeviceToken",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "token": {
+              "name": "token",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "platform": {
+              "name": "platform",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "DeviceTokens",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "deviceTokensByUserID",
+                "queryField": "listDeviceTokenByUserID",
+                "fields": [
+                  "userID"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "deviceTokensByToken",
+                "queryField": "listDeviceTokenByToken",
+                "fields": [
+                  "token"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMINS"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
         }
       },
       "enums": {
@@ -7010,9 +7822,662 @@
             "video",
             "none"
           ]
+        },
+        "ClubMemberRole": {
+          "name": "ClubMemberRole",
+          "values": [
+            "COACH",
+            "PLAYER"
+          ]
+        },
+        "ClubMemberStatus": {
+          "name": "ClubMemberStatus",
+          "values": [
+            "DRAFT",
+            "INVITED",
+            "JOINED",
+            "REMOVED"
+          ]
+        },
+        "AssignmentType": {
+          "name": "AssignmentType",
+          "values": [
+            "PROGRAM",
+            "EXERCISE",
+            "CUSTOM_WORKOUT"
+          ]
+        },
+        "AssignmentRecipientStatus": {
+          "name": "AssignmentRecipientStatus",
+          "values": [
+            "NOT_STARTED",
+            "STARTED",
+            "COMPLETED"
+          ]
         }
       },
       "nonModels": {
+        "ClubMemberResult": {
+          "name": "ClubMemberResult",
+          "fields": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "ClubOperationResult": {
+          "name": "ClubOperationResult",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "updatedCount": {
+              "name": "updatedCount",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licensesUsed": {
+              "name": "licensesUsed",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licenseLimit": {
+              "name": "licenseLimit",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "results": {
+              "name": "results",
+              "isArray": true,
+              "type": {
+                "nonModel": "ClubMemberResult"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
+        "ClubDraftCheck": {
+          "name": "ClubDraftCheck",
+          "fields": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "code": {
+              "name": "code",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "severity": {
+              "name": "severity",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "field": {
+              "name": "field",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "ClubDraftValidation": {
+          "name": "ClubDraftValidation",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "checks": {
+              "name": "checks",
+              "isArray": true,
+              "type": {
+                "nonModel": "ClubDraftCheck"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
+        "ClubContext": {
+          "name": "ClubContext",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "role": {
+              "name": "role",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "clubID": {
+              "name": "clubID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "clubName": {
+              "name": "clubName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licensesUsed": {
+              "name": "licensesUsed",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licenseLimit": {
+              "name": "licenseLimit",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "mustChangePassword": {
+              "name": "mustChangePassword",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "FirstLoginResult": {
+          "name": "FirstLoginResult",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "joinedCount": {
+              "name": "joinedCount",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "ClubPlayer": {
+          "name": "ClubPlayer",
+          "fields": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "firstName": {
+              "name": "firstName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "lastName": {
+              "name": "lastName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "invitedAt": {
+              "name": "invitedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "joinedAt": {
+              "name": "joinedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "lastActiveAt": {
+              "name": "lastActiveAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "ClubPlayerList": {
+          "name": "ClubPlayerList",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "players": {
+              "name": "players",
+              "isArray": true,
+              "type": {
+                "nonModel": "ClubPlayer"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
+        "PlayerInvite": {
+          "name": "PlayerInvite",
+          "fields": {
+            "firstName": {
+              "name": "firstName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "lastName": {
+              "name": "lastName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            }
+          }
+        },
+        "ClubInviteCheck": {
+          "name": "ClubInviteCheck",
+          "fields": {
+            "index": {
+              "name": "index",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "code": {
+              "name": "code",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "severity": {
+              "name": "severity",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "field": {
+              "name": "field",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "ClubInviteRowResult": {
+          "name": "ClubInviteRowResult",
+          "fields": {
+            "index": {
+              "name": "index",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "ClubInviteResult": {
+          "name": "ClubInviteResult",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licensesUsed": {
+              "name": "licensesUsed",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licenseLimit": {
+              "name": "licenseLimit",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licensesAfter": {
+              "name": "licensesAfter",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "overBy": {
+              "name": "overBy",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "checks": {
+              "name": "checks",
+              "isArray": true,
+              "type": {
+                "nonModel": "ClubInviteCheck"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "results": {
+              "name": "results",
+              "isArray": true,
+              "type": {
+                "nonModel": "ClubInviteRowResult"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
+        "CoachActionResult": {
+          "name": "CoachActionResult",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licensesUsed": {
+              "name": "licensesUsed",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "licenseLimit": {
+              "name": "licenseLimit",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "ProgressItem": {
+          "name": "ProgressItem",
+          "fields": {
+            "kind": {
+              "name": "kind",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completedAt": {
+              "name": "completedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "PlayerProgress": {
+          "name": "PlayerProgress",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "since": {
+              "name": "since",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completedWorkouts": {
+              "name": "completedWorkouts",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completedPrograms": {
+              "name": "completedPrograms",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "programs": {
+              "name": "programs",
+              "isArray": true,
+              "type": {
+                "nonModel": "ProgressItem"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "sessions": {
+              "name": "sessions",
+              "isArray": true,
+              "type": {
+                "nonModel": "ProgressItem"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
         "SeedProgramCategoriesReturnType": {
           "name": "SeedProgramCategoriesReturnType",
           "fields": {
@@ -7160,9 +8625,419 @@
               "attributes": []
             }
           }
+        },
+        "DeleteMyAccountReturnType": {
+          "name": "DeleteMyAccountReturnType",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "userID": {
+              "name": "userID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "leafDeleted": {
+              "name": "leafDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "myProgramDeleted": {
+              "name": "myProgramDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "myProgramWorkoutDeleted": {
+              "name": "myProgramWorkoutDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "myCompletedExerciseDeleted": {
+              "name": "myCompletedExerciseDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "sessionDeleted": {
+              "name": "sessionDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "myCustomWorkoutExerciseDeleted": {
+              "name": "myCustomWorkoutExerciseDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "ownSubscriptionsDeleted": {
+              "name": "ownSubscriptionsDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "sharesRecomputed": {
+              "name": "sharesRecomputed",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "customWorkoutsRetained": {
+              "name": "customWorkoutsRetained",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "customWorkoutsDeleted": {
+              "name": "customWorkoutsDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "workoutSharesAnonymized": {
+              "name": "workoutSharesAnonymized",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "workoutSharesDeleted": {
+              "name": "workoutSharesDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "customWorkoutExerciseDeleted": {
+              "name": "customWorkoutExerciseDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "purchaseDeleted": {
+              "name": "purchaseDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "androidSubscriptionDeleted": {
+              "name": "androidSubscriptionDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "clubCodeRedemptionDeleted": {
+              "name": "clubCodeRedemptionDeleted",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "userDeleted": {
+              "name": "userDeleted",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "failedCount": {
+              "name": "failedCount",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        }
+      },
+      "queries": {
+        "adminValidateClubDrafts": {
+          "name": "adminValidateClubDrafts",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubDraftValidation"
+          },
+          "isRequired": false,
+          "arguments": {
+            "clubID": {
+              "name": "clubID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            },
+            "memberIDs": {
+              "name": "memberIDs",
+              "isArray": true,
+              "type": "ID",
+              "isRequired": false,
+              "isArrayNullable": true
+            }
+          }
+        },
+        "getMyClubContext": {
+          "name": "getMyClubContext",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubContext"
+          },
+          "isRequired": false
+        },
+        "listMyPlayers": {
+          "name": "listMyPlayers",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubPlayerList"
+          },
+          "isRequired": false
+        },
+        "getPlayerProgress": {
+          "name": "getPlayerProgress",
+          "isArray": false,
+          "type": {
+            "nonModel": "PlayerProgress"
+          },
+          "isRequired": false,
+          "arguments": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
         }
       },
       "mutations": {
+        "adminUpdateClub": {
+          "name": "adminUpdateClub",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubOperationResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "clubID": {
+              "name": "clubID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "contactName": {
+              "name": "contactName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false
+            },
+            "contactEmail": {
+              "name": "contactEmail",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false
+            },
+            "licenseLimit": {
+              "name": "licenseLimit",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false
+            },
+            "startDate": {
+              "name": "startDate",
+              "isArray": false,
+              "type": "AWSDate",
+              "isRequired": true
+            },
+            "endDate": {
+              "name": "endDate",
+              "isArray": false,
+              "type": "AWSDate",
+              "isRequired": true
+            }
+          }
+        },
+        "adminSendClubInvitations": {
+          "name": "adminSendClubInvitations",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubOperationResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "clubID": {
+              "name": "clubID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            },
+            "memberIDs": {
+              "name": "memberIDs",
+              "isArray": true,
+              "type": "ID",
+              "isRequired": false,
+              "isArrayNullable": false
+            }
+          }
+        },
+        "adminResendClubInvitation": {
+          "name": "adminResendClubInvitation",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubOperationResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
+        "adminChangeClubCoach": {
+          "name": "adminChangeClubCoach",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubOperationResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "memberIDs": {
+              "name": "memberIDs",
+              "isArray": true,
+              "type": "ID",
+              "isRequired": false,
+              "isArrayNullable": false
+            },
+            "coachMemberID": {
+              "name": "coachMemberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
+        "adminRemoveClubMember": {
+          "name": "adminRemoveClubMember",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubOperationResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            },
+            "newCoachMemberID": {
+              "name": "newCoachMemberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false
+            }
+          }
+        },
+        "completeFirstLogin": {
+          "name": "completeFirstLogin",
+          "isArray": false,
+          "type": {
+            "nonModel": "FirstLoginResult"
+          },
+          "isRequired": false
+        },
+        "invitePlayers": {
+          "name": "invitePlayers",
+          "isArray": false,
+          "type": {
+            "nonModel": "ClubInviteResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "players": {
+              "name": "players",
+              "isArray": true,
+              "type": {
+                "input": "PlayerInviteInput"
+              },
+              "isRequired": false,
+              "isArrayNullable": false
+            },
+            "dryRun": {
+              "name": "dryRun",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false
+            }
+          }
+        },
+        "resendPlayerInvitation": {
+          "name": "resendPlayerInvitation",
+          "isArray": false,
+          "type": {
+            "nonModel": "CoachActionResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
+        "removePlayer": {
+          "name": "removePlayer",
+          "isArray": false,
+          "type": {
+            "nonModel": "CoachActionResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
         "seedProgramCategories": {
           "name": "seedProgramCategories",
           "isArray": false,
@@ -7223,6 +9098,39 @@
               "name": "subscriberUntil",
               "isArray": false,
               "type": "AWSDateTime",
+              "isRequired": true
+            }
+          }
+        },
+        "deleteMyAccount": {
+          "name": "deleteMyAccount",
+          "isArray": false,
+          "type": {
+            "nonModel": "DeleteMyAccountReturnType"
+          },
+          "isRequired": false
+        }
+      },
+      "inputs": {
+        "PlayerInviteInput": {
+          "name": "PlayerInviteInput",
+          "attributes": {
+            "firstName": {
+              "name": "firstName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "lastName": {
+              "name": "lastName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "email": {
+              "name": "email",
+              "isArray": false,
+              "type": "String",
               "isRequired": true
             }
           }
