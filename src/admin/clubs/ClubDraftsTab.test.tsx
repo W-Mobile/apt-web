@@ -123,7 +123,7 @@ describe('ClubDraftsTab', () => {
     expect(screen.getByText('Ogiltig e-post')).toBeInTheDocument();
     expect(screen.getAllByText('Välj klubbcoach').length).toBeGreaterThan(0);
     expect(screen.getByText('2 att åtgärda')).toBeInTheDocument();
-    expect(await screen.findByText('Befintligt konto – läggs till i klubben')).toBeInTheDocument();
+    expect(await screen.findByText('Befintligt konto – inget nytt lösenord')).toBeInTheDocument();
   });
 
   it('confirms with counts and the licence outcome, then sends coaches first', async () => {

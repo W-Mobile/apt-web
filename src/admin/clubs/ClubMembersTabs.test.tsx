@@ -30,7 +30,8 @@ const elin = member({ id: 'elin', firstName: 'Elin', lastName: 'Johansson', coac
 const noah = member({ id: 'noah', firstName: 'Noah', lastName: 'Bergström', status: 'INVITED', coachMemberID: 'jonas' });
 const orphan = member({ id: 'orphan', firstName: 'Utan', lastName: 'Coach', coachMemberID: null });
 const gone = member({ id: 'gone', firstName: 'Borta', lastName: 'Spelare', status: 'REMOVED' });
-const members = [sara, jonas, elin, noah, orphan, gone];
+const lucas = member({ id: 'lucas', firstName: 'Lucas', lastName: 'Nilsson', status: 'DECLINED', coachMemberID: 'jonas', declinedAt: '2026-10-19T10:00:00Z' });
+const members = [sara, jonas, elin, noah, orphan, gone, lucas];
 
 const ok = { status: 'ok', message: null, updatedCount: 1, licensesUsed: null, licenseLimit: null, results: [] };
 
@@ -125,5 +126,29 @@ describe('ClubPlayersTab', () => {
     expect(mockRemove).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: 'Ta bort' }));
     await waitFor(() => expect(mockRemove).toHaveBeenCalledWith('elin'));
+  });
+
+  it('shows players who declined and can invite them again', async () => {
+    mockResend.mockResolvedValue(ok);
+    const user = userEvent.setup();
+    render(<ClubPlayersTab club={club} members={members} onChanged={vi.fn().mockResolvedValue(undefined)} />);
+
+    const row = screen.getByText('Lucas Nilsson').closest('tr')!;
+    expect(within(row).getByText('Tackat nej')).toBeInTheDocument();
+    // A declined player has no licence and no active coach link.
+    expect(within(row).queryByRole('checkbox')).not.toBeInTheDocument();
+
+    await user.click(within(row).getByRole('button', { name: 'Åtgärder för lucas@x.se' }));
+    expect(screen.queryByRole('menuitem', { name: 'Byt klubbcoach' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('menuitem', { name: 'Skicka inbjudan igen' }));
+    await waitFor(() => expect(mockResend).toHaveBeenCalledWith('lucas'));
+  });
+
+  it('filters on Tackat nej', async () => {
+    const user = userEvent.setup();
+    render(<ClubPlayersTab club={club} members={members} onChanged={vi.fn()} />);
+    await user.click(screen.getByRole('button', { name: 'Tackat nej' }));
+    expect(screen.getByText('Lucas Nilsson')).toBeInTheDocument();
+    expect(screen.queryByText('Elin Johansson')).not.toBeInTheDocument();
   });
 });

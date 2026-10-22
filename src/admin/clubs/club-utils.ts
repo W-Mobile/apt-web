@@ -149,7 +149,9 @@ const CHECK_LABELS: Record<DraftCheckCode, string> = {
   DUPLICATE_IN_LIST: 'Dubblett i listan',
   ALREADY_IN_CLUB: 'Redan i klubben',
   BELONGS_TO_OTHER_CLUB: 'Tillhör en annan klubb',
-  EXISTING_ACCOUNT: 'Befintligt konto – läggs till i klubben',
+  // Players with an account get an invitation in the app and join when they
+  // accept; coaches are added straight away. Neither gets a new password.
+  EXISTING_ACCOUNT: 'Befintligt konto – inget nytt lösenord',
   COACH_REQUIRED: 'Välj klubbcoach',
   COACH_NOT_FOUND: 'Klubbcoachen finns inte i klubben',
 };

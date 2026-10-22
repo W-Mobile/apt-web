@@ -13,6 +13,7 @@ const STATUS_STYLES: Record<MemberStatus, { label: string; className: string; do
   DRAFT: { label: 'Utkast', className: 'text-stone-300 bg-stone-800 border-stone-700', dot: 'bg-stone-400' },
   INVITED: { label: 'Inbjuden', className: 'text-amber-300 bg-amber-300/10 border-amber-300/20', dot: 'bg-amber-300' },
   JOINED: { label: 'Ansluten', className: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20', dot: 'bg-emerald-400' },
+  DECLINED: { label: 'Tackat nej', className: 'text-red-300 bg-red-500/10 border-red-500/20', dot: 'bg-red-400' },
   REMOVED: { label: 'Borttagen', className: 'text-stone-500 bg-stone-900 border-stone-800', dot: 'bg-stone-600' },
 };
 

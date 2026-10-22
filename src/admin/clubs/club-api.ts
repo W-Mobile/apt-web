@@ -5,7 +5,8 @@ import { client } from '../amplify-config';
 // The client here is untyped, so the calls are typed locally below.
 
 export type ClubRole = 'COACH' | 'PLAYER';
-export type MemberStatus = 'DRAFT' | 'INVITED' | 'JOINED' | 'REMOVED';
+// DECLINED: the player tapped Decline in the app (accept step); no licence.
+export type MemberStatus = 'DRAFT' | 'INVITED' | 'JOINED' | 'DECLINED' | 'REMOVED';
 
 export interface Club {
   id: string;
@@ -32,6 +33,8 @@ export interface ClubMember {
   userID: string | null;
   invitedAt: string | null;
   joinedAt: string | null;
+  /** When the player declined the invitation (accept step). */
+  declinedAt?: string | null;
   lastActiveAt: string | null;
   createdAt: string;
 }

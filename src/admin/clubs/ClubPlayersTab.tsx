@@ -9,7 +9,7 @@ import { FilterPills, NoCoachPill, RowMenu, StatusPill } from './club-ui';
 import { fullName, isActive } from './club-utils';
 import { useMemberActions } from './useMemberActions';
 
-type StatusFilter = 'all' | 'INVITED' | 'JOINED' | 'REMOVED';
+type StatusFilter = 'all' | 'INVITED' | 'JOINED' | 'DECLINED' | 'REMOVED';
 const NO_COACH = '__none__';
 
 interface ClubPlayersTabProps {
@@ -104,6 +104,7 @@ export function ClubPlayersTab({ club, members, onChanged }: ClubPlayersTabProps
             { value: 'all', label: 'Alla' },
             { value: 'INVITED', label: 'Inbjuden' },
             { value: 'JOINED', label: 'Ansluten' },
+            { value: 'DECLINED', label: 'Tackat nej' },
             { value: 'REMOVED', label: 'Borttagen' },
           ]}
         />
@@ -136,6 +137,8 @@ export function ClubPlayersTab({ club, members, onChanged }: ClubPlayersTabProps
             {visible.map((p) => {
               const coach = p.coachMemberID ? coachById.get(p.coachMemberID) : null;
               const active = isActive(p);
+              // A player who declined can be invited again or removed.
+              const declined = p.status === 'DECLINED';
               return (
                 <tr key={p.id} className={`border-b border-stone-800/60 ${selected.has(p.id) ? 'bg-stone-800/40' : ''}`}>
                   <td className="py-2.5">
@@ -151,18 +154,18 @@ export function ClubPlayersTab({ club, members, onChanged }: ClubPlayersTabProps
                   <td className="px-3 py-2.5"><StatusPill status={p.status} /></td>
                   <td className="px-3 py-2.5 text-stone-400 tabular-nums">{formatDateTime(p.lastActiveAt)}</td>
                   <td className="px-3 py-2.5 text-right">
-                    {active && (
+                    {(active || declined) && (
                       <RowMenu
                         label={`Åtgärder för ${p.email}`}
                         items={[
                           {
                             label: 'Skicka inbjudan igen',
                             icon: <Mail className="w-4 h-4" />,
-                            hidden: p.status !== 'INVITED',
+                            hidden: p.status !== 'INVITED' && !declined,
                             onSelect: () => void run(() => resendInvitation(p.id), `Ny inbjudan skickad till ${fullName(p)}.`),
                           },
-                          { label: 'Byt klubbcoach', icon: <UserCog className="w-4 h-4" />, onSelect: () => setChanging([p]) },
-                          { label: 'Redigera namn', icon: <Pencil className="w-4 h-4" />, onSelect: () => setRenaming(p) },
+                          { label: 'Byt klubbcoach', icon: <UserCog className="w-4 h-4" />, hidden: declined, onSelect: () => setChanging([p]) },
+                          { label: 'Redigera namn', icon: <Pencil className="w-4 h-4" />, hidden: declined, onSelect: () => setRenaming(p) },
                           { label: 'Ta bort från klubben', icon: <UserMinus className="w-4 h-4" />, danger: true, onSelect: () => setRemoving(p) },
                         ]}
                       />
