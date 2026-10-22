@@ -43,6 +43,7 @@ describe('licences', () => {
       member({ status: 'JOINED' }),
       member({ status: 'DRAFT' }),
       member({ status: 'REMOVED' }),
+      member({ status: 'DECLINED' }), // declining frees the licence
       member({ role: 'COACH', status: 'JOINED' }),
     ];
     expect(countLicenses(members)).toBe(2);
