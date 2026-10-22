@@ -5,7 +5,8 @@
       {
         "appID": "PMD5ZL35LG.com.awayeinnovation.awayeapp",
         "paths": [
-          "/share/*"
+          "/share/*",
+          "/club/invitation"
         ]
       }
     ]
