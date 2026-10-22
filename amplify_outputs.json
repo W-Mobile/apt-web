@@ -7247,6 +7247,13 @@
               "isRequired": false,
               "attributes": []
             },
+            "declinedAt": {
+              "name": "declinedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
             "removedAt": {
               "name": "removedAt",
               "isArray": false,
@@ -7272,6 +7279,13 @@
               "name": "previousSubscriberUntil",
               "isArray": false,
               "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "accessFromClub": {
+              "name": "accessFromClub",
+              "isArray": false,
+              "type": "Boolean",
               "isRequired": false,
               "attributes": []
             },
@@ -7436,6 +7450,13 @@
               "isRequired": true,
               "attributes": []
             },
+            "imageKey": {
+              "name": "imageKey",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "message": {
               "name": "message",
               "isArray": false,
@@ -7454,6 +7475,15 @@
               "name": "withdrawnAt",
               "isArray": false,
               "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "audience": {
+              "name": "audience",
+              "isArray": false,
+              "type": {
+                "enum": "AssignmentAudience"
+              },
               "isRequired": false,
               "attributes": []
             },
@@ -7601,6 +7631,20 @@
               "name": "completedAt",
               "isArray": false,
               "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "progressDone": {
+              "name": "progressDone",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "progressTotal": {
+              "name": "progressTotal",
+              "isArray": false,
+              "type": "Int",
               "isRequired": false,
               "attributes": []
             },
@@ -7836,6 +7880,7 @@
             "DRAFT",
             "INVITED",
             "JOINED",
+            "DECLINED",
             "REMOVED"
           ]
         },
@@ -7845,6 +7890,13 @@
             "PROGRAM",
             "EXERCISE",
             "CUSTOM_WORKOUT"
+          ]
+        },
+        "AssignmentAudience": {
+          "name": "AssignmentAudience",
+          "values": [
+            "ALL",
+            "SELECTED"
           ]
         },
         "AssignmentRecipientStatus": {
@@ -8067,6 +8119,102 @@
               "type": "Boolean",
               "isRequired": false,
               "attributes": []
+            },
+            "pendingInvitation": {
+              "name": "pendingInvitation",
+              "isArray": false,
+              "type": {
+                "nonModel": "ClubInvitation"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "coachName": {
+              "name": "coachName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "joinedAt": {
+              "name": "joinedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "ClubInvitation": {
+          "name": "ClubInvitation",
+          "fields": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "clubName": {
+              "name": "clubName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "coachName": {
+              "name": "coachName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "invitedAt": {
+              "name": "invitedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "accessFromClub": {
+              "name": "accessFromClub",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "InvitationResponseResult": {
+          "name": "InvitationResponseResult",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "joined": {
+              "name": "joined",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "clubName": {
+              "name": "clubName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
             }
           }
         },
@@ -8143,6 +8291,13 @@
             },
             "joinedAt": {
               "name": "joinedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "declinedAt": {
+              "name": "declinedAt",
               "isArray": false,
               "type": "AWSDateTime",
               "isRequired": false,
@@ -8475,6 +8630,447 @@
               "isRequired": false,
               "attributes": [],
               "isArrayNullable": true
+            },
+            "assigned": {
+              "name": "assigned",
+              "isArray": true,
+              "type": {
+                "nonModel": "AssignedSession"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
+        "AssignmentSummary": {
+          "name": "AssignmentSummary",
+          "fields": {
+            "assignmentID": {
+              "name": "assignmentID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "type": {
+              "name": "type",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "refID": {
+              "name": "refID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "title": {
+              "name": "title",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "imageKey": {
+              "name": "imageKey",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "sentAt": {
+              "name": "sentAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "withdrawnAt": {
+              "name": "withdrawnAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "total": {
+              "name": "total",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "started": {
+              "name": "started",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completed": {
+              "name": "completed",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "AssignmentResult": {
+          "name": "AssignmentResult",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "assignment": {
+              "name": "assignment",
+              "isArray": false,
+              "type": {
+                "nonModel": "AssignmentSummary"
+              },
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "AssignmentList": {
+          "name": "AssignmentList",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "assignments": {
+              "name": "assignments",
+              "isArray": true,
+              "type": {
+                "nonModel": "AssignmentSummary"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
+        "AssignmentRecipientRow": {
+          "name": "AssignmentRecipientRow",
+          "fields": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "firstName": {
+              "name": "firstName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "lastName": {
+              "name": "lastName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "joined": {
+              "name": "joined",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "startedAt": {
+              "name": "startedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completedAt": {
+              "name": "completedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "progressDone": {
+              "name": "progressDone",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "progressTotal": {
+              "name": "progressTotal",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "AssignmentDetail": {
+          "name": "AssignmentDetail",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "assignment": {
+              "name": "assignment",
+              "isArray": false,
+              "type": {
+                "nonModel": "AssignmentSummary"
+              },
+              "isRequired": false,
+              "attributes": []
+            },
+            "recipients": {
+              "name": "recipients",
+              "isArray": true,
+              "type": {
+                "nonModel": "AssignmentRecipientRow"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
+        "AssignedSession": {
+          "name": "AssignedSession",
+          "fields": {
+            "assignmentID": {
+              "name": "assignmentID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "type": {
+              "name": "type",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "refID": {
+              "name": "refID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "title": {
+              "name": "title",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "imageKey": {
+              "name": "imageKey",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "sentAt": {
+              "name": "sentAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "coachName": {
+              "name": "coachName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "clubName": {
+              "name": "clubName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "startedAt": {
+              "name": "startedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "completedAt": {
+              "name": "completedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
+            "progressDone": {
+              "name": "progressDone",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "progressTotal": {
+              "name": "progressTotal",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "AssignedSessionList": {
+          "name": "AssignedSessionList",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "sessions": {
+              "name": "sessions",
+              "isArray": true,
+              "type": {
+                "nonModel": "AssignedSession"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            }
+          }
+        },
+        "AssignmentActionResult": {
+          "name": "AssignmentActionResult",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "session": {
+              "name": "session",
+              "isArray": false,
+              "type": {
+                "nonModel": "AssignedSession"
+              },
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        },
+        "MarkAssignedItemStartedReturnType": {
+          "name": "MarkAssignedItemStartedReturnType",
+          "fields": {
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "changed": {
+              "name": "changed",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
             }
           }
         },
@@ -8834,6 +9430,38 @@
               "isRequired": true
             }
           }
+        },
+        "listMyAssignments": {
+          "name": "listMyAssignments",
+          "isArray": false,
+          "type": {
+            "nonModel": "AssignmentList"
+          },
+          "isRequired": false
+        },
+        "getAssignmentProgress": {
+          "name": "getAssignmentProgress",
+          "isArray": false,
+          "type": {
+            "nonModel": "AssignmentDetail"
+          },
+          "isRequired": false,
+          "arguments": {
+            "assignmentID": {
+              "name": "assignmentID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
+        "listAssignedToMe": {
+          "name": "listAssignedToMe",
+          "isArray": false,
+          "type": {
+            "nonModel": "AssignedSessionList"
+          },
+          "isRequired": false
         }
       },
       "mutations": {
@@ -9032,6 +9660,157 @@
           "arguments": {
             "memberID": {
               "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
+        "withdrawPlayerInvitation": {
+          "name": "withdrawPlayerInvitation",
+          "isArray": false,
+          "type": {
+            "nonModel": "CoachActionResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
+        "respondToInvitation": {
+          "name": "respondToInvitation",
+          "isArray": false,
+          "type": {
+            "nonModel": "InvitationResponseResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "memberID": {
+              "name": "memberID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            },
+            "accept": {
+              "name": "accept",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": true
+            }
+          }
+        },
+        "leaveClub": {
+          "name": "leaveClub",
+          "isArray": false,
+          "type": {
+            "nonModel": "CoachActionResult"
+          },
+          "isRequired": false
+        },
+        "sendAssignment": {
+          "name": "sendAssignment",
+          "isArray": false,
+          "type": {
+            "nonModel": "AssignmentResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "type": {
+              "name": "type",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "refID": {
+              "name": "refID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "playerMemberIDs": {
+              "name": "playerMemberIDs",
+              "isArray": true,
+              "type": "ID",
+              "isRequired": false,
+              "isArrayNullable": true
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false
+            }
+          }
+        },
+        "withdrawAssignment": {
+          "name": "withdrawAssignment",
+          "isArray": false,
+          "type": {
+            "nonModel": "AssignmentResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "assignmentID": {
+              "name": "assignmentID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
+        "markAssignmentOpened": {
+          "name": "markAssignmentOpened",
+          "isArray": false,
+          "type": {
+            "nonModel": "AssignmentActionResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "assignmentID": {
+              "name": "assignmentID",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            }
+          }
+        },
+        "markAssignedItemStarted": {
+          "name": "markAssignedItemStarted",
+          "isArray": false,
+          "type": {
+            "nonModel": "MarkAssignedItemStartedReturnType"
+          },
+          "isRequired": false,
+          "arguments": {
+            "type": {
+              "name": "type",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            },
+            "refID": {
+              "name": "refID",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true
+            }
+          }
+        },
+        "markAssignedExerciseDone": {
+          "name": "markAssignedExerciseDone",
+          "isArray": false,
+          "type": {
+            "nonModel": "AssignmentActionResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "assignmentID": {
+              "name": "assignmentID",
               "isArray": false,
               "type": "ID",
               "isRequired": true
