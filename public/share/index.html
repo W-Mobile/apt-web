@@ -9,6 +9,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://amirperformance.se">
     <meta name="apple-itunes-app" content="app-id=6469305611">
+    <script>
+        // Deep-link the Safari smart banner to this share so "Open" lands on the workout
+        document.querySelector('meta[name="apple-itunes-app"]').content =
+            'app-id=6469305611, app-argument=' + window.location.href;
+    </script>
     <link rel="icon" type="image/png" href="../endastlogga-1.png" />
     <style>
         @import url("https://fonts.googleapis.com/css?family=Sora:500,400,600");
@@ -81,17 +86,19 @@
     </style>
     <script>
         (function() {
-            var IOS_URL = 'https://apps.apple.com/se/app/amir-performance/id6469305611?l=en-GB';
             var ANDROID_URL = 'https://play.google.com/store/apps/details?id=com.awayeinnovation.awayeapp';
             var ua = navigator.userAgent || navigator.vendor || window.opera;
 
-            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
-                window.location.replace(IOS_URL);
-                return;
-            }
+            // iOS: no redirect. JS cannot trigger a Universal Link, so sending the
+            // user to the App Store here would hide the app even when installed.
+            // The smart banner (apple-itunes-app meta) offers "Open" instead.
             if (/android/i.test(ua)) {
-                window.location.replace(ANDROID_URL);
-                return;
+                // intent:// opens the app when installed, otherwise falls back to Play Store
+                window.location.replace(
+                    'intent://amirperformance.se' + window.location.pathname + window.location.search +
+                    '#Intent;scheme=https;package=com.awayeinnovation.awayeapp;' +
+                    'S.browser_fallback_url=' + encodeURIComponent(ANDROID_URL) + ';end'
+                );
             }
         })();
     </script>
@@ -100,7 +107,7 @@
     <img src="../endastlogga-1.png" alt="Amir Performance" class="logo" />
     <div class="container">
         <h1>AMIR PERFORMANCE</h1>
-        <p>Someone shared a workout with you. Download the app to view it.</p>
+        <p>Someone shared a workout with you. Open the app to view it, or download it below.</p>
         <div class="store-links">
             <a href="https://apps.apple.com/se/app/amir-performance/id6469305611?l=en-GB" class="store-link">
                 <svg class="store-icon" viewBox="0 0 24 24" fill="white" width="22" height="22">
